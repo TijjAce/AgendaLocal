@@ -16,12 +16,13 @@ urlpatterns = [
     path('create/', views.fiche_create_view, name='fiche_create'),
     path('create-multiple/', views.fiche_multi_create_view, name='fiche_multi_create'),
     path('edit/<int:fiche_id>/', views.fiche_edit_view, name='fiche_edit'),
+
     
     
+
+   path('fiche/<int:fiche_id>/duplicate/', views.dupliquer_fiche, name='fiche_duplicate'), 
     
-    
-    path('dupliquer/<int:fiche_id>/', views.fiche_dupliquer_view, name='fiche_dupliquer'),
- 
+     
     path('delete/<int:fiche_id>/', views.fiche_delete_view, name='fiche_delete'),
     path('bulk-delete/', views.fiche_bulk_delete, name='fiche_bulk_delete'),
     path('<int:fiche_id>/pdf/', views.fiche_export_pdf, name='fiche_export_pdf'),

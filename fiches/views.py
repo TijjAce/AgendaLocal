@@ -13,6 +13,9 @@ import json
 import logging
 import re
 from io import BytesIO
+from django.contrib import messages
+from .models import Fiche, Phase, Annexe
+from .forms import FicheForm, AnnexeForm, PhaseFormSet, AnnexeFormSet, FicheWithPhasesForm
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -24,7 +27,6 @@ from sequences.models import Sequence
 from main.models import UserDisciplineColorPreference
 
 # Forms imports
-from .forms import FicheForm, PhaseFormSet, AnnexeFormSet
 
 # PDF libraries - WeasyPrint supprimé pour corriger les failles de sécurité
 from xhtml2pdf import pisa
@@ -312,91 +314,45 @@ def fiche_edit_view(request, fiche_id):
 
 
 
+
 @login_required
-def fiche_dupliquer_view(request, fiche_id):
-    fiche_originale = get_object_or_404(Fiche, id=fiche_id, user=request.user)
+def dupliquer_fiche(request, fiche_id):
+    fiche = get_object_or_404(Fiche, id=fiche_id, user=request.user)
 
-    # Vérifier les noms corrects des related_name pour Phase et Annexe
-    # Ex : phases et annexes si tu as mis related_name="phases" et related_name="annexes"
-    phases_rel_name = 'phases'      # change si nécessaire
-    annexes_rel_name = 'annexes'    # change si nécessaire
+    # --- Dupliquer la fiche ---
+    fiche.pk = None
+    fiche.titre = f"{fiche.titre} (copie)"
+    fiche.date = timezone.now().date()
+    fiche.save()
 
-    if request.method == 'POST':
-        fiche_form = FicheForm(request.POST)
-        phase_formset = PhaseFormSet(request.POST)
-        annexe_formset = AnnexeFormSet(request.POST, request.FILES)
+    # --- Copier les compétences (relation M2M) ---
+    fiche.competences.set(
+        get_object_or_404(Fiche, id=fiche_id).competences.all()
+    )
 
-        if fiche_form.is_valid() and phase_formset.is_valid() and annexe_formset.is_valid():
-            try:
-                # Création d'une nouvelle fiche
-                fiche_nouvelle = fiche_form.save(commit=False)
-                fiche_nouvelle.pk = None  # Nouveau ID
-                fiche_nouvelle.user = request.user
-                fiche_nouvelle.save()
+    # --- Dupliquer les phases ---
+    phases = Phase.objects.filter(fiche_id=fiche_id)
+    for phase in phases:
+        phase.pk = None
+        phase.fiche = fiche
+        phase.save()
 
-                # Copier les compétences ManyToMany
-                competences = fiche_form.cleaned_data.get('competences', [])
-                fiche_nouvelle.competences.set(competences)
+    # --- Dupliquer les annexes ---
+    annexes = Annexe.objects.filter(fiche_id=fiche_id)
+    for annexe in annexes:
+        old_file = annexe.fichier
+        annexe.pk = None
+        annexe.fiche = fiche
+        if old_file:
+            # Crée une nouvelle entrée fichier (copie logique, pas physique)
+            annexe.fichier.save(old_file.name, old_file.file, save=False)
+        annexe.save()
 
-                # Copier les phases
-                phases = phase_formset.save(commit=False)
-                for phase in phases:
-                    phase.pk = None
-                    phase.fiche = fiche_nouvelle
-                    phase.save()
+    return redirect('fiche_detail', fiche_id=fiche.id)
 
-                # Copier les annexes
-                annexes = annexe_formset.save(commit=False)
-                for annexe in annexes:
-                    annexe.pk = None
-                    annexe.fiche = fiche_nouvelle
-                    annexe.save()
 
-                messages.success(request, 'Fiche dupliquée avec succès !')
-                return redirect('fiche_detail', fiche_id=fiche_nouvelle.id)
 
-            except Exception as e:
-                messages.error(request, f'Erreur lors de la duplication : {str(e)}')
 
-        else:
-            # Gestion détaillée des erreurs
-            for field, errors in fiche_form.errors.items():
-                for error in errors:
-                    messages.error(request, f'Erreur dans le champ "{field}": {error}')
-
-            for i, form_errors in enumerate(phase_formset.errors):
-                if form_errors:
-                    for field, errors in form_errors.items():
-                        for error in errors:
-                            messages.error(request, f'Erreur dans la phase {i+1}, champ "{field}": {error}')
-
-            for i, form_errors in enumerate(annexe_formset.errors):
-                if form_errors:
-                    for field, errors in form_errors.items():
-                        for error in errors:
-                            messages.error(request, f'Erreur dans l\'annexe {i+1}, champ "{field}": {error}')
-
-    else:
-        # Pré-remplissage du formulaire principal
-        initial = {}
-        if fiche_originale.heure_debut:
-            initial['heure_debut'] = fiche_originale.heure_debut.strftime('%H:%M')
-        if fiche_originale.heure_fin:
-            initial['heure_fin'] = fiche_originale.heure_fin.strftime('%H:%M')
-
-        fiche_form = FicheForm(instance=fiche_originale, initial=initial)
-
-        # Pré-remplissage des formsets à partir des objets liés existants
-        phase_formset = PhaseFormSet(queryset=getattr(fiche_originale, phases_rel_name).all())
-        annexe_formset = AnnexeFormSet(queryset=getattr(fiche_originale, annexes_rel_name).all())
-
-    return render(request, 'fiches/fiche_edit.html', {
-        'fiche_form': fiche_form,
-        'phase_formset': phase_formset,
-        'annexe_formset': annexe_formset,
-        'fiche': fiche_originale,
-        'dupliquer': True
-    })
 
 
 
