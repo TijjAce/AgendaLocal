@@ -40,10 +40,7 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() == 'true'
 
 
 # Configuration ALLOWED_HOSTS pour développement local uniquement
-ALLOWED_HOSTS = [
-    'localhost', 
-    '127.0.0.1',
-]
+ALLOWED_HOSTS = ['*']
 
 
 
