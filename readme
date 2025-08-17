@@ -47,7 +47,7 @@ Installation
 git clone https://github.com/TijjAce/AgendaLocal.git
 cd ./AgendaLocal
 ##Sur windows
-./start.sh
+start.sh
 
 ##Sur Macos
 ./start.sh
@@ -66,3 +66,4 @@ Les utilisateurs sont uniquement autorisés à exécuter ce projet pour un usage
 strictement privé et personnel.  
 
 Toute utilisation commerciale est interdite.  
+
