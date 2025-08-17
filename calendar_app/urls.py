@@ -9,6 +9,11 @@ urlpatterns = [
     path('weekly-schedule/', views.weekly_schedule, name='weekly_schedule'),
     path('weekly-schedule/<int:year>/<int:week>/', views.weekly_schedule, name='weekly_schedule_with_params'),
     path('toggle-completion/<int:session_id>/', views.toggle_session_completion, name='toggle_session_completion'),
+
+
+    path("update-session-date/", views.update_session_date, name="update_session_date"),
+    
+    path('update-session-position/', views.update_session_position, name='update_session_position'),
     
     # API pour les séquences (gardé pour compatibilité)
     path('api/sequences/<int:discipline_id>/', views.get_sequences_for_discipline, name='get_sequences_for_discipline'),

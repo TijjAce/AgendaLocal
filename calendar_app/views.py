@@ -9,6 +9,12 @@ from django.utils import timezone
 from .school_holidays_service import SchoolHolidaysService
 import logging
 
+from django.utils.dateparse import parse_date
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+
 logger = logging.getLogger(__name__)
 
 @login_required
@@ -526,99 +532,76 @@ def get_sequences_for_discipline(request, discipline_id):
 
 # ===== VUE HEBDOMADAIRE =====
 
+
+
+
 @login_required
 def weekly_schedule(request, year=None, week=None):
     """
-    Vue hebdomadaire similaire au daily_schedule mais pour toute une semaine.
-    Affiche les cours de lundi à dimanche avec un canvas interactif.
+    Vue hebdomadaire affichant les cours de lundi à dimanche.
     """
-    # Déterminer la semaine à afficher
+    # Déterminer la semaine
+    today = datetime.now()
     if year and week:
         try:
             year = int(year)
             week = int(week)
         except ValueError:
-            year = datetime.now().year
-            week = datetime.now().isocalendar()[1]
+            year = today.year
+            week = today.isocalendar()[1]
     else:
-        today = datetime.now()
         year = today.year
         week = today.isocalendar()[1]
-    
-    # Calculer le premier jour de la semaine (lundi)
+
+    # Premier lundi de l'année
     jan_1 = date(year, 1, 1)
-    # Trouver le premier lundi de l'année
-    days_to_monday = (7 - jan_1.weekday()) % 7
-    if jan_1.weekday() == 0:  # Si le 1er janvier est un lundi
-        days_to_monday = 0
+    days_to_monday = (7 - jan_1.weekday()) % 7 if jan_1.weekday() != 0 else 0
     first_monday = jan_1 + timedelta(days=days_to_monday)
-    
-    # Calculer le lundi de la semaine demandée
+
+    # Lundi de la semaine demandée
     week_start = first_monday + timedelta(weeks=week - 1)
-    
-    # Générer les 7 jours de la semaine
-    week_days = []
-    for i in range(7):
-        day_date = week_start + timedelta(days=i)
-        week_days.append(day_date)
-    
-    # Récupérer toutes les fiches de la semaine
+    week_days = [week_start + timedelta(days=i) for i in range(7)]
+
+    # Récupérer les fiches de la semaine
     week_sessions = Fiche.objects.filter(
         user=request.user,
         date__range=[week_days[0], week_days[6]]
     ).order_by('date', 'heure_debut')
-    
-    # Organiser les sessions par jour avec calcul des positions pour les miniatures
-    sessions_by_day = {}
-    week_data = []
-    
-    # Noms des jours en français
+
+    # Organisation par jour
     day_names = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
-    
+    week_data = []
+
     for i, day in enumerate(week_days):
-        day_key = day.strftime('%Y-%m-%d')
-        sessions_by_day[day_key] = []
-        
-        # Récupérer les sessions de ce jour
         day_sessions = [s for s in week_sessions if s.date == day]
-        
-        # Calculer les positions pour les miniatures (7h-19h = 12h = 400px)
         processed_sessions = []
+
         for session in day_sessions:
             if session.heure_debut and session.heure_fin:
-                # Calculer la position relative (7h = 0px, 19h = 400px)
-                start_hour = session.heure_debut.hour + session.heure_debut.minute / 60
-                end_hour = session.heure_fin.hour + session.heure_fin.minute / 60
-                
-                # Position relative dans la miniature (7h-19h)
-                if start_hour < 7:
-                    start_hour = 7
-                if end_hour > 19:
-                    end_hour = 19
-                
-                top_position = max(0, (start_hour - 7) * (400 / 12))  # 400px pour 12h
-                height = max(20, (end_hour - start_hour) * (400 / 12))  # minimum 20px
-                
-                # Ajouter les propriétés de positionnement
+                start_hour = max(7, session.heure_debut.hour + session.heure_debut.minute / 60)
+                end_hour = min(19, session.heure_fin.hour + session.heure_fin.minute / 60)
+                top_position = max(0, (start_hour - 7) * (400 / 12))
+                height = max(20, (end_hour - start_hour) * (400 / 12))
                 session.top_position = int(top_position)
                 session.height = int(height)
-                
                 processed_sessions.append(session)
-        
-        sessions_by_day[day_key] = processed_sessions
+
         week_data.append((day_names[i], day, processed_sessions))
-    
-    # Calculer la semaine précédente et suivante
-    prev_week = week - 1 if week > 1 else 52
-    prev_year = year if week > 1 else year - 1
-    next_week = week + 1 if week < 52 else 1
-    next_year = year if week < 52 else year + 1
-    
+
+    # Semaine précédente et suivante
+    prev_week, next_week = week - 1, week + 1
+    prev_year, next_year = year, year
+    if week == 1:
+        prev_week = 52
+        prev_year = year - 1
+    if week == 52:
+        next_week = 1
+        next_year = year + 1
+
     context = {
         'year': year,
         'week': week,
         'week_days': week_days,
-        'sessions_by_day': sessions_by_day,
         'week_data': week_data,
         'prev_year': prev_year,
         'prev_week': prev_week,
@@ -627,5 +610,62 @@ def weekly_schedule(request, year=None, week=None):
         'week_start': week_start,
         'week_end': week_days[6],
     }
-    
     return render(request, 'calendar_app/weekly_schedule.html', context)
+
+
+@csrf_exempt
+def update_session_date(request):
+    """
+    Met à jour la date d’une fiche après drag & drop.
+    """
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            session_id = data.get("session_id")
+            new_date = data.get("new_date")
+            fiche = Fiche.objects.get(id=session_id)
+            fiche.date = parse_date(new_date)
+            fiche.save()
+            return JsonResponse({"success": True})
+        except Fiche.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Fiche introuvable"})
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)})
+
+    return JsonResponse({"success": False, "error": "Méthode non autorisée"})
+
+
+
+
+
+@csrf_exempt
+def update_session_position(request):
+    """
+    Met à jour la date ou la position d'une fiche après drag & drop.
+    """
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "Méthode non autorisée"})
+
+    try:
+        data = json.loads(request.body)
+        session_id = data.get("session_id")
+        new_date = data.get("new_date")  # si tu veux aussi déplacer de jour
+        new_top = data.get("new_top")    # position verticale en px ou autre
+
+        fiche = Fiche.objects.get(id=session_id)
+
+        if new_date:
+            fiche.date = parse_date(new_date)
+        if new_top is not None:
+            fiche.top_position = int(new_top)  # si tu as ce champ
+
+        fiche.save()
+
+        return JsonResponse({"success": True})
+
+    except Fiche.DoesNotExist:
+        return JsonResponse({"success": False, "error": "Fiche introuvable"})
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "JSON invalide"})
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)})
