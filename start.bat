@@ -16,7 +16,9 @@ IF NOT EXIST venv (
 )
 
 echo === Activation du venv ===
-CALL venv\Scripts\activate.bat
+cd /d "%~dp0venv\Scripts"
+activate
+cd /d "%~dp0"
 
 echo === Mise à jour de pip ===
 python -m pip install --upgrade pip
@@ -28,8 +30,6 @@ IF NOT EXIST requirements.txt (
 )
 pip install -r requirements.txt
 pip install xhtml2pdf
-
-:: S'assurer que Django est installé
 pip install django
 
 echo === Migrations Django ===
@@ -42,7 +42,6 @@ python import_pages.py
 echo === Création du raccourci sur le bureau ===
 set DESKTOP=%USERPROFILE%\Desktop
 
-:: Création d'un fichier VBS temporaire pour générer le raccourci
 (
 echo Set WshShell = WScript.CreateObject("WScript.Shell")
 echo Set Shortcut = WshShell.CreateShortcut("%DESKTOP%\AgendaLocal.lnk")
@@ -52,7 +51,6 @@ echo Shortcut.IconLocation = "%cd%\agenda.ico"
 echo Shortcut.Save
 ) > create_shortcut.vbs
 
-:: Exécution du script VBS et suppression
 cscript //nologo create_shortcut.vbs
 del create_shortcut.vbs
 
