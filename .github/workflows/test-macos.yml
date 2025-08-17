@@ -1,0 +1,50 @@
+name: Test macOS Setup
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  macos-test:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Vérifier Python
+      run: python3 --version
+
+    - name: Créer l'environnement virtuel
+      run: |
+        python3 -m venv venv
+        source venv/bin/activate
+        python --version
+
+    - name: Mettre à jour pip
+      run: |
+        source venv/bin/activate
+        pip install --upgrade pip
+
+    - name: Installer les dépendances
+      run: |
+        source venv/bin/activate
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install --upgrade django xhtml2pdf
+
+    - name: Vérifier les dépendances
+      run: |
+        source venv/bin/activate
+        python -c "import django, xhtml2pdf; print('Dépendances OK')"
+
+    - name: Faire les migrations Django
+      run: |
+        source venv/bin/activate
+        python manage.py makemigrations
+        python manage.py migrate
+
+    - name: Lancer import_pages.py
+      run: |
+        source venv/bin/activate
+        if [ -f import_pages.py ]; then python import_pages.py; fi
