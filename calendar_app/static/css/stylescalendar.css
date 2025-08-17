@@ -308,3 +308,20 @@
   background: rgba(255, 255, 255, 0.9);
   color: #333;
 }
+/* Styles pour les jours des mois précédent/suivant */
+.calendar-table td.other-month {
+  cursor: default !important;
+  /* Garde la même couleur de fond que les autres jours */
+}
+
+/* Cacher le numéro du jour pour les jours other-month */
+.calendar-table td.other-month .day-number {
+  visibility: hidden !important;
+  /* ou color: transparent !important; */
+}
+
+/* Désactiver tous les indicateurs sur les jours other-month */
+.calendar-table td.other-month .fiche-indicator,
+.calendar-table td.other-month .holiday-indicator {
+  display: none !important;
+}
