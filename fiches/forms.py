@@ -46,7 +46,7 @@ class CustomUserCreationForm(UserCreationForm):
         return user
 
 # === Génération des choix horaires ===
-def generate_time_choices(start=time(8, 0), end=time(18, 0), step=15):
+def generate_time_choices(start=time(8, 0), end=time(18, 0), step=10):
     times = []
     current = datetime.combine(datetime.today(), start)
     end_dt = datetime.combine(datetime.today(), end)
