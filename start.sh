@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Vérifie si Python est installé
+echo "=== Vérification de Python ==="
 if ! command -v python3 &> /dev/null
 then
-    echo "Python3 n'est pas installé. Installation en cours..."
+    echo "Python3 n'est pas installé."
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        # macOS → utilise Homebrew
+        echo "Installation avec Homebrew..."
         if ! command -v brew &> /dev/null
         then
             echo "Homebrew n'est pas installé. Installez-le depuis https://brew.sh/"
@@ -13,41 +13,51 @@ then
         fi
         brew install python
     else
-        echo "Distribution Linux détectée, veuillez installer Python manuellement."
+        echo "Installez Python manuellement (apt, dnf, etc.)."
         exit 1
     fi
 fi
 
-# Création du venv
+echo "=== Création de l'environnement virtuel ==="
 if [ ! -d "venv" ]; then
     python3 -m venv venv
 fi
 
-# Activation du venv
+echo "=== Activation du venv ==="
 source venv/bin/activate
 
-# Installation des dépendances
-pip install --upgrade pip
-pip install -r requirements.txt
+echo "=== Mise à jour de pip ==="
+python -m pip install --upgrade pip
 
-# Migration de la base
+echo "=== Installation des dépendances ==="
+if [ ! -f "requirements.txt" ]; then
+    echo "requirements.txt introuvable !"
+    exit 1
+fi
+pip install -r requirements.txt
+pip install xhtml2pdf
+
+echo "=== Migrations Django ==="
+python manage.py makemigrations
 python manage.py migrate
 
-# Importation des pages
+echo "=== Importation des pages ==="
 python import_pages.py
 
-# Création du raccourci sur le bureau
+echo "=== Création d'un raccourci sur le bureau ==="
 DESKTOP="$HOME/Desktop"
-SHORTCUT="$DESKTOP/MonProjet.command"
+SHORTCUT="$DESKTOP/AgendaLocal.command"
 
-echo "#!/bin/bash
+cat <<EOF > "$SHORTCUT"
+#!/bin/bash
 cd $(pwd)
 source venv/bin/activate
-python manage.py runserver" > "$SHORTCUT"
+python manage.py runserver
+EOF
 
 chmod +x "$SHORTCUT"
 
-# Icône agenda.ico (seulement sur macOS via AppleScript)
+# Tentative de mise d'icône sur macOS (optionnel)
 if [[ "$OSTYPE" == "darwin"* ]]; then
     osascript <<EOF
     tell application "Finder"

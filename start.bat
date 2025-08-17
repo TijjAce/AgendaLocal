@@ -1,7 +1,7 @@
 @echo off
 SETLOCAL ENABLEDELAYEDEXPANSION
 
-:: Vérifie si Python est installé
+echo === Vérification de Python ===
 python --version >nul 2>&1
 IF %ERRORLEVEL% NEQ 0 (
     echo Python n'est pas installé. Téléchargement...
@@ -10,37 +10,44 @@ IF %ERRORLEVEL% NEQ 0 (
     del python_installer.exe
 )
 
-:: Crée un venv si absent
+echo === Création de l'environnement virtuel ===
 IF NOT EXIST venv (
     python -m venv venv
 )
 
-:: Active le venv
+echo === Activation du venv ===
 CALL venv\Scripts\activate.bat
 
-:: Installe les dépendances
-pip install --upgrade pip
-pip install -r requirements.txt
+echo === Mise à jour de pip ===
+python -m pip install --upgrade pip
 
-:: Migration base
+echo === Installation des dépendances ===
+IF NOT EXIST requirements.txt (
+    echo requirements.txt introuvable !
+    exit /b 1
+)
+pip install -r requirements.txt
+pip install xhtml2pdf
+
+echo === Migrations Django ===
+python manage.py makemigrations
 python manage.py migrate
 
-:: Importation des pages
+echo === Importation des pages ===
 python import_pages.py
 
-:: Création d'un raccourci sur le bureau
+echo === Création du raccourci sur le bureau ===
 set DESKTOP=%USERPROFILE%\Desktop
-set SHORTCUT=%DESKTOP%\MonProjet.lnk
-set TARGET=python manage.py runserver
+set SHORTCUT=%DESKTOP%\AgendaLocal.lnk
 
-:: Utilisation de PowerShell pour créer le raccourci avec icône
-powershell -Command ^
-    "$WshShell = New-Object -ComObject WScript.Shell; ^
-    $Shortcut = $WshShell.CreateShortcut('%SHORTCUT%'); ^
-    $Shortcut.TargetPath = 'cmd.exe'; ^
-    $Shortcut.Arguments = '/k cd /d \"$(pwd)\" ^&^& venv\Scripts\activate ^&^& python manage.py runserver'; ^
-    $Shortcut.IconLocation = '$(pwd)\agenda.ico'; ^
-    $Shortcut.Save()"
+powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+  "$WshShell = New-Object -ComObject WScript.Shell; `
+   $Shortcut = $WshShell.CreateShortcut('%SHORTCUT%'); `
+   $Shortcut.TargetPath = 'cmd.exe'; `
+   $Shortcut.Arguments = '/k cd /d \"%cd%\" && venv\Scripts\activate && python manage.py runserver'; `
+   $Shortcut.IconLocation = '%cd%\agenda.ico'; `
+   $Shortcut.Save()"
 
 echo ✅ Installation terminée ! Lancez l'application via le raccourci sur le bureau.
+pause
 
