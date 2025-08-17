@@ -71,29 +71,23 @@ IF %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
-echo === Importation des pages ===
-IF EXIST import_pages.py (
-    "%VENV_PY%" import_pages.py
-    IF %ERRORLEVEL% NEQ 0 (
-        echo Erreur lors de l'importation des pages.
-    )
-) ELSE (
-    echo import_pages.py introuvable.
-)
-
+@echo off
 echo === Création du raccourci sur le bureau ===
 set DESKTOP=%USERPROFILE%\Desktop
+
 (
-echo Set WshShell = WScript.CreateObject("WScript.Shell")
-echo Set Shortcut = WshShell.CreateShortcut("%DESKTOP%\AgendaLocal.lnk")
+echo Set WshShell = WScript.CreateObject("WScript.Shell"^)
+echo Set Shortcut = WshShell.CreateShortcut("%DESKTOP%\AgendaLocal.lnk"^)
 echo Shortcut.TargetPath = "cmd.exe"
-echo Shortcut.Arguments = "/k cd /d ^^"%CD%^^" && %VENV_PY% manage.py runserver"
+echo Shortcut.Arguments = "/k cd /d ""%CD%"" && %VENV_PY% manage.py runserver"
+echo Shortcut.WorkingDirectory = "%CD%"
 echo Shortcut.IconLocation = "%CD%\agenda.ico"
 echo Shortcut.Save
 ) > create_shortcut.vbs
 
 cscript //nologo create_shortcut.vbs
 del create_shortcut.vbs
+
 
 echo ✅ Installation terminée ! Lancez l'application via le raccourci sur le bureau.
 pause
