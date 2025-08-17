@@ -13,41 +13,76 @@ IF %ERRORLEVEL% NEQ 0 (
 echo === Création de l'environnement virtuel ===
 IF NOT EXIST venv (
     python -m venv venv
+) ELSE (
+    echo L'environnement virtuel existe déjà.
 )
 
-echo === Activation du venv ===
-cd /d "%~dp0venv\Scripts"
-activate
-cd /d "%~dp0"
+:: Définir le chemin du Python du venv
+set VENV_PY=%CD%\venv\Scripts\python.exe
+
+echo === Vérification du Python du venv ===
+"%VENV_PY%" --version
+IF %ERRORLEVEL% NEQ 0 (
+    echo Erreur : Python du venv introuvable.
+    exit /b 1
+)
 
 echo === Mise à jour de pip ===
-python -m pip install --upgrade pip
+"%VENV_PY%" -m pip install --upgrade pip
+IF %ERRORLEVEL% NEQ 0 (
+    echo Erreur lors de la mise à jour de pip.
+    exit /b 1
+)
 
 echo === Installation des dépendances ===
 IF NOT EXIST requirements.txt (
     echo requirements.txt introuvable !
     exit /b 1
 )
-pip install -r requirements.txt
-pip install xhtml2pdf
-pip install django
+"%VENV_PY%" -m pip install -r requirements.txt
+IF %ERRORLEVEL% NEQ 0 (
+    echo Erreur lors de l'installation des dépendances.
+    exit /b 1
+)
+"%VENV_PY%" -m pip install xhtml2pdf django --upgrade
+
+echo === Vérification des dépendances ===
+"%VENV_PY%" -c "import django, xhtml2pdf; print('Dépendances OK')"
+IF %ERRORLEVEL% NEQ 0 (
+    echo Certaines dépendances sont manquantes.
+    exit /b 1
+)
 
 echo === Migrations Django ===
-python manage.py makemigrations
-python manage.py migrate
+"%VENV_PY%" manage.py makemigrations
+IF %ERRORLEVEL% NEQ 0 (
+    echo Erreur lors de makemigrations.
+    exit /b 1
+)
+"%VENV_PY%" manage.py migrate
+IF %ERRORLEVEL% NEQ 0 (
+    echo Erreur lors de migrate.
+    exit /b 1
+)
 
 echo === Importation des pages ===
-python import_pages.py
+IF EXIST import_pages.py (
+    "%VENV_PY%" import_pages.py
+    IF %ERRORLEVEL% NEQ 0 (
+        echo Erreur lors de l'importation des pages.
+    )
+) ELSE (
+    echo import_pages.py introuvable.
+)
 
 echo === Création du raccourci sur le bureau ===
 set DESKTOP=%USERPROFILE%\Desktop
-
 (
 echo Set WshShell = WScript.CreateObject("WScript.Shell")
 echo Set Shortcut = WshShell.CreateShortcut("%DESKTOP%\AgendaLocal.lnk")
 echo Shortcut.TargetPath = "cmd.exe"
-echo Shortcut.Arguments = "/k cd /d ^""%cd%^"" && venv\Scripts\activate && python manage.py runserver"
-echo Shortcut.IconLocation = "%cd%\agenda.ico"
+echo Shortcut.Arguments = "/k cd /d ^""%CD%^"" && %VENV_PY% manage.py runserver"
+echo Shortcut.IconLocation = "%CD%\agenda.ico"
 echo Shortcut.Save
 ) > create_shortcut.vbs
 

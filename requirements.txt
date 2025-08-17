@@ -4,4 +4,4 @@ django-mptt==0.17.0
 pillow==11.3.0
 python-dotenv==1.1.1
 requests==2.32.4
-xhtml12pdf ==0.2.15
+xhtml12pdf 
