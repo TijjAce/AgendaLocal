@@ -1,0 +1,132 @@
+<script>
+// Gestion du générateur d'avatar
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion du changement de type d'avatar
+    const avatarTypeRadios = document.querySelectorAll('input[name="avatar_type"]');
+    const generatedConfig = document.getElementById('generatedAvatarConfig');
+    const bitmojiConfig = document.getElementById('bitmojiConfig');
+    const avatarPreview = document.getElementById('avatarPreview');
+    
+    avatarTypeRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'generated') {
+                generatedConfig.style.display = 'block';
+                bitmojiConfig.style.display = 'none';
+                updateAvatarPreview();
+            } else {
+                generatedConfig.style.display = 'none';
+                bitmojiConfig.style.display = 'block';
+                updateBitmojiPreview();
+            }
+        });
+    });
+    
+    // Gestion des changements de configuration d'avatar
+    const avatarInputs = document.querySelectorAll('#generatedAvatarConfig input, #generatedAvatarConfig select');
+    avatarInputs.forEach(input => {
+        input.addEventListener('change', updateAvatarConfig);
+    });
+    
+    // Bouton aléatoire
+    document.getElementById('randomizeAvatar').addEventListener('click', randomizeAvatar);
+    
+    // Gestion du Bitmoji
+    const bitmojiInput = document.getElementById('bitmoji_url');
+    if (bitmojiInput) {
+        bitmojiInput.addEventListener('input', updateBitmojiPreview);
+    }
+});
+
+function updateAvatarConfig() {
+    const avatarType = document.querySelector('input[name="avatar_type"]:checked').value;
+    if (avatarType !== 'generated') return;
+    
+    const config = {
+        avatar_type: 'generated',
+        avatar_skin_color: document.getElementById('avatar_skin_color').value,
+        avatar_hair_style: document.getElementById('avatar_hair_style').value,
+        avatar_hair_color: document.getElementById('avatar_hair_color').value,
+        avatar_eye_color: document.getElementById('avatar_eye_color').value,
+        avatar_clothing_color: document.getElementById('avatar_clothing_color').value,
+        avatar_accessories: document.getElementById('avatar_accessories').value
+    };
+    
+    fetch('{% url "friends:update_avatar_config" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify(config)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateAvatarPreview();
+        } else {
+            console.error('Erreur:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Erreur réseau:', error);
+    });
+}
+
+function updateAvatarPreview() {
+    const avatarPreview = document.getElementById('avatarPreview');
+    const timestamp = new Date().getTime(); // Pour éviter le cache
+    avatarPreview.innerHTML = `<img src="{% url 'friends:generate_avatar_svg' %}?t=${timestamp}" alt="Avatar" class="bitmoji-preview" id="generatedAvatar">`;
+}
+
+function randomizeAvatar() {
+    fetch('{% url "friends:randomize_avatar" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Mettre à jour les champs avec la nouvelle configuration
+            const config = data.config;
+            document.getElementById('avatar_skin_color').value = config.avatar_skin_color;
+            document.getElementById('avatar_hair_style').value = config.avatar_hair_style;
+            document.getElementById('avatar_hair_color').value = config.avatar_hair_color;
+            document.getElementById('avatar_eye_color').value = config.avatar_eye_color;
+            document.getElementById('avatar_clothing_color').value = config.avatar_clothing_color;
+            document.getElementById('avatar_accessories').value = config.avatar_accessories;
+            
+            // Sélectionner le type généré
+            document.getElementById('avatar_generated').checked = true;
+            document.getElementById('generatedAvatarConfig').style.display = 'block';
+            document.getElementById('bitmojiConfig').style.display = 'none';
+            
+            // Mettre à jour l'aperçu
+            updateAvatarPreview();
+        } else {
+            console.error('Erreur:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Erreur réseau:', error);
+    });
+}
+
+function updateBitmojiPreview() {
+    const url = document.getElementById('bitmoji_url').value;
+    const preview = document.getElementById('avatarPreview');
+    
+    if (url) {
+        preview.innerHTML = '<img src="' + url + '" alt="Aperçu Bitmoji" class="bitmoji-preview" onerror="showBitmojiError()">';
+    } else {
+        preview.innerHTML = '<div class="bitmoji-placeholder"><i class="fas fa-user"></i></div>';
+    }
+}
+
+function showBitmojiError() {
+    const preview = document.getElementById('avatarPreview');
+    preview.innerHTML = '<div class="bitmoji-placeholder"><i class="fas fa-exclamation-triangle text-warning"></i></div>';
+}
+</script>

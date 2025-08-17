@@ -1,0 +1,522 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Analyse{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-3">Analyse</h1>
+            
+            <!-- Sélecteur d'année scolaire -->
+            <div class="mb-4">
+                <label for="school-year-select" class="form-label">Année scolaire :</label>
+                <select id="school-year-select" class="form-select" style="width: 200px; display: inline-block;">
+                    {% for year in school_years %}
+                        <option value="{{ year }}" {% if year == current_year %}selected{% endif %}>{{ year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Radars côte à côte -->
+    <div class="row g-4">
+        <!-- Radar du nombre de fiches -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-file-alt me-2"></i>Nombre de fiches
+                    </h5>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <div class="flex-grow-1 d-flex align-items-center justify-content-center" style="height: 350px;">
+                        <canvas id="fichesRadar" style="max-width: 100%; max-height: 100%;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Radar des heures d'enseignement -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-clock me-2"></i>Heures d'enseignement
+                    </h5>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <div class="flex-grow-1 d-flex align-items-center justify-content-center" style="height: 350px;">
+                        <canvas id="hoursRadar" style="max-width: 100%; max-height: 100%;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Radar des compétences - TEMPORAIREMENT DÉSACTIVÉ -->
+        <!--
+        <div class="col-lg-4 col-md-12">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-graduation-cap me-2"></i>Compétences mobilisées
+                    </h5>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <!-- Sélecteur de discipline -->
+                    <div class="mb-3">
+                        <label for="discipline-select" class="form-label fw-bold">
+                            <i class="fas fa-filter me-1"></i>Discipline :
+                        </label>
+                        <select id="discipline-select" class="form-select">
+                            <option value="">Sélectionner une discipline...</option>
+                            {% for discipline in disciplines %}
+                                <option value="{{ discipline.id }}">{{ discipline.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="flex-grow-1 d-flex align-items-center justify-content-center" style="height: 280px;">
+                        <canvas id="competenciesRadar" style="max-width: 100%; max-height: 100%;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        -->
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== INITIALISATION DE LA PAGE D\'ANALYSE ===');
+    console.log('Chart.js version:', typeof Chart !== 'undefined' ? Chart.version : 'Chart.js non chargé');
+    
+    const schoolYearSelect = document.getElementById('school-year-select');
+    const disciplineSelect = document.getElementById('discipline-select');
+    
+    console.log('Sélecteur année scolaire:', schoolYearSelect ? '✓ Trouvé' : '✗ Manquant');
+    console.log('Sélecteur discipline:', disciplineSelect ? '✓ Trouvé' : '✗ Manquant');
+    
+    if (schoolYearSelect) {
+        console.log('Année par défaut:', schoolYearSelect.value);
+        console.log('Options disponibles:', Array.from(schoolYearSelect.options).map(o => o.value));
+    }
+    
+    let competenciesChart = null;
+    let fichesChart = null;
+    let hoursChart = null;
+
+    // Configuration commune pour les radars
+    const radarConfig = {
+        type: 'radar',
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    min: 0,
+                    ticks: {
+                        stepSize: 1,
+                        display: true,
+                        color: '#666'
+                    },
+                    grid: {
+                        color: '#e0e0e0'
+                    },
+                    angleLines: {
+                        color: '#e0e0e0'
+                    },
+                    pointLabels: {
+                        font: {
+                            size: 11
+                        },
+                        color: '#333',
+                        padding: 10
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                    labels: {
+                        padding: 10,
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    enabled: true,
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff'
+                }
+            },
+            elements: {
+                line: {
+                    borderWidth: 2
+                },
+                point: {
+                    radius: 4,
+                    hoverRadius: 6
+                }
+            },
+            interaction: {
+                intersect: false
+            }
+        }
+    };
+
+    // Fonction pour charger les données des compétences par discipline
+    function loadCompetenciesData(schoolYear) {
+        const disciplineId = disciplineSelect.value;
+        
+        if (!disciplineId) {
+            // Si aucune discipline sélectionnée, détruire le graphique existant
+            if (competenciesChart) {
+                competenciesChart.destroy();
+                competenciesChart = null;
+            }
+            
+            // Afficher un message d'instruction
+            const ctx = document.getElementById('competenciesRadar').getContext('2d');
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.font = '16px Arial';
+            ctx.fillStyle = '#666';
+            ctx.textAlign = 'center';
+            ctx.fillText('Sélectionnez une discipline', ctx.canvas.width/2, ctx.canvas.height/2);
+            ctx.fillText('pour voir les compétences', ctx.canvas.width/2, ctx.canvas.height/2 + 25);
+            return;
+        }
+        
+        fetch(`/api/discipline-competencies-radar/?school_year=${schoolYear}&discipline_id=${disciplineId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (competenciesChart) {
+                    competenciesChart.destroy();
+                }
+                
+                const ctx = document.getElementById('competenciesRadar').getContext('2d');
+                
+                // Configuration spéciale pour le cas où il n'y a pas de compétences
+                let chartConfig = { ...radarConfig, data: data };
+                
+                // Si un message est présent, ajuster la configuration
+                if (data.message) {
+                    chartConfig.options.plugins = {
+                        ...chartConfig.options.plugins,
+                        tooltip: {
+                            callbacks: {
+                                afterBody: function() {
+                                    return data.message;
+                                }
+                            }
+                        }
+                    };
+                }
+                
+                competenciesChart = new Chart(ctx, chartConfig);
+            })
+            .catch(error => {
+                console.error('Erreur lors du chargement des données de compétences:', error);
+            });
+    }
+
+    // Fonction pour charger les données des fiches
+    function loadFichesData(schoolYear) {
+        console.log('Chargement des données fiches pour:', schoolYear);
+        
+        fetch(`/api/fiches-radar/?school_year=${schoolYear}`)
+            .then(response => {
+                console.log('Réponse fiches radar:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Données fiches reçues:', data);
+                
+                if (fichesChart) {
+                    fichesChart.destroy();
+                }
+                
+                // Vérifier si nous avons des données
+                if (!data.labels || data.labels.length === 0) {
+                    console.log('Aucune donnée de fiches, affichage d\'un radar vide');
+                    data = {
+                        labels: ['Aucune fiche'],
+                        datasets: [{
+                            label: 'Nombre de fiches',
+                            data: [0],
+                            backgroundColor: 'rgba(200, 200, 200, 0.2)',
+                            borderColor: 'rgba(200, 200, 200, 1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgba(200, 200, 200, 1)',
+                            pointBorderColor: '#fff'
+                        }]
+                    };
+                }
+                
+                const ctx = document.getElementById('fichesRadar').getContext('2d');
+                fichesChart = new Chart(ctx, {
+                    ...radarConfig,
+                    data: data
+                });
+                
+                console.log('✓ Radar fiches créé avec succès');
+            })
+            .catch(error => {
+                console.error('✗ Erreur lors du chargement des données de fiches:', error);
+                
+                // Afficher un radar d'erreur
+                if (fichesChart) {
+                    fichesChart.destroy();
+                }
+                
+                const ctx = document.getElementById('fichesRadar').getContext('2d');
+                fichesChart = new Chart(ctx, {
+                    ...radarConfig,
+                    data: {
+                        labels: ['Erreur'],
+                        datasets: [{
+                            label: 'Erreur de chargement',
+                            data: [0],
+                            backgroundColor: 'rgba(255, 0, 0, 0.2)',
+                            borderColor: 'rgba(255, 0, 0, 1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgba(255, 0, 0, 1)',
+                            pointBorderColor: '#fff'
+                        }]
+                    }
+                });
+            });
+    }
+
+    // Fonction pour charger les données des heures d'enseignement
+    function loadHoursData(schoolYear) {
+        console.log('Chargement des données heures pour:', schoolYear);
+        
+        fetch(`/api/hours-radar/?school_year=${schoolYear}`)
+            .then(response => {
+                console.log('Réponse heures radar:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Données heures reçues:', data);
+                
+                if (hoursChart) {
+                    hoursChart.destroy();
+                }
+                
+                // Vérifier si nous avons des données
+                if (!data.labels || data.labels.length === 0) {
+                    console.log('Aucune donnée d\'heures, affichage d\'un radar vide');
+                    data = {
+                        labels: ['Aucune heure'],
+                        datasets: [{
+                            label: 'Heures d\'enseignement',
+                            data: [0],
+                            backgroundColor: 'rgba(200, 200, 200, 0.2)',
+                            borderColor: 'rgba(200, 200, 200, 1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgba(200, 200, 200, 1)',
+                            pointBorderColor: '#fff'
+                        }]
+                    };
+                }
+                
+                const ctx = document.getElementById('hoursRadar').getContext('2d');
+                hoursChart = new Chart(ctx, {
+                    ...radarConfig,
+                    data: data
+                });
+                
+                console.log('✓ Radar heures créé avec succès');
+            })
+            .catch(error => {
+                console.error('✗ Erreur lors du chargement des données d\'heures:', error);
+                
+                // Afficher un radar d'erreur
+                if (hoursChart) {
+                    hoursChart.destroy();
+                }
+                
+                const ctx = document.getElementById('hoursRadar').getContext('2d');
+                hoursChart = new Chart(ctx, {
+                    ...radarConfig,
+                    data: {
+                        labels: ['Erreur'],
+                        datasets: [{
+                            label: 'Erreur de chargement',
+                            data: [0],
+                            backgroundColor: 'rgba(255, 0, 0, 0.2)',
+                            borderColor: 'rgba(255, 0, 0, 1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgba(255, 0, 0, 1)',
+                            pointBorderColor: '#fff'
+                        }]
+                    }
+                });
+            });
+    }
+
+    // Fonction pour charger toutes les données
+    function loadAllData() {
+        console.log('=== Début du chargement de toutes les données ===');
+        
+        const selectedYear = schoolYearSelect.value;
+        console.log('Année sélectionnée:', selectedYear);
+        
+        if (!selectedYear) {
+            console.error('Aucune année sélectionnée');
+            return;
+        }
+        
+        // Vérifier que les éléments canvas existent
+        const competenciesCanvas = document.getElementById('competenciesRadar');
+        const fichesCanvas = document.getElementById('fichesRadar');
+        const hoursCanvas = document.getElementById('hoursRadar');
+        
+        console.log('Canvas competenciesRadar:', competenciesCanvas ? '✓ Trouvé' : '✗ Manquant');
+        console.log('Canvas fichesRadar:', fichesCanvas ? '✓ Trouvé' : '✗ Manquant');
+        console.log('Canvas hoursRadar:', hoursCanvas ? '✓ Trouvé' : '✗ Manquant');
+        
+        // Charger les données avec un délai pour éviter les conflits
+        setTimeout(() => {
+            console.log('Chargement des compétences...');
+            loadCompetenciesData(selectedYear);
+        }, 100);
+        
+        setTimeout(() => {
+            console.log('Chargement des fiches...');
+            loadFichesData(selectedYear);
+        }, 200);
+        
+        setTimeout(() => {
+            console.log('Chargement des heures...');
+            loadHoursData(selectedYear);
+        }, 300);
+        
+        console.log('=== Fin de l\'initialisation du chargement ===');
+    }
+
+    // Fonction pour charger les données des compétences par discipline
+    function loadCompetenciesData(schoolYear) {
+        console.log('Chargement des données compétences pour:', schoolYear);
+        
+        const disciplineId = disciplineSelect.value;
+        console.log('Discipline sélectionnée:', disciplineId);
+        
+        if (!disciplineId) {
+            console.log('Aucune discipline sélectionnée, affichage du message par défaut');
+            
+            // Détruire le graphique existant s'il existe
+            if (competenciesChart) {
+                competenciesChart.destroy();
+                competenciesChart = null;
+            }
+            
+            // Afficher le message par défaut
+            const canvas = document.getElementById('competenciesRadar');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#6c757d';
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Sélectionnez une discipline', canvas.width / 2, canvas.height / 2 - 10);
+            ctx.fillText('pour voir les compétences', canvas.width / 2, canvas.height / 2 + 10);
+            return;
+        }
+        
+        fetch(`/api/discipline-competencies-radar/?school_year=${schoolYear}&discipline_id=${disciplineId}`)
+            .then(response => {
+                console.log('Réponse compétences radar:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Données compétences reçues:', data);
+                
+                if (competenciesChart) {
+                    competenciesChart.destroy();
+                }
+                
+                // Vérifier si nous avons des données
+                if (!data.labels || data.labels.length === 0) {
+                    console.log('Aucune donnée de compétences, affichage d\'un radar vide');
+                    data = {
+                        labels: ['Aucune compétence'],
+                        datasets: [{
+                            label: 'Compétences mobilisées',
+                            data: [0],
+                            backgroundColor: 'rgba(200, 200, 200, 0.2)',
+                            borderColor: 'rgba(200, 200, 200, 1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgba(200, 200, 200, 1)',
+                            pointBorderColor: '#fff'
+                        }]
+                    };
+                }
+                
+                const ctx = document.getElementById('competenciesRadar').getContext('2d');
+                competenciesChart = new Chart(ctx, {
+                    ...radarConfig,
+                    data: data
+                });
+                
+                console.log('✓ Radar compétences créé avec succès');
+            })
+            .catch(error => {
+                console.error('✗ Erreur lors du chargement des données de compétences:', error);
+                
+                // Afficher un radar d'erreur
+                if (competenciesChart) {
+                    competenciesChart.destroy();
+                }
+                
+                const ctx = document.getElementById('competenciesRadar').getContext('2d');
+                competenciesChart = new Chart(ctx, {
+                    ...radarConfig,
+                    data: {
+                        labels: ['Erreur'],
+                        datasets: [{
+                            label: 'Erreur de chargement',
+                            data: [0],
+                            backgroundColor: 'rgba(255, 0, 0, 0.2)',
+                            borderColor: 'rgba(255, 0, 0, 1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgba(255, 0, 0, 1)',
+                            pointBorderColor: '#fff'
+                        }]
+                    }
+                });
+            });
+    }
+
+    // Événement de changement d'année scolaire
+    schoolYearSelect.addEventListener('change', loadAllData);
+    
+    // Événement de changement de discipline
+    disciplineSelect.addEventListener('change', function() {
+        const selectedYear = schoolYearSelect.value;
+        if (selectedYear) {
+            loadCompetenciesData(selectedYear);
+        }
+    });
+
+    // Chargement initial
+    loadAllData();
+});
+</script>
+{% endblock %}

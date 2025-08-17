@@ -1,0 +1,20 @@
+Copyright (c) 2025 Titet Clément
+Tous droits réservés.
+
+1. Autorisation d’utilisation
+   - Ce projet est fourni uniquement à des fins académiques (enseignement, recherche, étude individuelle).
+   - Toute utilisation commerciale, professionnelle ou publique est strictement interdite.
+
+2. Restrictions
+   - Il est interdit de copier, modifier, redistribuer ou intégrer ce projet dans un autre projet 
+     sans autorisation écrite préalable de l’auteur.
+   - L’utilisation du code est limitée à un usage académique strictement privé.
+
+3. Distribution
+   - Le téléchargement de l’application est exclusivement autorisé via le dépôt GitHub officiel de l’auteur.
+   - Toute diffusion, hébergement ou mise à disposition par un autre canal est interdite.
+
+4. Absence de garantie
+   - Ce projet est fourni "tel quel", sans aucune garantie explicite ou implicite, 
+     y compris mais sans s’y limiter les garanties de performance, d’adaptation ou de disponibilité.
+

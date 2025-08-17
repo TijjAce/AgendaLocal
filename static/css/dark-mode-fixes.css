@@ -1,0 +1,139 @@
+/* CSS supplémentaire pour corriger le mode sombre sur tous les éléments */
+
+/* Application globale du mode sombre */
+[data-theme="dark"] body {
+    background-color: var(--bg-color, #2b2b2b) !important;
+    color: var(--text-color, #d0d0d0) !important;
+}
+
+/* Correction des éléments avec backgrounds blancs forcés */
+[data-theme="dark"] .main-content,
+[data-theme="dark"] .feature,
+[data-theme="dark"] .card,
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .dropdown-menu {
+    background: var(--card-bg, #3a3a3a) !important;
+    color: var(--text-color, #d0d0d0) !important;
+    border-color: var(--border-color, #4a4a4a) !important;
+}
+
+/* Correction des textes */
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] h6,
+[data-theme="dark"] p,
+[data-theme="dark"] span,
+[data-theme="dark"] div {
+    color: var(--text-color, #d0d0d0) !important;
+}
+
+/* Correction des liens */
+[data-theme="dark"] a {
+    color: #4a90e2 !important;
+}
+
+[data-theme="dark"] a:hover {
+    color: #6bb6ff !important;
+}
+
+/* Correction des formulaires */
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select,
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+    background-color: var(--input-bg, #404040) !important;
+    border-color: var(--input-border, #5a5a5a) !important;
+    color: var(--text-color, #d0d0d0) !important;
+}
+
+/* Correction des boutons */
+[data-theme="dark"] .btn-light {
+    background-color: var(--card-bg, #3a3a3a) !important;
+    border-color: var(--border-color, #4a4a4a) !important;
+    color: var(--text-color, #d0d0d0) !important;
+}
+
+[data-theme="dark"] .btn-outline-light {
+    color: var(--text-color, #d0d0d0) !important;
+    border-color: var(--border-color, #4a4a4a) !important;
+}
+
+/* Correction des éléments Bootstrap */
+[data-theme="dark"] .bg-white {
+    background-color: var(--card-bg, #3a3a3a) !important;
+}
+
+[data-theme="dark"] .bg-light {
+    background-color: var(--alert-bg, #404040) !important;
+}
+
+[data-theme="dark"] .text-dark {
+    color: var(--text-color, #d0d0d0) !important;
+}
+
+[data-theme="dark"] .text-muted {
+    color: #9a9a9a !important;
+}
+
+/* Correction des tableaux */
+[data-theme="dark"] .table {
+    --bs-table-bg: var(--table-bg, #3a3a3a);
+    --bs-table-striped-bg: var(--table-stripe, #404040);
+    --bs-table-border-color: var(--border-color, #4a4a4a);
+    color: var(--text-color, #d0d0d0) !important;
+}
+
+/* Correction des modales */
+[data-theme="dark"] .modal-header {
+    border-bottom-color: var(--border-color, #4a4a4a) !important;
+}
+
+[data-theme="dark"] .modal-footer {
+    border-top-color: var(--border-color, #4a4a4a) !important;
+}
+
+/* Correction des alertes */
+[data-theme="dark"] .alert {
+    background-color: var(--alert-bg, #404040) !important;
+    border-color: var(--border-color, #4a4a4a) !important;
+    color: var(--text-color, #d0d0d0) !important;
+}
+
+/* Correction des éléments avec style inline */
+[data-theme="dark"] [style*="background: white"],
+[data-theme="dark"] [style*="background-color: white"],
+[data-theme="dark"] [style*="background:#ffffff"],
+[data-theme="dark"] [style*="background-color:#ffffff"],
+[data-theme="dark"] [style*="background: #fff"],
+[data-theme="dark"] [style*="background-color: #fff"] {
+    background: var(--card-bg, #3a3a3a) !important;
+    background-color: var(--card-bg, #3a3a3a) !important;
+}
+
+[data-theme="dark"] [style*="color: black"],
+[data-theme="dark"] [style*="color:#000000"],
+[data-theme="dark"] [style*="color: #000"] {
+    color: var(--text-color, #d0d0d0) !important;
+}
+
+/* Corrections spécifiques pour les pages de l'application */
+[data-theme="dark"] .welcome-section,
+[data-theme="dark"] .login-section,
+[data-theme="dark"] .dashboard-section {
+    background-color: var(--card-bg, #3a3a3a) !important;
+    color: var(--text-color, #d0d0d0) !important;
+}
+
+/* Correction pour les icônes et logos */
+[data-theme="dark"] .navbar-brand {
+    color: var(--navbar-text, #d0d0d0) !important;
+}
+
+/* Transition fluide pour tous les éléments */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}

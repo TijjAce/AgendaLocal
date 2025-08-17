@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Accès temporairement bloqué{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        Accès temporairement bloqué
+                    </h4>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-lock fa-4x text-warning mb-3"></i>
+                        <h5>Trop de tentatives de connexion échouées</h5>
+                        <p class="text-muted">
+                            Votre accès a été temporairement suspendu pour des raisons de sécurité.
+                        </p>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle me-2"></i>Que faire ?</h6>
+                        <ul class="list-unstyled mb-0">
+                            <li>• Attendez quelques heures avant de réessayer</li>
+                            <li>• Vérifiez vos identifiants de connexion</li>
+                            <li>• Utilisez la fonction "Mot de passe oublié" si nécessaire</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'login' %}" class="btn btn-primary me-2">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Retour à la connexion
+                        </a>
+                        <a href="/fiches/login/" class="btn btn-outline-secondary">
+                            <i class="fas fa-key me-2"></i>
+                            Retour à la connexion
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer text-muted text-center">
+                    <small>
+                        <i class="fas fa-shield-alt me-1"></i>
+                        Cette mesure protège votre compte contre les accès non autorisés
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

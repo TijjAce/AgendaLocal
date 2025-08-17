@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 80" width="300" height="80">
+  <!-- Dégradé pour PDF -->
+  <defs>
+    <linearGradient id="pdfGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#007bff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0056b3;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Fond léger -->
+  <rect x="0" y="0" width="300" height="80" fill="#f8f9fa" rx="8"/>
+  
+  <!-- Icône calendrier plus grande -->
+  <rect x="20" y="20" width="40" height="40" rx="6" fill="url(#pdfGradient)" stroke="none"/>
+  <rect x="24" y="28" width="32" height="28" rx="3" fill="white" opacity="0.95"/>
+  
+  <!-- Anneaux du calendrier -->
+  <rect x="30" y="15" width="3" height="12" rx="1.5" fill="url(#pdfGradient)"/>
+  <rect x="47" y="15" width="3" height="12" rx="1.5" fill="url(#pdfGradient)"/>
+  
+  <!-- Grille détaillée -->
+  <line x1="28" y1="35" x2="52" y2="35" stroke="url(#pdfGradient)" stroke-width="1"/>
+  <line x1="28" y1="42" x2="52" y2="42" stroke="url(#pdfGradient)" stroke-width="1"/>
+  <line x1="28" y1="49" x2="52" y2="49" stroke="url(#pdfGradient)" stroke-width="1"/>
+  
+  <!-- Points de dates -->
+  <circle cx="32" cy="38" r="2" fill="url(#pdfGradient)"/>
+  <circle cx="40" cy="38" r="2" fill="url(#pdfGradient)"/>
+  <circle cx="48" cy="38" r="2" fill="url(#pdfGradient)"/>
+  <circle cx="32" cy="45" r="2" fill="url(#pdfGradient)"/>
+  <circle cx="40" cy="45" r="2" fill="url(#pdfGradient)"/>
+  <circle cx="48" cy="45" r="2" fill="url(#pdfGradient)"/>
+  <circle cx="32" cy="52" r="2" fill="url(#pdfGradient)"/>
+  <circle cx="40" cy="52" r="2" fill="url(#pdfGradient)"/>
+  
+  <!-- Texte principal -->
+  <text x="80" y="35" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="url(#pdfGradient)">Planif facile</text>
+  <text x="80" y="55" font-family="Arial, sans-serif" font-size="14" font-weight="normal" fill="#6c757d">Plateforme de planification pédagogique</text>
+  
+  <!-- Ligne décorative -->
+  <line x1="80" y1="42" x2="280" y2="42" stroke="url(#pdfGradient)" stroke-width="2" opacity="0.3"/>
+</svg>

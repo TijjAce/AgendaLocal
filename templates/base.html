@@ -1,0 +1,468 @@
+{% load static %}
+{% load django_bootstrap5 %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Planif facile - Fiches de préparation{% endblock %}</title>
+    
+    <!-- Favicon et métadonnées -->
+    <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
+    <link rel="shortcut icon" href="{% static 'images/favicon.svg' %}">
+    <meta name="description" content="Planif facile - Plateforme de planification pédagogique pour enseignants">
+    <meta name="author" content="Planif facile">
+    <meta name="theme-color" content="#007bff">
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    {% block extra_css %}{% endblock %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/mysite.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dark-mode-fixes.css' %}">
+    
+    <!-- CSS pour le mode sombre -->
+    <style>
+        /* Variables CSS pour les couleurs */
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #212529;
+            --card-bg: #ffffff;
+            --border-color: #dee2e6;
+            --navbar-bg: #0d6efd;
+            --navbar-text: #ffffff;
+            --btn-primary-bg: #0d6efd;
+            --btn-primary-border: #0d6efd;
+            --btn-secondary-bg: #6c757d;
+            --btn-secondary-border: #6c757d;
+            --alert-bg: #f8f9fa;
+            --input-bg: #ffffff;
+            --input-border: #ced4da;
+            --table-bg: #ffffff;
+            --table-stripe: #f8f9fa;
+        }
+        
+        /* Mode sombre - couleurs douces */
+        [data-theme="dark"] {
+            --bg-color: #2b2b2b;
+            --text-color: #d0d0d0;
+            --card-bg: #3a3a3a;
+            --border-color: #4a4a4a;
+            --navbar-bg: #2a2a2a;
+            --navbar-text: #d0d0d0;
+            --btn-primary-bg: #4a90e2;
+            --btn-primary-border: #4a90e2;
+            --btn-secondary-bg: #5a5a5a;
+            --btn-secondary-border: #5a5a5a;
+            --alert-bg: #404040;
+            --input-bg: #404040;
+            --input-border: #5a5a5a;
+            --table-bg: #3a3a3a;
+            --table-stripe: #404040;
+        }
+        
+        /* Application des variables */
+        body {
+            background-color: var(--bg-color) !important;
+            color: var(--text-color) !important;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        .card {
+            background-color: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-color) !important;
+        }
+        
+        .navbar-dark {
+            background-color: var(--navbar-bg) !important;
+        }
+        
+        .table {
+            background-color: var(--table-bg) !important;
+            color: var(--text-color) !important;
+        }
+        
+        .table-striped > tbody > tr:nth-of-type(odd) > td,
+        .table-striped > tbody > tr:nth-of-type(odd) > th {
+            background-color: var(--table-stripe) !important;
+        }
+        
+        .form-control, .form-select {
+            background-color: var(--input-bg) !important;
+            border-color: var(--input-border) !important;
+            color: var(--text-color) !important;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            background-color: var(--input-bg) !important;
+            border-color: var(--btn-primary-bg) !important;
+            color: var(--text-color) !important;
+        }
+        
+        .alert {
+            background-color: var(--alert-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-color) !important;
+        }
+        
+        .dropdown-menu {
+            background-color: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
+        }
+        
+        .dropdown-item {
+            color: var(--text-color) !important;
+        }
+        
+        .dropdown-item:hover {
+            background-color: var(--alert-bg) !important;
+        }
+        
+        .text-muted {
+            color: #6c757d !important;
+        }
+        
+        [data-theme="dark"] .text-muted {
+            color: #9a9a9a !important;
+        }
+        
+        /* Améliorations supplémentaires pour le mode sombre */
+        [data-theme="dark"] .bg-light {
+            background-color: var(--card-bg) !important;
+        }
+        
+        [data-theme="dark"] .text-dark {
+            color: var(--text-color) !important;
+        }
+        
+        [data-theme="dark"] .border {
+            border-color: var(--border-color) !important;
+        }
+        
+        [data-theme="dark"] .btn-outline-secondary {
+            color: var(--text-color) !important;
+            border-color: var(--border-color) !important;
+        }
+        
+        [data-theme="dark"] .btn-outline-secondary:hover {
+            background-color: var(--btn-secondary-bg) !important;
+            border-color: var(--btn-secondary-border) !important;
+            color: #ffffff !important;
+        }
+        
+        [data-theme="dark"] .btn-outline-primary {
+            color: var(--btn-primary-bg) !important;
+            border-color: var(--btn-primary-bg) !important;
+        }
+        
+        [data-theme="dark"] .btn-outline-primary:hover {
+            background-color: var(--btn-primary-bg) !important;
+            border-color: var(--btn-primary-border) !important;
+        }
+        
+        [data-theme="dark"] .badge {
+            color: #ffffff !important;
+        }
+        
+        [data-theme="dark"] .badge.bg-secondary {
+            background-color: var(--btn-secondary-bg) !important;
+        }
+        
+        [data-theme="dark"] .badge.bg-light {
+            background-color: var(--border-color) !important;
+            color: var(--text-color) !important;
+        }
+        
+        /* Styles spécifiques pour le calendrier en mode sombre */
+        [data-theme="dark"] .calendar-app body {
+            background: var(--bg-color) !important;
+            color: var(--text-color) !important;
+        }
+        
+        /* Corrections pour les éléments du calendrier */
+        [data-theme="dark"] .event {
+            background-color: var(--btn-primary-bg) !important;
+            color: #ffffff !important;
+        }
+        
+        [data-theme="dark"] .table {
+            --bs-table-bg: var(--table-bg) !important;
+            --bs-table-striped-bg: var(--table-stripe) !important;
+        }
+        
+        [data-theme="dark"] .table th,
+        [data-theme="dark"] .table td {
+            border-color: var(--border-color) !important;
+            color: var(--text-color) !important;
+        }
+        
+        /* Styles spécifiques pour les analyses en mode sombre */
+        [data-theme="dark"] .chart-container {
+            background: var(--card-bg) !important;
+            color: var(--text-color) !important;
+        }
+        
+        [data-theme="dark"] .controls-panel {
+            background: var(--card-bg) !important;
+            color: var(--text-color) !important;
+        }
+        
+        [data-theme="dark"] .chart-type-btn {
+            background: var(--input-bg) !important;
+            color: var(--text-color) !important;
+            border-color: var(--border-color) !important;
+        }
+        
+        [data-theme="dark"] .chart-type-btn.active {
+            background: var(--btn-primary-bg) !important;
+            color: #ffffff !important;
+            border-color: var(--btn-primary-border) !important;
+        }
+        
+        [data-theme="dark"] .chart-type-btn:hover {
+            border-color: var(--btn-primary-bg) !important;
+        }
+        
+        [data-theme="dark"] .stat-card {
+            background: var(--card-bg) !important;
+            color: var(--text-color) !important;
+        }
+        
+        [data-theme="dark"] .stat-number {
+            color: var(--btn-primary-bg) !important;
+        }
+        
+        [data-theme="dark"] .stat-label {
+            color: var(--text-color) !important;
+            opacity: 0.7;
+        }
+        
+        [data-theme="dark"] .comparison-mode {
+            background: var(--alert-bg) !important;
+            border-color: var(--btn-primary-bg) !important;
+        }
+        
+        [data-theme="dark"] .error {
+            background: #4a2c2c !important;
+            color: #ffb3b3 !important;
+        }
+        
+        /* Correction pour les éléments avec background forcé */
+        [data-theme="dark"] *[style*="background: white"],
+        [data-theme="dark"] *[style*="background-color: white"] {
+            background: var(--card-bg) !important;
+            background-color: var(--card-bg) !important;
+        }
+        
+        [data-theme="dark"] [style*="background: white"],
+        [data-theme="dark"] [style*="background-color: white"],
+        [data-theme="dark"] [style*="background:#ffffff"],
+        [data-theme="dark"] [style*="background-color:#ffffff"] {
+            background: var(--card-bg) !important;
+            background-color: var(--card-bg) !important;
+        }
+        
+        [data-theme="dark"] [style*="background: #f8f9fa"],
+        [data-theme="dark"] [style*="background-color: #f8f9fa"] {
+            background: var(--alert-bg) !important;
+            background-color: var(--alert-bg) !important;
+        }
+        
+        /* Animation du bouton mode sombre */
+        #darkModeToggle {
+            transition: all 0.3s ease;
+        }
+        
+        #darkModeToggle:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'main' %}">
+                <img src="{% static 'images/logo-navbar.svg' %}" alt="Planif facile" class="me-2" style="height: 32px; width: 32px;">
+                <span>Planif facile</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'disciplines' %}">
+                            <i class="fas fa-book me-1"></i>Disciplines
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'fiche_list' %}">
+                            <i class="fas fa-list me-1"></i>Mes fiches
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'sequences:sequences_list' %}">
+                            <i class="fas fa-layer-group me-2"></i>
+                            Séquences
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'calendar' %}">
+                            <i class="fas fa-calendar me-1"></i>Calendrier
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'weekly_schedule' %}">
+                            <i class="fas fa-calendar-week me-1"></i>Vue Semaine
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'radar_analytics' %}">
+                            <i class="fas fa-chart-radar me-1"></i>📊 Analyses
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'friends:dashboard' %}">
+                            <i class="fas fa-users me-1"></i>Amis
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <!-- Bouton mode sombre -->
+                    <li class="nav-item">
+                        <button class="btn btn-outline-light me-2" id="darkModeToggle" type="button" title="Basculer le mode sombre">
+                            <i class="fas fa-moon" id="darkModeIcon"></i>
+                        </button>
+                    </li>
+                    
+                    {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-1"></i>{{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <form method="post" action="{% url 'logout' %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="fas fa-sign-out-alt me-1"></i>Déconnexion
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">
+                            <i class="fas fa-sign-in-alt me-1"></i>Connexion
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show m-3" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-light text-center py-3 mt-5">
+        <div class="container">
+            <small class="text-muted">
+                Planif facile - Fiches de préparation | 
+                {% if user.is_authenticated %}
+                    Connecté en tant que <strong>{{ user.username }}</strong>
+                {% else %}
+                    <a href="{% url 'login' %}">Se connecter</a>
+                {% endif %}
+            </small>
+        </div>
+    </footer>
+
+    <!-- JavaScript pour le mode sombre -->
+    <script>
+        // Fonction pour initialiser le mode sombre
+        function initDarkMode() {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const darkModeIcon = document.getElementById('darkModeIcon');
+            const body = document.body;
+            
+            // Vérifier la préférence sauvegardée
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            // Appliquer le thème initial
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                body.setAttribute('data-theme', 'dark');
+                darkModeIcon.className = 'fas fa-sun';
+            } else {
+                body.setAttribute('data-theme', 'light');
+                darkModeIcon.className = 'fas fa-moon';
+            }
+            
+            // Gestionnaire d'événement pour le bouton
+            darkModeToggle.addEventListener('click', function() {
+                const currentTheme = body.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                // Appliquer le nouveau thème
+                body.setAttribute('data-theme', newTheme);
+                
+                // Changer l'icône
+                if (newTheme === 'dark') {
+                    darkModeIcon.className = 'fas fa-sun';
+                } else {
+                    darkModeIcon.className = 'fas fa-moon';
+                }
+                
+                // Sauvegarder la préférence
+                localStorage.setItem('theme', newTheme);
+                
+                // Animation de feedback
+                darkModeToggle.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    darkModeToggle.style.transform = '';
+                }, 150);
+            });
+        }
+        
+        // Initialiser dès que le DOM est chargé
+        document.addEventListener('DOMContentLoaded', initDarkMode);
+        
+        // Écouter les changements de préférence système
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+            if (!localStorage.getItem('theme')) {
+                const body = document.body;
+                const darkModeIcon = document.getElementById('darkModeIcon');
+                
+                if (e.matches) {
+                    body.setAttribute('data-theme', 'dark');
+                    darkModeIcon.className = 'fas fa-sun';
+                } else {
+                    body.setAttribute('data-theme', 'light');
+                    darkModeIcon.className = 'fas fa-moon';
+                }
+            }
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

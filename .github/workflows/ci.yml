@@ -1,0 +1,76 @@
+name: CI Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.10'
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Create .env file for testing
+      run: |
+        cat > .env << EOF
+        DEBUG=True
+        SECRET_KEY=test-secret-key-for-github-actions-very-long-and-secure
+        ALLOWED_HOSTS=localhost,127.0.0.1
+        DATABASE_URL=sqlite:///test_db.sqlite3
+        ENVIRONMENT=testing
+        EOF
+    
+    - name: Run Django system checks
+      run: |
+        python manage.py check
+    
+    - name: Run migrations
+      run: |
+        python manage.py migrate
+    
+    - name: Collect static files
+      run: |
+        python manage.py collectstatic --noinput
+    
+    - name: Run Django tests
+      run: |
+        python manage.py test
+    
+    - name: Security check
+      run: |
+        pip install bandit safety
+        bandit -r . -f json -o bandit-report.json || echo "Bandit completed"
+        safety check || echo "Safety check completed"
+    
+    - name: Deployment ready
+      run: |
+        echo "✅ All tests passed!"
+        echo "🚀 Application ready for deployment"
+        echo ""
+        echo "Deploy with:"
+        echo "curl -sSL https://raw.githubusercontent.com/TijjAce/Agenda/main/install_pythonanywhere.sh | bash"

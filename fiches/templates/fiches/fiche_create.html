@@ -1,0 +1,506 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load django_bootstrap5 %}
+
+{% block title %}Créer une fiche de préparation{% endblock %}
+
+{% block extra_css %}
+{{ fiche_form.media }}
+{{ phase_formset.media }}
+<!-- CKEditor 5 CDN -->
+<script src="https://cdn.ckeditor.com/ckeditor5/40.2.0/classic/ckeditor.js"></script>
+<script src="{% static 'js/ckeditor5-config.js' %}"></script>
+<style>
+    /* Styles pour le mode sombre */
+    [data-theme="dark"] .card {
+        background: #3a3a3a;
+        border-color: #5a5a5a;
+    }
+    
+    [data-theme="dark"] .form-control,
+    [data-theme="dark"] .form-select {
+        background: #404040;
+        border-color: #5a5a5a;
+        color: #d0d0d0;
+    }
+    
+    [data-theme="dark"] .form-control:focus,
+    [data-theme="dark"] .form-select:focus {
+        background: #404040;
+        border-color: #007bff;
+        color: #d0d0d0;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    
+    [data-theme="dark"] .form-check-input {
+        background-color: #404040;
+        border-color: #5a5a5a;
+    }
+    
+    [data-theme="dark"] .form-check-input:checked {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    
+    [data-theme="dark"] .btn-outline-secondary {
+        color: #d0d0d0;
+        border-color: #5a5a5a;
+    }
+    
+    [data-theme="dark"] .btn-outline-secondary:hover {
+        background: #5a5a5a;
+        border-color: #5a5a5a;
+        color: white;
+    }
+    
+    [data-theme="dark"] .btn-outline-danger {
+        color: #dc3545;
+        border-color: #dc3545;
+    }
+    
+    [data-theme="dark"] .btn-outline-danger:hover {
+        background: #dc3545;
+        border-color: #dc3545;
+        color: white;
+    }
+    
+    [data-theme="dark"] .accordion-item {
+        background: #3a3a3a;
+        border-color: #5a5a5a;
+    }
+    
+    [data-theme="dark"] .accordion-header button {
+        background: #404040;
+        color: #d0d0d0;
+        border-color: #5a5a5a;
+    }
+    
+    [data-theme="dark"] .accordion-body {
+        background: #3a3a3a;
+        color: #d0d0d0;
+    }
+    
+    [data-theme="dark"] .form-control-color {
+        background: #404040;
+        border-color: #5a5a5a;
+    }
+    
+    [data-theme="dark"] label {
+        color: #d0d0d0;
+    }
+    
+    [data-theme="dark"] .text-muted {
+        color: #9a9a9a !important;
+    }
+    
+    /* Styles supplémentaires pour les compétences en mode sombre */
+    [data-theme="dark"] .list-group-item {
+        background: #404040;
+        border-color: #5a5a5a;
+        color: #d0d0d0;
+    }
+    
+    [data-theme="dark"] .accordion-button {
+        background: #404040;
+        color: #d0d0d0;
+        border-color: #5a5a5a;
+    }
+    
+    [data-theme="dark"] .accordion-button:not(.collapsed) {
+        background: #495057;
+        color: #d0d0d0;
+        border-color: #5a5a5a;
+        box-shadow: none;
+    }
+    
+    [data-theme="dark"] .accordion-button:focus {
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        border-color: #007bff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">Créer une fiche de préparation</h1>
+
+    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+        {% csrf_token %}
+        {% bootstrap_form_errors fiche_form type="non_fields" %}
+
+        <!-- === Formulaire principal === -->
+
+        <!-- Titre, Séquence, Niveau, groupes -->
+        <div class="row mb-3">
+            <div class="col-md-4">{% bootstrap_field fiche_form.titre %}</div>
+            <div class="col-md-4">{% bootstrap_field fiche_form.sequence %}</div>
+            <div class="col-md-4">{% bootstrap_field fiche_form.niveau %}</div>
+            <div class="col-md-4">{% bootstrap_field fiche_form.groupes %}</div>
+            <div class="col-md-4">{% bootstrap_field fiche_form.objectifGeneral %}</div>
+        </div>
+
+        <!-- Discipline, Date -->
+        <div class="row mb-3">
+            <div class="col-md-6">{% bootstrap_field fiche_form.discipline %}</div>
+            <div class="col-md-6">{% bootstrap_field fiche_form.date %}</div>
+        </div>
+
+        <!-- Heure début, fin, durée -->
+        <div class="row mb-4">
+            <div class="col-md-4">{% bootstrap_field fiche_form.heure_debut %}</div>
+            <div class="col-md-4">{% bootstrap_field fiche_form.heure_fin %}</div>
+            <div class="col-md-4">{% bootstrap_field fiche_form.duree %}</div>
+        </div>
+
+        <!-- Couleur -->
+        <div class="row mb-3">
+            <div class="col-md-4">{% bootstrap_field fiche_form.couleur %}</div>
+        </div>
+
+        <!-- Compétences associées -->
+        <div class="mb-4">
+            <h4 class="mb-3">Compétences associées</h4>
+            {% with hierarchy=fiche_form.fields.competences.queryset %}
+            <div class="accordion" id="accordionObjectifs">
+                {% regroup hierarchy by objectifs_generaux as objectifs_list %}
+                {% for objectif in objectifs_list %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                        <button class="accordion-button collapsed" type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#collapse{{ forloop.counter }}"
+                                aria-expanded="false"
+                                aria-controls="collapse{{ forloop.counter }}">
+                            {{ objectif.grouper|default:"Sans objectif général" }}
+                        </button>
+                    </h2>
+                    <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse"
+                         aria-labelledby="heading{{ forloop.counter }}"
+                         data-bs-parent="#accordionObjectifs">
+                        <div class="accordion-body">
+                            {% regroup objectif.list by competence_generale as comp_gen_list %}
+                            {% for comp_gen in comp_gen_list %}
+                            <div class="mb-3">
+                                <h6 class="fw-semibold ms-3">{{ comp_gen.grouper|default:"Sans compétence générale" }}</h6>
+                                {% if comp_gen.list %}
+                                    <ul class="list-group list-group-flush ms-4 mt-2">
+                                        {% for competence in comp_gen.list %}
+                                        <li class="list-group-item d-flex align-items-center">
+                                            <input
+                                              type="checkbox"
+                                              name="{{ fiche_form.competences.html_name }}"
+                                              value="{{ competence.id }}"
+                                              {% if competence.id|stringformat:"s" in fiche_form.competences.value|stringformat:"s" %}checked{% endif %}
+                                              class="form-check-input me-2"
+                                              id="comp{{ competence.id }}"
+                                            >
+                                            <label class="form-check-label" for="comp{{ competence.id }}">
+                                              {{ competence.title }}
+                                            </label>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endwith %}
+        </div>
+
+        <!--Competence supp-->
+        <div class="mb-4">
+            <h4 class="mb-2">Ajouter compétence transversale/interdisciplinaire</h4>
+            {% bootstrap_field fiche_form.competencesSup show_label=false %}
+        </div>
+        <div class="mb-4">
+            <h4 class="mb-2">Ajouter AFC</h4>
+            {% bootstrap_field fiche_form.AFC show_label=false %}
+        </div>
+
+        <!-- === Phases (Formset) === -->
+        <div class="card p-4 mb-4">
+            <h4 class="mb-3">Phases de la séance</h4>
+            {{ phase_formset.management_form }}
+            <div id="phases-container">
+                {% for form in phase_formset %}
+                <div class="phase-item card mb-3 p-3">
+                    {# Champs cachés nécessaires pour le formset #}
+                    {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
+                    <div class="row mb-3">
+                        <div class="col-md-4">{% bootstrap_field form.phase %}</div>
+                        <div class="col-md-2">{% bootstrap_field form.duree %}</div>
+                        <div class="col-md-2">{% bootstrap_field form.ce %}</div>
+                        <div class="col-md-4">{% bootstrap_field form.posture %}</div>
+                    </div>
+                    <div class="mb-3">{% bootstrap_field form.deroulement %}</div>
+                    <div class="row align-items-center">
+                        <div class="col-md-2">{% bootstrap_field form.ordre %}</div>
+                        <div class="col-md-10">
+                            {% if form.DELETE %}
+                            <div class="form-check">
+                                {{ form.DELETE }} <label class="form-check-label">Supprimer cette phase</label>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" id="add-phase" class="btn btn-secondary mt-2">Ajouter une phase</button>
+        </div>
+
+        
+
+
+        <!-- === Bilan === -->
+        <div class="mb-4">
+            <h4 class="mb-2">Bilan</h4>
+            {% bootstrap_field fiche_form.bilan show_label=False %}
+        </div>
+
+        <!-- === Section Annexes === -->
+        <div class="card p-4 mb-4">
+            <h4 class="mb-3"><i class="fas fa-paperclip"></i> Annexes (Images, PDF)</h4>
+            <p class="text-muted mb-3">Ajoutez des images ou des documents PDF à votre fiche de préparation.</p>
+            
+            {{ annexe_formset.management_form }}
+            <div id="annexes-container">
+                {% for form in annexe_formset %}
+                <div class="annexe-form border rounded p-3 mb-3" data-form-index="{{ forloop.counter0 }}">
+                    {% if form.instance.pk %}
+                        <h6 class="text-primary"><i class="fas fa-file"></i> Annexe existante</h6>
+                    {% else %}
+                        <h6 class="text-success"><i class="fas fa-plus"></i> Nouvelle annexe</h6>
+                    {% endif %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            {% bootstrap_field form.nom %}
+                        </div>
+                        <div class="col-md-6">
+                            {% bootstrap_field form.fichier %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            {% bootstrap_field form.description %}
+                        </div>
+                    </div>
+                    
+                    {% if form.DELETE %}
+                        <div class="form-check">
+                            {{ form.DELETE }}
+                            <label class="form-check-label text-danger" for="{{ form.DELETE.id_for_label }}">
+                                <i class="fas fa-trash"></i> Supprimer cette annexe
+                            </label>
+                        </div>
+                    {% endif %}
+                    
+                    {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <button type="button" class="btn btn-outline-secondary" id="add-annexe">
+                <i class="fas fa-plus"></i> Ajouter une annexe
+            </button>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">Créer la fiche</button>
+        </div>
+    </form>
+</div>
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+    // === Gestion des annexes ===
+    let annexeIndex = {{ annexe_formset.total_form_count }};
+    const annexesContainer = document.getElementById('annexes-container');
+    const addAnnexeBtn = document.getElementById('add-annexe');
+    
+    // Fonction pour ajouter une nouvelle annexe
+    function addAnnexeForm() {
+        const emptyFormTemplate = document.querySelector('#annexes-container .annexe-form:last-child');
+        if (!emptyFormTemplate) return;
+        
+        const newForm = emptyFormTemplate.cloneNode(true);
+        
+        // Mettre à jour les indices dans le nouveau formulaire
+        const formRegex = new RegExp('annexes-(\\d+)-', 'g');
+        newForm.innerHTML = newForm.innerHTML.replace(formRegex, `annexes-${annexeIndex}-`);
+        
+        // Mettre à jour l'attribut data-form-index
+        newForm.setAttribute('data-form-index', annexeIndex);
+        
+        // Vider les champs du nouveau formulaire
+        newForm.querySelectorAll('input, textarea').forEach(input => {
+            if (input.type !== 'hidden') {
+                input.value = '';
+            }
+        });
+        
+        // Changer le titre pour "Nouvelle annexe"
+        const title = newForm.querySelector('h6');
+        if (title) {
+            title.innerHTML = '<i class="fas fa-plus"></i> Nouvelle annexe';
+            title.className = 'text-success';
+        }
+        
+        // Ajouter le bouton de suppression
+        const deleteSection = newForm.querySelector('.form-check');
+        if (!deleteSection) {
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.className = 'btn btn-outline-danger btn-sm mt-2';
+            deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Supprimer';
+            deleteBtn.onclick = function() {
+                newForm.remove();
+                updateAnnexeFormCount();
+            };
+            newForm.appendChild(deleteBtn);
+        }
+        
+        // Ajouter le nouveau formulaire au conteneur
+        annexesContainer.appendChild(newForm);
+        
+        // Incrémenter l'index et mettre à jour le compteur
+        annexeIndex++;
+        updateAnnexeFormCount();
+    }
+    
+    // Fonction pour mettre à jour le compteur de formulaires
+    function updateAnnexeFormCount() {
+        const totalForms = document.querySelector('#id_annexes-TOTAL_FORMS');
+        if (totalForms) {
+            totalForms.value = document.querySelectorAll('.annexe-form').length;
+        }
+    }
+    
+    // Événement pour ajouter une annexe
+    if (addAnnexeBtn) {
+        addAnnexeBtn.addEventListener('click', addAnnexeForm);
+    }
+    
+    // Gestion de la suppression des annexes existantes
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.annexe-form button[type="button"]')) {
+            const annexeForm = e.target.closest('.annexe-form');
+            if (annexeForm && !annexeForm.querySelector('input[type="checkbox"][name*="DELETE"]')) {
+                annexeForm.remove();
+                updateAnnexeFormCount();
+            }
+        }
+    });
+    const container = document.getElementById('phases-container');
+    const addButton = document.getElementById('add-phase');
+    const totalFormsInput = document.querySelector('[name="{{ phase_formset.prefix }}-TOTAL_FORMS"]');
+    
+    // Débogage
+    console.log('Container:', container);
+    console.log('Add button:', addButton);
+    console.log('Total forms input:', totalFormsInput);
+    
+    if (!container || !addButton || !totalFormsInput) {
+        console.error('Erreur: éléments manquants pour l\'ajout de phases');
+        return;
+    }
+    
+    let totalForms = parseInt(totalFormsInput.value) || 0;
+    console.log('Total forms initial:', totalForms);
+
+    // Template HTML du formulaire vide, pour insertion dynamique
+    const emptyFormTemplate = `{{ phase_formset.empty_form.as_p|escapejs }}`;
+
+    // Fonction pour initialiser CKEditor 5 sur un textarea donné
+    async function initCKEditor5(textarea) {
+        if (textarea && textarea.id && textarea.name && textarea.name.includes('deroulement')) {
+            try {
+                await window.initNewCKEditor5(textarea);
+            } catch (error) {
+                console.error('Erreur lors de l\'initialisation de CKEditor 5:', error);
+            }
+        }
+    }
+
+    // Initialisation CKEditor 5 pour tous les textarea de déroulement existants
+    setTimeout(() => {
+        container.querySelectorAll('textarea[name*="deroulement"]').forEach(initCKEditor5);
+    }, 500);
+
+    // Ajout dynamique d'une phase
+    addButton.addEventListener('click', function () {
+        console.log('Bouton ajout de phase cliqué!');
+        console.log('Template vide:', emptyFormTemplate);
+        
+        const newFormHtml = emptyFormTemplate.replace(/__prefix__/g, totalForms);
+        console.log('Nouveau HTML généré:', newFormHtml);
+        
+        const div = document.createElement('div');
+        div.classList.add('phase-item', 'card', 'mb-3', 'p-3');
+        div.innerHTML = newFormHtml;
+        container.appendChild(div);
+        
+        console.log('Nouvelle phase ajoutée au DOM');
+
+        // Attendre que le DOM soit mis à jour avant d'initialiser CKEditor
+        setTimeout(function() {
+            const textarea = div.querySelector('textarea[name*="deroulement"]');
+            console.log('Textarea trouvé:', textarea);
+            if (textarea) {
+                // Générer un ID unique pour le textarea s'il n'en a pas
+                if (!textarea.id) {
+                    textarea.id = 'id_' + textarea.name;
+                }
+                console.log('Initialisation CKEditor 5 pour:', textarea.id);
+                initCKEditor5(textarea);
+            }
+        }, 100);
+
+        totalForms += 1;
+        totalFormsInput.value = totalForms;
+        console.log('Total forms mis à jour:', totalForms);
+    });
+
+    // Auto-calcul de la durée en fonction des heures
+    function updateDuree() {
+        const debutValue = document.querySelector('[name="heure_debut"]').value;
+        const finValue = document.querySelector('[name="heure_fin"]').value;
+        const dureeInput = document.querySelector('[name="duree"]');
+
+        if (debutValue && finValue) {
+            const [h1, m1] = debutValue.split(':').map(Number);
+            const [h2, m2] = finValue.split(':').map(Number);
+            const start = new Date(0, 0, 0, h1, m1);
+            const end = new Date(0, 0, 0, h2, m2);
+
+            let diff = (end - start) / (1000 * 60);
+            if (diff < 0) diff += 24 * 60;
+
+            const heures = Math.floor(diff / 60);
+            const minutes = diff % 60;
+            dureeInput.value = `${heures}h${minutes.toString().padStart(2, '0')}`;
+        }
+    }
+
+    // Configuration des événements pour le calcul de durée
+    const debutInput = document.querySelector('[name="heure_debut"]');
+    const finInput = document.querySelector('[name="heure_fin"]');
+    if (debutInput && finInput) {
+        debutInput.addEventListener('change', updateDuree);
+        finInput.addEventListener('change', updateDuree);
+    }
+});
+
+</script>
+{% endblock %}

@@ -1,0 +1,716 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_tags %}
+
+{% block title %}Programme du {{ selected_date|date:"d F Y" }} - Planif facile{% endblock %}
+
+{% block extra_css %}
+<style>
+    .daily-schedule-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .schedule-header {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        padding: 2rem;
+        border-radius: 10px 10px 0 0;
+        text-align: center;
+    }
+    
+    .schedule-header h1 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 600;
+    }
+    
+    .schedule-content {
+        background: var(--card-bg, #ffffff);
+        border-radius: 0 0 10px 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    [data-theme="dark"] .schedule-content {
+        background: #3a3a3a !important;
+    }
+    
+    /* Force le mode sombre sur tous les éléments */
+    [data-theme="dark"] body,
+    [data-theme="dark"] .container,
+    [data-theme="dark"] .daily-schedule-container,
+    [data-theme="dark"] .schedule-content,
+    [data-theme="dark"] .agenda,
+    [data-theme="dark"] .agenda-contenu,
+    [data-theme="dark"] div {
+        background-color: #2b2b2b !important;
+        color: #d0d0d0 !important;
+    }
+    
+    /* Styles spécifiques pour le mode sombre */
+    [data-theme="dark"] .progress-container,
+    [data-theme="dark"] .canvas-container,
+    [data-theme="dark"] .canvas-legend,
+    [data-theme="dark"] .legend-item,
+    [data-theme="dark"] .empty-schedule-container {
+        background-color: #2b2b2b !important;
+        color: #d0d0d0 !important;
+    }
+    
+    .schedule-controls {
+        padding: 1rem 2rem;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    [data-theme="dark"] .schedule-controls {
+        border-bottom-color: #5a5a5a;
+    }
+    
+    .create-session-btn {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .create-session-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        color: white;
+    }
+    
+    .canvas-container {
+        position: relative;
+        padding: 1rem;
+        background: var(--bs-body-bg);
+    }
+    
+    #scheduleCanvas {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        cursor: pointer;
+        display: block;
+        margin: 0 auto;
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: -moz-crisp-edges;
+        image-rendering: pixelated;
+    }
+    
+    [data-theme="dark"] #scheduleCanvas {
+        border-color: #5a5a5a;
+    }
+    
+    .canvas-legend {
+        margin-top: 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: center;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .legend-color {
+        width: 16px;
+        height: 16px;
+        border-radius: 4px;
+        border: 1px solid #dee2e6;
+    }
+    
+    .empty-schedule-container {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #6c757d;
+    }
+    
+    .empty-schedule-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    .empty-schedule-text {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .session-tooltip {
+        position: absolute;
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        pointer-events: none;
+        z-index: 1000;
+        max-width: 220px;
+        word-wrap: break-word;
+        transform: translate(10px, -10px);
+    }
+    
+    [data-theme="dark"] .session-tooltip {
+        background: rgba(255, 255, 255, 0.9);
+        color: black;
+    }
+    
+    @media (max-width: 768px) {
+        .schedule-controls {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        #scheduleCanvas {
+            width: 100% !important;
+            height: auto !important;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<meta name="csrf-token" content="{{ csrf_token }}">
+<div class="container py-4">
+    <div class="daily-schedule-container">
+        <div class="schedule-header">
+            <h1>Programme du {{ selected_date|date:"d F Y" }}</h1>
+        </div>
+        
+        <div class="schedule-content">
+            <div class="schedule-controls">
+                <a href="{% url 'calendar' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-1"></i> Retour au calendrier
+                </a>
+                <a href="{% url 'fiche_create' %}?date={{ selected_date|date:'Y-m-d' }}" class="create-session-btn">
+                    <i class="fas fa-plus"></i>
+                    Créer une séance
+                </a>
+            </div>
+
+            {% if sessions %}
+                <!-- Barre de progression des séances -->
+                <div class="progress-container mb-3" style="padding: 0 1rem;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0">Progression de la journée</h6>
+                        <small class="text-muted" id="progressText">0 / {{ sessions|length }} séances réalisées</small>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             id="dailyProgressBar" 
+                             style="width: 0%" 
+                             aria-valuenow="0" 
+                             aria-valuemin="0" 
+                             aria-valuemax="{{ sessions|length }}">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="canvas-container">
+                    <canvas id="scheduleCanvas"></canvas>
+                    <div class="canvas-legend">
+                        
+                    </div>
+                </div>
+            {% else %}
+                <div class="empty-schedule-container">
+                    <i class="fas fa-calendar-plus empty-schedule-icon"></i>
+                    <p class="empty-schedule-text">Aucune séance prévue pour cette date.</p>
+                    <a href="{% url 'fiche_create' %}?date={{ selected_date|date:'Y-m-d' }}" class="create-session-btn">
+                        <i class="fas fa-plus"></i>
+                        Créer votre première séance
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Tooltip pour les sessions -->
+<div id="sessionTooltip" class="session-tooltip" style="display: none;"></div>
+
+<!-- Token CSRF pour les requêtes AJAX -->
+{% csrf_token %}
+<script>
+    (function() {
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('scheduleCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const tooltip = document.getElementById('sessionTooltip');
+
+            // --- CONFIG DIMENSIONS (logiques) ---
+            const config = {
+                width: 1000,
+                height: 800,
+                startHour: 8,
+                endHour: 21,
+                hourHeight: 60,
+                leftMargin: 80,
+                rightMargin: 20,
+                topMargin: 30,
+                bottomMargin: 30
+            };
+
+            // --- INITIALISATION CANVAS + DPR ---
+            function setupCanvas() {
+                const dpr = window.devicePixelRatio || 1;
+                canvas.style.width = '1000px';
+                canvas.style.height = '800px';
+                canvas.width = Math.round(config.width * dpr);
+                canvas.height = Math.round(config.height * dpr);
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                ctx.scale(dpr, dpr);
+            }
+            setupCanvas();
+
+            // --- DONNÉES SESSIONS (Django) ---
+            const sessions = [
+                {% for session in sessions %}
+                {
+                    id: {{ session.id }},
+                    title: "{{ session.titre|escapejs }}",
+                    discipline: "{{ session.discipline.title|escapejs }}",
+                    groupes: "{{ session.groupes|escapejs }}",
+                    startTime: "{{ session.heure_debut|time:'H:i' }}",
+                    endTime: "{{ session.heure_fin|time:'H:i' }}",
+                    color: "{{ session.couleur }}",
+                    isCompleted: {{ session.is_completed|yesno:"true,false" }},
+                    url: "{{ session.page_url }}",
+                    startMinutes: {{ session.offset_minutes }},
+                    durationMinutes: {{ session.duration_minutes }},
+                    columnIndex: {{ session.column_index|default:0 }},
+                    totalColumns: {{ session.total_columns|default:1 }}
+                }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ];
+
+            // --- ETAT DRAG ---
+            let isDragging = false;
+            let draggedSession = null;
+            let dragStartY = 0;
+            let dragStartMinutes = 0;
+
+            // --- OUTILS TEMPS ↔ Y (logiques) ---
+            function timeToY(hour, minute) {
+                const totalMinutes = (hour - config.startHour) * 60 + minute;
+                return config.topMargin + (totalMinutes / 60) * config.hourHeight;
+            }
+            
+            function minutesToY(minutes) {
+                return config.topMargin + (minutes / 60) * config.hourHeight;
+            }
+
+            // --- THEME ---
+            function isDarkMode() {
+                const attr = document.documentElement.getAttribute('data-theme');
+                if (attr === 'dark') return true;
+                if (attr === 'light') return false;
+                return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            }
+
+            // --- DESSIN FOND ---
+            function drawBackground() {
+                const dark = isDarkMode();
+                ctx.fillStyle = dark ? '#2b2b2b' : '#ffffff';
+                ctx.fillRect(0, 0, config.width, config.height);
+
+                const lineColor = dark ? '#5a5a5a' : '#e9ecef';
+                const textColor = dark ? '#d0d0d0' : '#495057';
+
+                ctx.strokeStyle = lineColor;
+                ctx.fillStyle = textColor;
+                ctx.lineWidth = 1;
+                ctx.setLineDash([]);
+                ctx.font = '12px Arial';
+
+                for (let hour = config.startHour; hour <= config.endHour; hour++) {
+                    const y = timeToY(hour, 0);
+                    ctx.lineWidth = hour % 2 === 0 ? 2 : 1;
+                    ctx.beginPath();
+                    ctx.moveTo(config.leftMargin, y);
+                    ctx.lineTo(config.width - config.rightMargin, y);
+                    ctx.stroke();
+                    ctx.fillText(`${hour}h00`, 10, y + 4);
+
+                    if (hour < config.endHour) {
+                        const yHalf = timeToY(hour, 30);
+                        ctx.lineWidth = 1;
+                        ctx.setLineDash([5, 5]);
+                        ctx.beginPath();
+                        ctx.moveTo(config.leftMargin, yHalf);
+                        ctx.lineTo(config.width - config.rightMargin, yHalf);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+                        ctx.fillText(`${hour}h30`, 10, yHalf + 4);
+                    }
+                }
+            }
+
+            // --- DESSIN D'UNE SESSION ---
+            function drawSession(session) {
+                const contentWidth = config.width - config.leftMargin - config.rightMargin;
+                const sessionWidth = contentWidth / session.totalColumns;
+                const x = config.leftMargin + (session.columnIndex * sessionWidth);
+                const y = minutesToY(session.startMinutes);
+                const height = (session.durationMinutes / 60) * config.hourHeight;
+                const width = sessionWidth - 4;
+
+                // Fond
+                ctx.fillStyle = session.color || '#0d6efd';
+                ctx.fillRect(x + 2, y, width - 4, height);
+
+                // Bordure
+                ctx.strokeStyle = session.isCompleted ? '#28a745' : '#ffffff';
+                ctx.lineWidth = session.isCompleted ? 3 : 1;
+                ctx.strokeRect(x + 2, y, width - 4, height);
+
+                // Titre et Groupes
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 14px Arial';
+                const maxWidth = width - 12;
+
+                let title = session.title;
+                const groups = session.groupes;
+                const titleAndGroups = groups ? `${title} (${groups})` : title;
+
+                if (ctx.measureText(titleAndGroups).width > maxWidth) {
+                    while (ctx.measureText(title + '...').width > maxWidth && title.length > 0) {
+                        title = title.slice(0, -1);
+                    }
+                    if (groups) {
+                        while (ctx.measureText(`${title} (${groups})` + '...').width > maxWidth && title.length > 0) {
+                           title = title.slice(0, -1);
+                        }
+                    }
+                    title = groups ? `${title}(${groups})` : `${title}`;
+                } else {
+                    title = titleAndGroups;
+                }
+                
+                ctx.fillText(title, x + 8, y + 18);
+
+                // Heures
+                ctx.font = '12px Arial';
+                const timeText = `${session.startTime} - ${session.endTime}`;
+                if (height < 50) {
+                    ctx.textAlign = 'right';
+                    ctx.fillText(timeText, x + width - 8, y + 18);
+                    ctx.textAlign = 'left';
+                } else {
+                    ctx.fillText(timeText, x + 8, y + 35);
+                }
+
+                // Discipline
+                ctx.font = '11px Arial';
+                let discipline = session.discipline || '';
+                if (ctx.measureText(discipline).width > maxWidth) {
+                    while (ctx.measureText(discipline + '...').width > maxWidth && discipline.length > 0) {
+                        discipline = discipline.slice(0, -1);
+                    }
+                    discipline += '...';
+                }
+                ctx.fillText(discipline, x + 8, y + 50);
+
+                // Bouton completion
+                const buttonX = x + width - 60;
+                const buttonY = y + 5;
+                const buttonWidth = 50;
+                const buttonHeight = 20;
+                ctx.fillStyle = session.isCompleted ? '#28a745' : '#ffc107';
+                ctx.fillRect(buttonX, buttonY, buttonWidth, buttonHeight);
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(buttonX, buttonY, buttonWidth, buttonHeight);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 10px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(session.isCompleted ? '✓ Fait' : 'À faire', buttonX + buttonWidth/2, buttonY + 14);
+                ctx.textAlign = 'left';
+
+                // Stockage des bounds
+                session.buttonBounds = { x: buttonX, y: buttonY, width: buttonWidth, height: buttonHeight };
+                // Creating a separate bounds object for the clickable session area
+                session.linkBounds = { x: x + 2, y: y, width: width - 4, height: height };
+            }
+
+            // --- RENDU ---
+            function render() {
+                ctx.clearRect(0, 0, config.width, config.height);
+                drawBackground();
+                sessions.forEach(drawSession);
+            }
+
+            // --- CONVERSION SOURIS → COORDS LOGIQUES ---
+            function getMousePosLogical(e) {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = config.width / rect.width;
+                const scaleY = config.height / rect.height;
+                return {
+                    x: (e.clientX - rect.left) * scaleX,
+                    y: (e.clientY - rect.top) * scaleY
+                };
+            }
+
+            // --- TROUVER SESSION SOUS LA SOURIS ---
+            function getSessionAtPos(x, y) {
+                for (let i = sessions.length - 1; i >= 0; i--) {
+                    const s = sessions[i];
+                    if (s.linkBounds && x >= s.linkBounds.x && x <= s.linkBounds.x + s.linkBounds.width &&
+                        y >= s.linkBounds.y && y <= s.linkBounds.y + s.linkBounds.height) {
+                        return s;
+                    }
+                }
+                return null;
+            }
+
+            // --- UI: TOAST ---
+            function showToast(message, isError = false) {
+                const toast = document.createElement('div');
+                toast.className = `alert ${isError ? 'alert-danger' : 'alert-success'} position-fixed`;
+                toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 280px;';
+                toast.innerHTML = `
+                    <strong>${isError ? 'Erreur' : 'Succès'}</strong> ${message}
+                    <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+                `;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            }
+
+            // --- AJAX UPDATE TIME ---
+            function updateSessionTime(sessionId, newStartTime, newEndTime) {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                
+                fetch(`/fiches/update-time/${sessionId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    },
+                    body: JSON.stringify({
+                        heure_debut: newStartTime,
+                        heure_fin: newEndTime
+                    })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Horaires mis à jour');
+                    } else {
+                        showToast(data.error || 'Erreur lors de la mise à jour', true);
+                        setTimeout(() => location.reload(), 1500);
+                    }
+                })
+                .catch(() => {
+                    showToast('Erreur de connexion', true);
+                    setTimeout(() => location.reload(), 1500);
+                });
+            }
+
+            // --- TOGGLE COMPLETION ---
+            function toggleCompletion(sessionId) {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                
+                fetch(`/calendar/toggle-completion/${sessionId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        const s = sessions.find(x => x.id === sessionId);
+                        if (s) {
+                            s.isCompleted = data.is_completed;
+                            render();
+                            updateProgressBar();
+                        }
+                        showToast(data.is_completed ? 'Séance marquée comme réalisée' : 'Séance marquée comme non réalisée');
+                    } else {
+                        showToast(data.error || 'Erreur lors de la mise à jour', true);
+                    }
+                })
+                .catch(() => showToast('Erreur de connexion', true));
+            }
+
+            // --- PROGRESSION ---
+            function updateProgressBar() {
+                const completedCount = sessions.filter(s => s.isCompleted).length;
+                const totalCount = sessions.length;
+                const percentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+                const progressBar = document.getElementById('dailyProgressBar');
+                const progressText = document.getElementById('progressText');
+                
+                if (progressBar) {
+                    progressBar.style.width = `${percentage}%`;
+                    progressBar.setAttribute('aria-valuenow', completedCount);
+                    progressBar.setAttribute('aria-valuemax', totalCount);
+                }
+                if (progressText) {
+                    progressText.textContent = `${completedCount} / ${totalCount} séances réalisées`;
+                }
+            }
+
+            // --- RESIZE RESPONSIVE ---
+            function resizeCanvas() {
+                const container = canvas.parentElement;
+                const containerWidth = container.clientWidth - 32;
+                if (window.innerWidth <= 768) {
+                    canvas.style.width = containerWidth + 'px';
+                    canvas.style.height = (containerWidth * 0.8) + 'px';
+                } else {
+                    canvas.style.width = Math.min(config.width, containerWidth) + 'px';
+                    canvas.style.height = config.height + 'px';
+                }
+            }
+
+            window.addEventListener('resize', resizeCanvas);
+
+            // --- HANDLERS ---
+            canvas.addEventListener('mousedown', function(e) {
+                const pos = getMousePosLogical(e);
+                const s = getSessionAtPos(pos.x, pos.y);
+                if (!s) return;
+
+                // Check for completion button click
+                if (s.buttonBounds && pos.x >= s.buttonBounds.x && pos.x <= s.buttonBounds.x + s.buttonBounds.width &&
+                    pos.y >= s.buttonBounds.y && pos.y <= s.buttonBounds.y + s.buttonBounds.height) {
+                    toggleCompletion(s.id);
+                    return;
+                }
+                
+                // Start drag
+                isDragging = true;
+                draggedSession = s;
+                dragStartY = pos.y;
+                dragStartMinutes = s.startMinutes;
+                canvas.style.cursor = 'grabbing';
+                e.preventDefault();
+            });
+
+            canvas.addEventListener('mousemove', function(e) {
+                const pos = getMousePosLogical(e);
+
+                if (isDragging && draggedSession) {
+                    const deltaY = pos.y - dragStartY;
+                    const deltaMinutes = (deltaY / config.hourHeight) * 60;
+                    const newStartMinutesRaw = dragStartMinutes + deltaMinutes;
+                    const minMinutes = 0;
+                    const maxMinutes = (config.endHour - config.startHour) * 60 - draggedSession.durationMinutes;
+                    const clamped = Math.max(minMinutes, Math.min(maxMinutes, newStartMinutesRaw));
+                    const rounded = Math.round(clamped / 15) * 15;
+
+                    draggedSession.startMinutes = rounded;
+
+                    const absStart = config.startHour * 60 + rounded;
+                    const sh = Math.floor(absStart / 60);
+                    const sm = absStart % 60;
+                    draggedSession.startTime = `${String(sh).padStart(2,'0')}:${String(sm).padStart(2,'0')}`;
+
+                    const endAbs = absStart + draggedSession.durationMinutes;
+                    const eh = Math.floor(endAbs / 60);
+                    const em = endAbs % 60;
+                    draggedSession.endTime = `${String(eh).padStart(2,'0')}:${String(em).padStart(2,'0')}`;
+
+                    render();
+                    return;
+                }
+
+                // Manage cursor + tooltip
+                const s = getSessionAtPos(pos.x, pos.y);
+                canvas.style.cursor = s ? 'grab' : 'default';
+
+                if (s && tooltip) {
+                    tooltip.innerHTML = `
+                        <strong>${s.title}</strong><br>
+                        ${s.discipline}<br>
+                        ${s.groupes ? `Groupe(s): ${s.groupes}<br>` : ''}
+                        ${s.startTime} - ${s.endTime}<br>
+                        ${s.isCompleted ? '<span style="color: #28a745;">✓ Réalisée</span>' : '<span style="color: #ffc107;">○ À réaliser</span>'}
+                    `;
+                    tooltip.style.display = 'block';
+                    tooltip.style.left = e.clientX + 'px';
+                    tooltip.style.top = e.clientY + 'px';
+                } else if (tooltip) {
+                    tooltip.style.display = 'none';
+                }
+            });
+
+            canvas.addEventListener('mouseup', function(e) {
+                if (isDragging && draggedSession) {
+                    updateSessionTime(draggedSession.id, draggedSession.startTime, draggedSession.endTime);
+                }
+
+                isDragging = false;
+                draggedSession = null;
+                canvas.style.cursor = 'default';
+            });
+
+            canvas.addEventListener('mouseleave', function() {
+                if (tooltip) {
+                    tooltip.style.display = 'none';
+                }
+                if (isDragging) {
+                    render();
+                    isDragging = false;
+                    draggedSession = null;
+                    canvas.style.cursor = 'default';
+                }
+            });
+
+            // Simple click to open the page, avoiding button click or drag
+            canvas.addEventListener('click', function(e) {
+                // If a drag just happened, a click event will also fire. We ignore it.
+                if (isDragging) {
+                    return;
+                }
+                const pos = getMousePosLogical(e);
+                const s = getSessionAtPos(pos.x, pos.y);
+
+                if (s && s.url) {
+                    // Check if the click was on the "done" button
+                    const isButtonClick = (s.buttonBounds && pos.x >= s.buttonBounds.x && pos.x <= s.buttonBounds.x + s.buttonBounds.width &&
+                        pos.y >= s.buttonBounds.y && pos.y <= s.buttonBounds.y + s.buttonBounds.height);
+                    
+                    if (!isButtonClick) {
+                        window.location.href = s.url;
+                    }
+                }
+            });
+
+            // Observer for theme change
+            const observer = new MutationObserver(mutations => {
+                for (const m of mutations) {
+                    if (m.type === 'attributes' && m.attributeName === 'data-theme') {
+                        render();
+                    }
+                }
+            });
+            observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+            // INITIALIZATION
+            resizeCanvas();
+            render();
+            updateProgressBar();
+            setTimeout(render, 100);
+        });
+    })();
+</script>
+{% endblock %}

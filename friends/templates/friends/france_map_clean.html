@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+
+{% block title %}Carte des Amis - France{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    #map {
+        height: 600px;
+        width: 100%;
+        border: 2px solid #007bff;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .map-controls {
+        margin-bottom: 15px;
+    }
+    
+    .friend-popup {
+        text-align: center;
+        min-width: 150px;
+    }
+    
+    .friend-popup h6 {
+        margin-bottom: 5px;
+        color: #007bff;
+    }
+    
+    .location-info {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2><i class="fas fa-map-marked-alt"></i> Carte des Amis</h2>
+            <p class="text-muted">Découvrez où se trouvent vos amis en France</p>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="map-controls">
+                <button id="geolocateBtn" class="btn btn-primary btn-sm">
+                    <i class="fas fa-crosshairs"></i> Me géolocaliser
+                </button>
+                <a href="{% url 'friends:dashboard' %}" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left"></i> Retour Dashboard
+                </a>
+            </div>
+            
+            <div id="map"></div>
+            
+            {% if profile.has_location %}
+            <div class="location-info">
+                <h6><i class="fas fa-map-marker-alt"></i> Votre position</h6>
+                <p>{{ profile.ville }}{% if profile.departement %} ({{ profile.departement }}){% endif %}</p>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> 
+                Cliquez sur la carte pour définir votre position et apparaître pour vos amis !
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Initialisation de la carte des amis...');
+    
+    try {
+        // Créer la carte centrée sur la France
+        var map = L.map('map').setView([46.603354, 1.888334], 6);
+        
+        // Ajouter les tuiles OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 18
+        }).addTo(map);
+        
+        console.log('Carte de base créée avec succès');
+        
+        // Données des amis (injectées par Django)
+        var friendsData = {{ friends_with_location|safe }};
+        console.log('Données des amis:', friendsData);
+        
+        // Ajouter les marqueurs des amis
+        if (Array.isArray(friendsData) && friendsData.length > 0) {
+            friendsData.forEach(function(friend) {
+                if (friend.latitude && friend.longitude) {
+                    console.log('Ajout marqueur pour:', friend.username);
+                    
+                    var marker = L.marker([friend.latitude, friend.longitude]);
+                    
+                    var popupContent = '<div class="friend-popup">';
+                    popupContent += '<h6>' + (friend.username || 'Ami') + '</h6>';
+                    
+                    if (friend.first_name || friend.last_name) {
+                        popupContent += '<p>' + (friend.first_name || '') + ' ' + (friend.last_name || '') + '</p>';
+                    }
+                    
+                    if (friend.ville) {
+                        popupContent += '<p><i class="fas fa-map-marker-alt"></i> ' + friend.ville + '</p>';
+                    }
+                    
+                    if (friend.bio) {
+                        popupContent += '<p><em>' + friend.bio + '</em></p>';
+                    }
+                    
+                    popupContent += '</div>';
+                    
+                    marker.bindPopup(popupContent);
+                    marker.addTo(map);
+                }
+            });
+            console.log('Marqueurs des amis ajoutés');
+        } else {
+            console.log('Aucun ami avec localisation trouvé');
+        }
+        
+        // Ajouter marqueur utilisateur si position définie
+        {% if profile.has_location %}
+        var userMarker = L.marker([{{ profile.latitude }}, {{ profile.longitude }}], {
+            title: 'Votre position'
+        });
+        
+        var userPopup = '<div class="friend-popup">';
+        userPopup += '<h6><i class="fas fa-user"></i> Vous</h6>';
+        {% if profile.ville %}
+        userPopup += '<p>{{ profile.ville }}</p>';
+        {% endif %}
+        userPopup += '</div>';
+        
+        userMarker.bindPopup(userPopup);
+        userMarker.addTo(map);
+        console.log('Marqueur utilisateur ajouté');
+        {% endif %}
+        
+        // Géolocalisation
+        document.getElementById('geolocateBtn').addEventListener('click', function() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var lat = position.coords.latitude;
+                    var lng = position.coords.longitude;
+                    
+                    // Vérifier si en France (approximatif)
+                    if (lat >= 41.0 && lat <= 51.5 && lng >= -5.5 && lng <= 10.0) {
+                        map.setView([lat, lng], 12);
+                        
+                        // Mettre à jour la position via AJAX
+                        fetch('{% url "friends:update_location_ajax" %}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': '{{ csrf_token }}'
+                            },
+                            body: JSON.stringify({
+                                latitude: lat,
+                                longitude: lng
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert('Position mise à jour !');
+                                location.reload();
+                            } else {
+                                alert('Erreur: ' + data.error);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erreur AJAX:', error);
+                        });
+                    } else {
+                        alert('Vous devez être en France pour utiliser cette fonctionnalité.');
+                    }
+                }, function(error) {
+                    alert('Erreur de géolocalisation: ' + error.message);
+                });
+            } else {
+                alert('La géolocalisation n\'est pas supportée par votre navigateur.');
+            }
+        });
+        
+        // Clic sur la carte pour définir position
+        map.on('click', function(e) {
+            var lat = e.latlng.lat;
+            var lng = e.latlng.lng;
+            
+            // Vérifier si en France
+            if (lat >= 41.0 && lat <= 51.5 && lng >= -5.5 && lng <= 10.0) {
+                if (confirm('Définir cette position comme votre localisation ?')) {
+                    fetch('{% url "friends:update_location_ajax" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({
+                            latitude: lat,
+                            longitude: lng
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Position mise à jour !');
+                            location.reload();
+                        } else {
+                            alert('Erreur: ' + data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur AJAX:', error);
+                    });
+                }
+            } else {
+                alert('Veuillez cliquer sur une position en France.');
+            }
+        });
+        
+        console.log('Carte initialisée avec succès !');
+        
+    } catch (error) {
+        console.error('Erreur lors de l\'initialisation de la carte:', error);
+        document.getElementById('map').innerHTML = 
+            '<div class="alert alert-danger">Erreur: ' + error.message + '</div>';
+    }
+});
+</script>
+{% endblock %}

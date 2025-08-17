@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+<div class="container my-5">
+
+  <!-- Bouton de retour -->
+  <div class="d-flex justify-content-end align-items-center mb-4">
+    <div>
+      <a href="{% url 'disciplines' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Retour aux disciplines
+      </a>
+    </div>
+  </div>
+
+  <!-- En-tête de la discipline -->
+  <div class="text-center mb-5">
+    <div class="d-flex justify-content-center align-items-center mb-3">
+      <h1 class="display-4 fw-bold text-primary mb-0">{{ discipline.title }}</h1>
+    </div>
+    <p class="lead text-muted">Compétences et modification de couleur</p>
+  </div>
+
+  <!-- Section modification de couleur personnalisée -->
+  <div class="row justify-content-center mb-5">
+    <div class="col-md-6">
+      <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+          <h5 class="card-title mb-3">
+            <i class="fas fa-palette me-2"></i>Personnaliser ma couleur pour cette discipline
+          </h5>
+          <p class="text-muted small mb-3">Cette couleur ne sera visible que pour vous</p>
+          <form method="post" class="d-flex justify-content-center align-items-center gap-3">
+            {% csrf_token %}
+            <div class="d-flex align-items-center gap-2">
+              <label for="couleur" class="form-label mb-0">Ma couleur :</label>
+              <input type="color" name="couleur" id="couleur" 
+                     value="{{ discipline.user_couleur|default:'#0d6efd' }}" 
+                     class="form-control form-control-color" 
+                     style="width: 60px; height: 40px; padding: 0; border: none;">
+            </div>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save me-1"></i>Sauvegarder ma couleur
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Compétences Section -->
+  <div class="text-center mb-4">
+    <h2 class="fw-bold text-secondary">Compétences disponibles</h2>
+  </div>
+
+  {% if competences %}
+    <div class="row g-4">
+      {% for competence in competences %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card h-100 shadow-sm border-0 competence-card" 
+               style="border-left: 5px solid {{ discipline.user_couleur|default:'#0d6efd' }} !important;">
+            <div class="card-body d-flex flex-column">
+              <div class="d-flex align-items-center mb-3">
+                <div class="competence-icon me-3" 
+                     style="width: 40px; height: 40px; background-color: {{ discipline.user_couleur|default:'#0d6efd' }}; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                  <i class="fas fa-graduation-cap text-white"></i>
+                </div>
+                <h5 class="card-title mb-0 fw-bold">{{ competence.title }}</h5>
+              </div>
+              
+              {% if competence.content %}
+                <p class="card-text text-muted flex-grow-1">{{ competence.content|truncatewords:15|striptags }}</p>
+              {% else %}
+                <p class="card-text text-muted flex-grow-1">Contenu par défaut pour la compétence {{ competence.title }}</p>
+              {% endif %}
+              
+              <!-- Informations pédagogiques -->
+              {% if competence.cycle_enseignement %}
+                <div class="mb-2">
+                  <span class="badge bg-info">{{ competence.get_cycle_enseignement_display }}</span>
+                </div>
+              {% endif %}
+              
+              {% if competence.competence_generale %}
+                <div class="mb-3">
+                  <small class="text-muted">
+                    <strong>Compétence générale :</strong> {{ competence.competence_generale|truncatewords:10 }}
+                  </small>
+                </div>
+              {% endif %}
+              
+              <div class="mt-auto">
+                <a href="{{ competence.get_absolute_url }}" class="btn btn-outline-primary btn-sm w-100">
+                  <i class="fas fa-info-circle me-1"></i>Plus d'informations
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-center py-5">
+      <div class="mb-4">
+        <i class="fas fa-graduation-cap fa-4x text-muted"></i>
+      </div>
+      <h3 class="text-muted">Aucune compétence disponible</h3>
+      <p class="text-muted">Les compétences pour cette discipline seront affichées ici une fois configurées.</p>
+    </div>
+  {% endif %}
+
+</div>
+
+<style>
+.competence-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.competence-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.discipline-color {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.competence-icon {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}

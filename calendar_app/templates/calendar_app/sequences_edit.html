@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load django_bootstrap5 %}
+
+{% block title %}Modifier {{ sequence.name }} - Planif facile{% endblock %}
+
+{% block extra_css %}
+<style>
+    .sequence-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        color: white;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .form-container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        padding: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .form-floating {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 12px;
+        border: 2px solid #e9ecef;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 12px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-secondary {
+        border-radius: 12px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .icon-wrapper {
+        width: 60px;
+        height: 60px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+    }
+    
+    .required-field {
+        color: #dc3545;
+    }
+    
+    .form-floating > .form-control,
+    .form-floating > .form-select {
+        height: calc(3.5rem + 2px);
+        line-height: 1.25;
+    }
+    
+    .form-floating > label {
+        padding: 1rem;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- En-tête avec carte attractive -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-8">
+            <div class="card sequence-card text-center p-4">
+                <div class="icon-wrapper">
+                    <i class="fas fa-edit fa-2x"></i>
+                </div>
+                <h1 class="card-title mb-3">Modifier la séquence</h1>
+                <p class="card-text opacity-75">
+                    {{ sequence.name }}
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Formulaire de modification -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="form-container">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- Informations de base -->
+                    <div class="row">
+                        <div class="col-12">
+                            <h3 class="mb-4 text-center">
+                                <i class="fas fa-edit me-2 text-primary"></i>
+                                Modifier les informations
+                            </h3>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-floating">
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="id_name" 
+                                       name="name" 
+                                       placeholder="Nom de la séquence"
+                                       value="{{ sequence.name }}"
+                                       required>
+                                <label for="id_name">
+                                    <i class="fas fa-tag me-1"></i>
+                                    Nom de la séquence <span class="required-field">*</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                <select class="form-select" id="id_discipline" name="discipline" required>
+                                    <option value="">Choisir...</option>
+                                    {% for discipline in disciplines %}
+                                        <option value="{{ discipline.id }}" 
+                                                {% if sequence.discipline and sequence.discipline.id == discipline.id %}selected{% endif %}>
+                                            {{ discipline.title }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <label for="id_discipline">
+                                    <i class="fas fa-book me-1"></i>
+                                    Discipline <span class="required-field">*</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <textarea class="form-control" 
+                                          id="id_description" 
+                                          name="description" 
+                                          placeholder="Description de la séquence"
+                                          style="height: 120px;">{{ sequence.description }}</textarea>
+                                <label for="id_description">
+                                    <i class="fas fa-align-left me-1"></i>
+                                    Description
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Messages d'erreur/succès -->
+                    {% if messages %}
+                        <div class="row">
+                            <div class="col-12">
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Boutons d'action -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{% url 'sequences_detail' sequence.id %}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-1"></i>
+                                    Retour
+                                </a>
+                                
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'sequences:sequences_list' %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-1"></i>
+                                        Annuler
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-1"></i>
+                                        Enregistrer les modifications
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript pour la validation -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    
+    // Validation du formulaire
+    form.addEventListener('submit', function(e) {
+        const name = document.getElementById('id_name').value.trim();
+        const discipline = document.getElementById('id_discipline').value;
+        
+        if (!name) {
+            e.preventDefault();
+            alert('Le nom de la séquence est obligatoire.');
+            document.getElementById('id_name').focus();
+            return;
+        }
+        
+        if (!discipline) {
+            e.preventDefault();
+            alert('Veuillez sélectionner une discipline.');
+            document.getElementById('id_discipline').focus();
+            return;
+        }
+    });
+    
+    // Auto-focus sur le premier champ
+    document.getElementById('id_name').focus();
+});
+</script>
+{% endblock %}

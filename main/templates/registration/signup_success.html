@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Inscription réussie - Planif Facile{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-body text-center p-5">
+                    <!-- Icône de succès -->
+                    <div class="mb-4">
+                        <i class="fas fa-envelope-check text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    
+                    <h1 class="h3 mb-4 text-success">Inscription réussie !</h1>
+                    
+                    <div class="alert alert-info">
+                        <h5><i class="fas fa-info-circle"></i> Vérifiez votre email</h5>
+                        <p class="mb-0">
+                            Un email de confirmation a été envoyé à votre adresse email. 
+                            <strong>Cliquez sur le lien dans l'email pour activer votre compte.</strong>
+                        </p>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h6>Que faire maintenant ?</h6>
+                        <ol class="text-start">
+                            <li>Vérifiez votre boîte de réception (et vos spams)</li>
+                            <li>Cliquez sur le lien de confirmation dans l'email</li>
+                            <li>Votre compte sera activé automatiquement</li>
+                            <li>Vous pourrez ensuite vous connecter</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <p class="text-muted small">
+                            <i class="fas fa-clock"></i> 
+                            Le lien de confirmation est valide pendant 24 heures.
+                        </p>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'resend_validation' %}" class="btn btn-outline-primary me-2">
+                            <i class="fas fa-paper-plane"></i> Renvoyer l'email
+                        </a>
+                        <a href="{% url 'login' %}" class="btn btn-secondary">
+                            <i class="fas fa-sign-in-alt"></i> Se connecter
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

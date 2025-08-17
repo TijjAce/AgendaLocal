@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tableau de bord - Amis{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    .friend-card {
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        background: var(--card-bg);
+        color: var(--text-color);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    
+    [data-theme="dark"] .friend-card {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .friend-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 15px;
+        border: 2px solid var(--border-color);
+    }
+    
+    .bitmoji-preview {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1px solid var(--border-color);
+    }
+    
+    .shared-item {
+        border-left: 4px solid var(--btn-primary-bg);
+        padding-left: 15px;
+        margin-bottom: 10px;
+        background: var(--card-bg);
+        border-radius: 4px;
+        padding: 10px 15px;
+    }
+    
+    .add-friend-form {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .stats-card {
+        background: linear-gradient(135deg, var(--btn-primary-bg) 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        border: 1px solid var(--border-color);
+    }
+    
+    [data-theme="dark"] .stats-card {
+        background: linear-gradient(135deg, #4a90e2 0%, #6a5acd 100%);
+    }
+    
+    .text-muted {
+        color: var(--text-color) !important;
+        opacity: 0.7;
+    }
+    
+    .friend-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    [data-theme="dark"] .friend-card:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h2><i class="fas fa-users"></i> Mes Amis</h2>
+            
+            <!-- Formulaire d'ajout d'ami -->
+            <div class="add-friend-form">
+                <h4><i class="fas fa-user-plus"></i> Ajouter un ami</h4>
+                <form method="post" action="{% url 'friends:add_friend' %}">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <input type="text" name="username" class="form-control" 
+                               placeholder="Identifiant de votre ami" required>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-plus"></i> Ajouter
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Liste des amis -->
+            <div class="row">
+                {% for friend in friends %}
+                <div class="col-md-6">
+                    <div class="friend-card d-flex align-items-center">
+                        {% if friend.profile.bitmoji_url %}
+                            <img src="{{ friend.profile.bitmoji_url }}" alt="Bitmoji" class="friend-avatar">
+                        {% else %}
+                            <div class="friend-avatar bg-secondary d-flex align-items-center justify-content-center">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                        {% endif %}
+                        <div class="flex-grow-1">
+                            <h5 class="mb-1">{{ friend.get_full_name|default:friend.username }}</h5>
+                            <small class="text-muted">
+                                {% if friend.profile.ville %}
+                                    <i class="fas fa-map-marker-alt"></i> {{ friend.profile.ville }}
+                                    {% if friend.profile.departement %}({{ friend.profile.departement }}){% endif %}
+                                {% endif %}
+                            </small>
+                        </div>
+                        <div>
+                            {% if friend.profile.has_location %}
+                                <span class="badge bg-success"><i class="fas fa-map-marker-alt"></i></span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="text-center py-4">
+                        <i class="fas fa-user-friends fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Vous n'avez pas encore d'amis. Ajoutez-en un avec le formulaire ci-dessus !</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Demandes d'amitié en attente -->
+            {% if pending_requests %}
+            <div class="mt-4">
+                <h4><i class="fas fa-clock"></i> Demandes d'amitié en attente</h4>
+                {% for request in pending_requests %}
+                <div class="friend-card d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <div class="friend-avatar bg-info d-flex align-items-center justify-content-center">
+                            <i class="fas fa-user text-white"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">{{ request.requester.get_full_name|default:request.requester.username }}</h6>
+                            <small class="text-muted">{{ request.created_at|date:"d/m/Y H:i" }}</small>
+                        </div>
+                    </div>
+                    <div>
+                        <form method="post" action="{% url 'friends:respond_friend_request' request.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" name="action" value="accept" class="btn btn-success btn-sm">
+                                <i class="fas fa-check"></i> Accepter
+                            </button>
+                            <button type="submit" name="action" value="decline" class="btn btn-danger btn-sm">
+                                <i class="fas fa-times"></i> Refuser
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Contenu partagé récemment -->
+            <div class="mt-4">
+                <h4><i class="fas fa-share-alt"></i> Partagé récemment</h4>
+                
+                {% if recent_shared_sequences %}
+                <h6>Séquences</h6>
+                {% for shared in recent_shared_sequences %}
+                <div class="shared-item">
+                    <strong>{{ shared.sequence.titre }}</strong>
+                    <small class="text-muted">par {{ shared.shared_by.username }} - {{ shared.created_at|date:"d/m/Y" }}</small>
+                    {% if shared.message %}
+                    <p class="mb-1 text-muted">{{ shared.message }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                {% if recent_shared_fiches %}
+                <h6>Fiches</h6>
+                {% for shared in recent_shared_fiches %}
+                <div class="shared-item">
+                    <strong>{{ shared.fiche.titre }}</strong>
+                    <small class="text-muted">par {{ shared.shared_by.username }} - {{ shared.created_at|date:"d/m/Y" }}</small>
+                    {% if shared.message %}
+                    <p class="mb-1 text-muted">{{ shared.message }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                {% if not recent_shared_sequences and not recent_shared_fiches %}
+                <p class="text-muted">Aucun contenu partagé récemment.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Statistiques -->
+            <div class="stats-card mb-4">
+                <h3>{{ friends|length }}</h3>
+                <p class="mb-0">Ami{{ friends|length|pluralize }}</p>
+            </div>
+
+            <!-- Actions rapides -->
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-bolt"></i> Actions rapides</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'friends:france_map' %}" class="btn btn-outline-primary w-100 mb-2">
+                        <i class="fas fa-map"></i> Carte de France
+                    </a>
+                    <a href="{% url 'friends:update_profile' %}" class="btn btn-outline-secondary w-100 mb-2">
+                        <i class="fas fa-user-edit"></i> Mon profil
+                    </a>
+                    <a href="{% url 'friends:shared_content' %}" class="btn btn-outline-info w-100">
+                        <i class="fas fa-share-alt"></i> Contenu partagé
+                    </a>
+                </div>
+            </div>
+
+            <!-- Profil utilisateur -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-user"></i> Mon profil</h5>
+                </div>
+                <div class="card-body text-center">
+                    {% if profile.bitmoji_url %}
+                        <img src="{{ profile.bitmoji_url }}" alt="Mon Bitmoji" class="bitmoji-preview mb-2">
+                    {% else %}
+                        <div class="bitmoji-preview bg-secondary d-flex align-items-center justify-content-center mx-auto mb-2">
+                            <i class="fas fa-user text-white"></i>
+                        </div>
+                    {% endif %}
+                    <h6>{{ user.get_full_name|default:user.username }}</h6>
+                    {% if profile.ville %}
+                        <small class="text-muted">
+                            <i class="fas fa-map-marker-alt"></i> {{ profile.ville }}
+                            {% if profile.departement %}({{ profile.departement }}){% endif %}
+                        </small>
+                    {% endif %}
+                    {% if not profile.has_location %}
+                        <div class="alert alert-warning mt-2">
+                            <small>
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Ajoutez votre localisation pour apparaître sur la carte !
+                            </small>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

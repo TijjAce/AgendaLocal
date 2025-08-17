@@ -1,0 +1,142 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Créer plusieurs fiches</title>
+
+    <!-- Flatpickr CSS & JS -->
+    <link rel="stylesheet" href="{% static 'flatpickr/flatpickr.min.css' %}">
+    <script src="{% static 'flatpickr/flatpickr.min.js' %}"></script>
+
+    <style>
+        body {
+            background-color: #f5f7fa;
+            font-family: "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 700px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #333;
+        }
+        form .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        button {
+            background: #0d6efd;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            font-size: 1.1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: #0b5ed7;
+        }
+        .row {
+            display: flex;
+            gap: 15px;
+        }
+        .col-half {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Créer plusieurs fiches</h1>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>{{ form.titre.label }}</label>
+            {{ form.titre }}
+        </div>
+
+        <div class="form-group">
+            <label>{{ form.discipline.label }}</label>
+            {{ form.discipline }}
+        </div>
+
+        <div class="form-group">
+            <label>{{ form.sequence.label }}</label>
+            {{ form.sequence }}
+        </div>
+
+        <div class="form-group">
+            <label>{{ form.niveau.label }}</label>
+            {{ form.niveau }}
+        </div>
+
+        <div class="form-group">
+            <label>{{ form.dates.label }}</label>
+            {{ form.dates }}
+        </div>
+
+        <div class="row">
+            <div class="form-group col-half">
+                <label>{{ form.heure_debut.label }}</label>
+                {{ form.heure_debut }}
+            </div>
+            <div class="form-group col-half">
+                <label>{{ form.heure_fin.label }}</label>
+                {{ form.heure_fin }}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>{{ form.bilan.label }}</label>
+            {{ form.bilan }}
+        </div>
+
+        <button type="submit">Créer</button>
+    </form>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    if (typeof flatpickr !== "undefined") {
+        console.log("✅ Flatpickr chargé !");
+        flatpickr("#dates-picker", {
+            mode: "multiple",
+            dateFormat: "Y-m-d",
+            allowInput: true,
+            locale: "fr"
+        });
+    } else {
+        console.error("❌ Flatpickr non chargé !");
+    }
+});
+</script>
+
+</body>
+</html>

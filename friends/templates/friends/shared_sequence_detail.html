@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ sequence.titre }} - Séquence partagée{% endblock %}
+
+{% block extra_css %}
+<style>
+    .shared-banner {
+        background: linear-gradient(135deg, var(--btn-primary-bg), #0056b3);
+        color: white;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border: 1px solid var(--border-color);
+    }
+    
+    [data-theme="dark"] .shared-banner {
+        background: linear-gradient(135deg, #4a90e2, #357abd);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .shared-info {
+        background: var(--alert-bg);
+        border-left: 4px solid var(--btn-primary-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 0 8px 8px 0;
+    }
+    
+    .sequence-content {
+        background: var(--card-bg);
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    [data-theme="dark"] .sequence-content {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .seance-item {
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        background: var(--alert-bg);
+        color: var(--text-color);
+        transition: background-color 0.2s ease;
+    }
+    
+    .seance-item:hover {
+        background: var(--card-bg);
+    }
+    
+    .readonly-badge {
+        background: var(--btn-secondary-bg);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8em;
+    }
+    
+    .can-edit-badge {
+        background: var(--btn-primary-bg);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8em;
+    }
+    
+    /* Amélioration des titres et textes */
+    h1, h2, h3, h4, h5, h6 {
+        color: var(--text-color);
+    }
+    
+    .shared-info h6 {
+        color: var(--btn-primary-bg);
+        margin-bottom: 10px;
+    }
+    
+    strong {
+        color: var(--text-color);
+    }
+    
+    /* Amélioration des boutons de retour */
+    .btn-outline-primary {
+        border-color: var(--btn-primary-bg);
+        color: var(--btn-primary-bg);
+    }
+    
+    [data-theme="dark"] .btn-outline-primary:hover {
+        background-color: var(--btn-primary-bg);
+        border-color: var(--btn-primary-bg);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Bannière de partage -->
+    <div class="shared-banner">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h4><i class="fas fa-share-alt"></i> Séquence partagée par {{ shared_sequence.shared_by.username }}</h4>
+                <p class="mb-0">
+                    {% if shared_sequence.message %}
+                        <i class="fas fa-comment"></i> "{{ shared_sequence.message }}"
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-md-4 text-right">
+                {% if can_edit %}
+                    <span class="can-edit-badge">
+                        <i class="fas fa-edit"></i> Modification autorisée
+                    </span>
+                {% else %}
+                    <span class="readonly-badge">
+                        <i class="fas fa-eye"></i> Lecture seule
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Informations de partage -->
+    <div class="shared-info">
+        <h6><i class="fas fa-info-circle"></i> Informations de partage</h6>
+        <p class="mb-1"><strong>Partagé le :</strong> {{ shared_sequence.created_at|date:"d/m/Y à H:i" }}</p>
+        <p class="mb-0"><strong>Auteur original :</strong> {{ sequence.user.first_name }} {{ sequence.user.last_name }} ({{ sequence.user.username }})</p>
+    </div>
+    
+    <!-- Contenu de la séquence -->
+    <div class="sequence-content">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1>{{ sequence.titre }}</h1>
+                <div class="row mt-3">
+                    {% if sequence.discipline %}
+                    <div class="col-md-4">
+                        <strong>Discipline :</strong> {{ sequence.discipline.nom }}
+                    </div>
+                    {% endif %}
+                    {% if sequence.niveau %}
+                    <div class="col-md-4">
+                        <strong>Niveau :</strong> {{ sequence.get_niveau_display }}
+                    </div>
+                    {% endif %}
+                    <div class="col-md-4">
+                        <strong>Nombre de séances :</strong> {{ seances.count }}
+                    </div>
+                </div>
+                
+                {% if sequence.objectifs %}
+                <div class="mt-3">
+                    <h5>Objectifs :</h5>
+                    <div class="objectifs-content">
+                        {{ sequence.objectifs|safe }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Séances de la séquence -->
+        {% if seances %}
+        <h3><i class="fas fa-calendar-alt"></i> Séances</h3>
+        {% for seance in seances %}
+        <div class="seance-item">
+            <div class="row">
+                <div class="col-md-8">
+                    <h5>{{ seance.titre }}</h5>
+                    <p class="text-muted mb-1">{{ seance.date|date:"d/m/Y" }}</p>
+                    {% if seance.duree %}
+                        <p class="mb-0"><strong>Durée :</strong> {{ seance.duree }}</p>
+                    {% endif %}
+                </div>
+                <div class="col-md-4 text-right">
+                    <a href="{% url 'friends:shared_fiche_detail' seance.id %}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-eye"></i> Voir la séance
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> Cette séquence ne contient pas encore de séances.
+        </div>
+        {% endif %}
+        
+        <!-- Description -->
+        {% if sequence.description %}
+        <div class="mt-4">
+            <h3><i class="fas fa-align-left"></i> Description</h3>
+            <div class="description-content">
+                {{ sequence.description|safe }}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Actions -->
+    <div class="mt-4 text-center">
+        <a href="{% url 'friends:shared_content' %}" class="btn btn-primary">
+            <i class="fas fa-arrow-left"></i> Retour au contenu partagé
+        </a>
+        <a href="{% url 'friends:dashboard' %}" class="btn btn-secondary">
+            <i class="fas fa-users"></i> Dashboard amis
+        </a>
+    </div>
+</div>
+{% endblock %}

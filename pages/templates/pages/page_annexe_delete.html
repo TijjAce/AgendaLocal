@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle"></i> Confirmer la suppression
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <strong>Attention !</strong> Cette action est irréversible. L'annexe et le fichier associé seront définitivement supprimés.
+                    </div>
+                    
+                    <h6>Détails de l'annexe à supprimer :</h6>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            {% if annexe.est_image %}
+                                <!-- Prévisualisation pour les images -->
+                                <div class="text-center">
+                                    <img src="{% url 'page_annexe_view' page.id annexe.id %}" 
+                                         alt="{{ annexe.nom }}" 
+                                         class="img-fluid rounded border" 
+                                         style="max-height: 200px; object-fit: cover;">
+                                </div>
+                            {% elif annexe.est_pdf %}
+                                <!-- Icône pour les PDF -->
+                                <div class="text-center">
+                                    <i class="fas fa-file-pdf text-danger" style="font-size: 4rem;"></i>
+                                </div>
+                            {% else %}
+                                <!-- Icône générique pour les autres fichiers -->
+                                <div class="text-center">
+                                    <i class="fas fa-file text-secondary" style="font-size: 4rem;"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Nom :</strong></td>
+                                    <td>{{ annexe.nom }}</td>
+                                </tr>
+                                {% if annexe.description %}
+                                <tr>
+                                    <td><strong>Description :</strong></td>
+                                    <td>{{ annexe.description }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <td><strong>Type :</strong></td>
+                                    <td>
+                                        {% if annexe.est_image %}
+                                            <span class="badge bg-info">Image</span>
+                                        {% elif annexe.est_pdf %}
+                                            <span class="badge bg-danger">PDF</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Fichier</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Taille :</strong></td>
+                                    <td>{{ annexe.taille_lisible }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Ajouté le :</strong></td>
+                                    <td>{{ annexe.date_ajout|date:"d/m/Y à H:i" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Compétence :</strong></td>
+                                    <td>{{ page.title }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a href="{{ page.get_absolute_url }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Annuler
+                        </a>
+                        
+                        <form method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Confirmer la suppression
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

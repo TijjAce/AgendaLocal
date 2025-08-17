@@ -1,0 +1,2100 @@
+{
+  "name": "Discipline",
+  "rang": 0,
+  "children": [
+    {
+      "name": "cycle 1",
+      "rang": 1,
+      "children": [
+        {
+          "name": "Mobiliser le langage dans toutes ses dimensions",
+          "rang": 2,
+          "children": [
+            {
+              "name": "Acquérir le langage oral",
+              "rang": 3,
+              "children": [
+                {
+                  "name": "Enrichir son vocabulaire",
+                  "rang": 4,
+                  "children": [
+                    {
+                      "name": "PS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "PS-Comprendre, mémoriser, réemployer les mots des corpus enseignés (2 par période)",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS-Organiser les mots en catégorie et en réseau",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "MS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "MS-Comprendre, mémoriser, réemployer les mots des corpus enseignés (2 par période)",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS-Organiser les mots en catégorie et en réseau",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "GS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "GS-Comprendre, mémoriser, réemployer les mots des corpus enseignés (3 par période)",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS-Organiser les mots en catégorie et en réseau",
+                          "rang": 6
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "Développer sa syntaxe",
+                  "rang": 4,
+                  "children": [
+                    {
+                      "name": "PS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "PS-Diversifier les pronoms employés",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS-Construire à l'oral un système de temps de plus en plus efficace",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS-Formuler des énoncés de plus en plus complexes",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "MS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "MS-Diversifier les pronoms employés",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS-Construire à l'oral un système de temps de plus en plus efficace",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS-Formuler des énoncés de plus en plus complexes",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "GS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "GS-Construire à l'oral un système de temps de plus en plus efficace",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS-Formuler des énoncés de plus en plus complexes ",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS-Diversifier les pronoms employés",
+                          "rang": 6
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "Articuler distinctement",
+                  "rang": 4,
+                  "children": [
+                    {
+                      "name": "PS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "PS-Articuler distinctement les couples de consonnes proches suivants : t/k, f/s, m/n",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "MS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "MS-Distinguer et produire correctement les nasales: é/in, a/an, o/on",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS-Articuler distinctement les couples de consonnes proches suivants : f/v, s/z, p/b, t/d, k/g",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "GS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "GS-Prononcer correctement les couples de consonnes proches suivants: ch/s, ch/j, ch/z",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS-Prononcer correctement les doubles consonnes: br/cr/bl/pl/sl",
+                          "rang": 6
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "Produire des discours variés",
+                  "rang": 4,
+                  "children": [
+                    {
+                      "name": "PS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "PS-Entrer en communication verbale avec un adulte ou un autre élève",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS-Dire ce qu'on fait",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS-Dire ce qu'on a fait et, peu à peu, ce qu'on va faire",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS-Prendre part à l'oralisation d'un court texte mémorisé",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "MS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "MS-Dire ce qu'on va faire",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS-Dire comment on a fait ou comment on va faire",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS-Dire comment on a fait ou comment on va faire",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS-Oraliser un court texte mémorisé",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS-Participer à des échanges en restant dans le propos",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "GS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "GS-Décrire une action ou une activité qui a été menée par un autre élève",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS-Se faire comprendre, par le truchement du langage, d'un adulte qui ne connait rien à la situation évoquée",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS-Participer à une conversation avec un adulte ou des pairs et reformuler son propos s'il n'a pas été compris",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS-Émettre une hypothèse",
+                          "rang": 6
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Passer de l'oral à l'écrit : se préparer à apprendre à lire",
+              "rang": 3,
+              "children": [
+                {
+                  "name": "Acquérir les habiletés phonologiques et le principe alphabétique",
+                  "rang": 4,
+                  "children": [
+                    {
+                      "name": "PS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "PS Identifier les sons de la langue, lors de situations d'écoute proposées par le professeur",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS Identifier un mot donné à l'oral dans une phrase, dans un texte",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS Scander les syllabes d'un mot",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS Dire des comptines courtes comprenant des phonèmes proches",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS Reconnaitre et nommer certaines lettres de son prénom écrit en capitales",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "MS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "MS Donner les valeurs sonores de quelques lettres de mots simples connus",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Connaitre la correspondance entre les lettres scriptes majuscules et minuscules et les lettres cursives minuscules",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Nommer les lettres de son prénom et quelques lettres de mots connus",
+                          "rang": 6
+                        },
+                        {
+                          "name": " MS Dire des comptines courtes comprenant des phonèmes proches",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Manipuler les syllabes d'un mot (ajout, suppression, permutation, répétition, fusion, substitution)",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Scander les syllabes d'un mot",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Entendre, discriminer des phonèmes",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Utiliser la voix parlée, chantée et les possibilités vocales (imitation de sons, onomatopées) afin d'expérimenter différents sons",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "GS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "GS Discriminer des mots auditivement proches",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Connaitre le nom des lettres de l'alphabet et leur valeur sonore hormis les occlusives",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Distinguer des lettres visuellement proches (b/d, c/e/o, p/q) grâce à leur écriture cursive et les nommer correctement",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Connaitre les différentes graphies d'une même lettre (majuscule lettre capitale; minuscules scriptes; cursives)",
+                          "rang": 6
+                        },
+                        {
+                          "name": " GS Connaitre le nom des lettres de l'alphabet",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Entendre, discriminer, manipuler des phonèmes",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Repérer et produire des rimes et des assonances",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Supprimer, ajouter, remplacer, inverser, substituer, fusionner les syllabes d'un mot",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Augmenter sa mémoire auditive et sa capacité de concentration",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Utiliser les possibilités sonores de la voix",
+                          "rang": 6
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "S'éveiller à la diversité linguistique",
+                  "rang": 4,
+                  "children": [
+                    {
+                      "name": "PS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "PS Écouter des chants, des comptines, des histoires connues dans des versions en français et en langue étrangère",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "MS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "MS Participer à des jeux dans une autre langue : jeux de doigts, rondes, jeux dansés, mimes, jeux de cour, jeux de cartes",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Comparer des histoires lues en français et dans une autre langue",
+                          "rang": 6
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "Écouter et comprendre différentes formes d'écrits",
+                  "rang": 4,
+                  "children": [
+                    {
+                      "name": "PS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "PS Repérer les outils fonctionnels utilisés quotidiennement en classe (étiquette du prénom, emploi du temps, affiches, etc.)",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS Reconnaitre quelques écrits utilisés et produits en classe (comptines, recettes, carnet de lecteur)",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS Reconnaitre un personnage, le nommer et le situer dans les illustrations",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS Comprendre des histoires où l'enchainement des actions peut être rattaché à des expériences connues de la vie quotidienne (le bain, le coucher, etc.)",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "MS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "MS Reconnaitre, nommer et identifier la fonction de différents écrits rencontrés dans la vie courante",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Prendre conscience de la notion de destinataire et de contenu de la requête adressée par un écrit",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Identifier et utiliser quotidiennement des outils fonctionnels pour se repérer, s'organiser, ranger",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Identifier et décrire le personnage principal et les personnages secondaires",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Comprendre des histoires dont les actions sont organisées autour d'une structure répétitive (rencontres successives) et commencer à comprendre les informations implicites (émotions, états et sentiments des personnages)",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "GS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "GS Différencier les types d'écrits et associer un écrit à un projet d'écriture ou de communication",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Repérer et dégager la structure et l'organisation (mise en page, typographie) de formes d'écrits fréquemment utilisés en classe (structure de la lettre, de la recette, du conte, d'un écrit documentaire, d'une notice de fabrication)",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Construire les caractéristiques des personnages archétypaux (loup, princesse, ogre, sorcière, renard, fée, etc.)",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Comprendre des histoires où l'enchainement des actions est lié au destin de personnages centraux ou secondaires qui évoluent et interagissent, dans des lieux diversifiés",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Comprendre les émotions, les intentions et les sentiments qui animent les personnages",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Établir un lien entre la lecture effectuée et sa propre expérience",
+                          "rang": 6
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Passer de l'oral à l'écrit : se préparer à apprendre à écrire",
+              "rang": 3,
+              "children": [
+                {
+                  "name": "Apprendre le geste d'écriture",
+                  "rang": 4,
+                  "children": [
+                    {
+                      "name": "PS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "PS Participer aux activités de motricité générale, de motricité fine et aux exercices de graphismes",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS Guider son geste par le regard lorsqu'il trace ou écrit",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS Prendre des repères spatiaux sur le support utilisé pour tracer",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "MS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "MS Adopter une posture adaptée au geste d'écriture",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Adopter une préhension correcte du stylo et s'entrainer à ne pas le lever en écrivant",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Utiliser de façon coordonnée les quatre articulations qui servent à tenir et guider le crayon (épaule, coude, poignet, doigts)",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Tracer des lettres capitales",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS S'initier aux tracés de l'écriture cursive",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "GS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "GS Tenir correctement son stylo par la pince des doigts et utiliser de façon coordonnée les quatre articulations (épaule, coude, poignet, doigts)",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Travailler la ligature entre deux lettres",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Tracer des lettres en écriture cursive, les enchainer",
+                          "rang": 6
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "Produire de premiers écrits",
+                  "rang": 4,
+                  "children": [
+                    {
+                      "name": "PS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "PS Percevoir que l'écrit encode l'oral",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS Utiliser un support écrit connu",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS Mimer la posture et les gestes d'écriture de l'adulte lors de la production de traces qui s'apparentent à de l'écriture",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS Tracer volontairement des signes abstraits dont on comprend qu'il ne s'agit pas de dessins, mais de lettres",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "MS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "MS Comprendre que lorsque l'adulte lit un même écrit plusieurs fois, ce qu'il lit est toujours identique",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Comprendre que l'écrit code des sons",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Proposer au professeur, lors d'une activité de dictée à l'adulte, le contenu d'un court message, stabiliser un énoncé oral et le mémoriser pour pouvoir ensuite le dicter au professeur",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Comparer la longueur d'un texte écrit et la durée du texte entendu",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Savoir que le sens de la lecture est de gauche à droite et de haut en bas",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Chercher parmi les outils à sa disposition des modèles qui seront réutilisés dans un essai d'écriture",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "GS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "GS Segmenter l'oral en mots, les mots en syllabes, quelques syllabes en phonèmes",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Comprendre que l'écrit encode l'oral et que les sons de la langue sont codés par des lettres",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Suivre la trace écrite des yeux lors d'une relecture par l'adulte d'un message produit lors d'une dictée à l'adulte",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Mémoriser la graphie d'un mot transparent, en s'appuyant sur la connaissance des lettres et la conscience phonologique et le retranscrire sur un support",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Réinvestir ses premières connaissances relatives au principe alphabétique pour produire un écrit",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Se repérer dans l'alphabet pour retrouver l'écriture d'une lettre nécessaire pour produire un écrit",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Mémoriser l'écriture de mots transparents ou de syllabes connues pour les réutiliser dans une production d'écrit",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Comprendre qu'il existe une norme pour écrire : ponctuation, majuscules, mise en page, etc.",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Persévérer pour mener la production d'écrit à son terme : préparation, énonciation et révision",
+                          "rang": 6
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Agir, s'exprimer, comprendre à travers l'activité physique",
+          "rang": 2,
+          "children": [
+            {
+              "name": "Agir dans l'espace, dans la durée et sur les objets",
+              "rang": 3,
+              "children": [
+                {
+                  "name": "Courir, sauter, lancer de différentes façons, dans des espaces et avec des matériels variés, dans un but précis",
+                  "rang": 4
+                },
+                {
+                  "name": "Ajuster et enchaîner ses actions et ses déplacements en fonction d'obstacles à franchir ou de la trajectoire d'objets sur lesquels agir",
+                  "rang": 4
+                },
+                {
+                  "name": "S'engager dans l'activité dans la durée et explorer différents possibles, à partir d'objets manipulables",
+                  "rang": 4
+                },
+                {
+                  "name": "Adapter son geste pour donner des trajectoires différentes à des projectiles variés et répondre aux consignes données",
+                  "rang": 4
+                },
+                {
+                  "name": "Ajuster ses actions et ses déplacements en fonction de la trajectoire de l'objet qu'un autre lui envoie",
+                  "rang": 4
+                },
+                {
+                  "name": "Trouver des manières de faire efficaces pour mieux atteindre les buts proposés et chercher à progresser en fonction des effets ou des scores obtenus",
+                  "rang": 4
+                },
+                {
+                  "name": "Investir un espace aménagé et explorer différents cheminements ou différentes actions",
+                  "rang": 4
+                },
+                {
+                  "name": "Proposer différentes solutions ou reproduire celles d'un autre, sur un parcours orienté, pour s'adapter aux obstacles rencontrés",
+                  "rang": 4
+                },
+                {
+                  "name": "Enchainer, dans la continuité, une succession d'actions différentes en respectant les contraintes de réalisation ou les critères de réussite proposés",
+                  "rang": 4
+                },
+                {
+                  "name": "Anticiper et mettre en oeuvre un projet d'action en fonction des effets ou des résultats obtenus afin d'atteindre le but recherché",
+                  "rang": 4
+                }
+              ]
+            },
+            {
+              "name": "Adapter ses équilibres et ses déplacements à des environnements et des contraintes variées",
+              "rang": 3,
+              "children": [
+                {
+                  "name": "Ajuster et enchaîner ses actions et ses déplacements en fonction d'obstacles à franchir",
+                  "rang": 4
+                },
+                {
+                  "name": "Se déplacer avec aisance et en sécurité dans des environnements variés, naturels ou aménagés",
+                  "rang": 4
+                },
+                {
+                  "name": "S'engager dans l'activité et élaborer des itinéraires ou des actions en réponse à un aménagement donné",
+                  "rang": 4
+                },
+                {
+                  "name": "Oser proposer, reproduire ou inventer des actions nouvelles, remettant en jeu les repères habituels\n\n",
+                  "rang": 4
+                },
+                {
+                  "name": "Se risquer à des déséquilibres afin de réaliser des « acrobaties » et montrer à d'autres ses trouvailles, ses propres « exploits »",
+                  "rang": 4
+                },
+                {
+                  "name": "Anticiper, réaliser, montrer à d'autres un projet de parcours, constitué de l'enchainement d'une courte séquence d'actions, se déroulant dans un espace orienté",
+                  "rang": 4
+                },
+                {
+                  "name": "Utiliser des engins inhabituels, en cherchant à réguler les déséquilibres que ceux-ci occasionnent",
+                  "rang": 4
+                },
+                {
+                  "name": "Trouver des moyens efficaces d'actions et de propulsion pour se déplacer dans un espace aménagé",
+                  "rang": 4
+                },
+                {
+                  "name": "Piloter des engins, en prenant des repères sur le milieu, afin de réaliser des itinéraires précis, des trajectoires prévues",
+                  "rang": 4
+                },
+                {
+                  "name": "Prélever des indices dans un espace plus large ou inconnu, prendre en compte des moyens de guidage ou d'orientation pour anticiper et réaliser un projet d'action",
+                  "rang": 4
+                },
+                {
+                  "name": "Entrer dans l'eau et participer aux jeux proposés",
+                  "rang": 4
+                },
+                {
+                  "name": "S'immerger totalement et ouvrir les yeux dans l'eau",
+                  "rang": 4
+                },
+                {
+                  "name": "Abandonner les appuis plantaires pour se déplacer par appuis manuels ou se laisser flotter",
+                  "rang": 4
+                },
+                {
+                  "name": "Se déplacer, tête dans l'eau, en s'aidant des bras et des jambes et explorer le volume aquatique",
+                  "rang": 4
+                }
+              ]
+            },
+            {
+              "name": "Communiquer avec les autres au travers d'actions à visée expressive ou artistique",
+              "rang": 3,
+              "children": [
+                {
+                  "name": "Construire et conserver une séquence d'actions et de déplacements, en relation avec d'autres partenaires, avec ou sans support musical",
+                  "rang": 4
+                },
+                {
+                  "name": "Coordonner ses gestes et ses déplacements avec ceux des autres, lors de rondes et jeux chantés",
+                  "rang": 4
+                },
+                {
+                  "name": "Explorer différents possibles à partir d'inducteurs variés, matériels ou imaginaires",
+                  "rang": 4
+                },
+                {
+                  "name": "Transformer son mouvement par l'exploration de contrastes de vitesses, d'énergies, de niveaux, de dissociations",
+                  "rang": 4
+                },
+                {
+                  "name": "Inventer, apprendre et reproduire une courte phrase dansée, constituée d'une séquence d'actions et de déplacements qu'il a pu globalement mémoriser",
+                  "rang": 4
+                },
+                {
+                  "name": "Inscrire ses actions et ses déplacements en relation avec les autres, dans un espace scénique commun orienté, dans le cadre d'un projet présenté à des spectateurs",
+                  "rang": 4
+                },
+                {
+                  "name": "Accorder ses gestes et ses déplacements avec ceux des autres pour évoluer collectivement selon une disposition spatiale simple",
+                  "rang": 4
+                },
+                {
+                  "name": "Synchroniser sa voix, ses frappés, ses gestes ou ses déplacements avec la pulsation, avec le tempo ou en relation avec des évènements sonores facilement perceptibles",
+                  "rang": 4
+                },
+                {
+                  "name": "Anticiper les changements d'orientation ou de mode de groupement en fonction du support musical, tout en respectant la disposition spatiale",
+                  "rang": 4
+                },
+                {
+                  "name": "Repérer la chronologie des actions ou des rôles dans différentes danses collectives, montrées ou transmises à d'autres",
+                  "rang": 4
+                }
+              ]
+            },
+            {
+              "name": "Collaborer, coopérer, s'opposer",
+              "rang": 3,
+              "children": [
+                {
+                  "name": "Courir, sauter, lancer de différentes façons, dans des espaces et avec des matériels variés, dans un but précis",
+                  "rang": 4
+                },
+                {
+                  "name": "Coopérer, exercer des rôles différents complémentaires, s'opposer, élaborer des stratégies pour viser un but ou un effet commun",
+                  "rang": 4
+                },
+                {
+                  "name": "S'inscrire dans des règles collectives afin d'atteindre, par des actions en parallèle, un but ou un effet commun",
+                  "rang": 4
+                },
+                {
+                  "name": "Reconnaître son appartenance à une équipe donnée et à y exercer différents rôles complémentaires",
+                  "rang": 4
+                },
+                {
+                  "name": "Se repérer dans un espace orienté pour s'opposer au projet d'un adversaire ou d'une équipe tenant simultanément un rôle antagoniste",
+                  "rang": 4
+                },
+                {
+                  "name": "Élaborer des stratégies individuelles ou collectives pour rechercher les manières de faire les plus efficaces",
+                  "rang": 4
+                },
+                {
+                  "name": "S'inscrire dans des formes de jeu collectives visant à déplacer, à faire glisser, à porter le corps d'un autre ou un objet lourd ou volumineux",
+                  "rang": 4
+                },
+                {
+                  "name": "Entrer en contact avec le corps d'un partenaire pour explorer différentes formes d'actions simples et mesurer les effets produits",
+                  "rang": 4
+                },
+                {
+                  "name": "S'opposer à un adversaire, par la médiation d'un objet que celui-ci veut s'approprier ou défendre",
+                  "rang": 4
+                },
+                {
+                  "name": "Organiser ses actions et ses saisies sur le corps de l'adversaire en fonction d'une intention précise ou d'une stratégie déterminée",
+                  "rang": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Agir, s'exprimer, comprendre à travers les activités artistiques",
+          "rang": 2,
+          "children": [
+            {
+              "name": "Les productions plastiques et visuelles",
+              "rang": 3,
+              "children": [
+                {
+                  "name": "Choisir différents outils, médiums, supports en fonction d'un projet ou d'une consigne et les utiliser en adaptant son geste",
+                  "rang": 4
+                },
+                {
+                  "name": "Pratiquer le dessin pour représenter ou illustrer, en étant fidèle au réel ou à un modèle, ou en inventant",
+                  "rang": 4
+                },
+                {
+                  "name": "Réaliser une composition personnelle en reproduisant des graphismes. Créer des graphismes nouveaux",
+                  "rang": 4
+                },
+                {
+                  "name": "Réaliser des compositions plastiques, seul ou en petit groupe, en choisissant et combinant des matériaux, en réinvestissant des techniques et des procédés",
+                  "rang": 4
+                },
+                {
+                  "name": "Décrire une image et exprimer son ressenti ou sa compréhension en utilisant un vocabulaire adapté",
+                  "rang": 4
+                },
+                {
+                  "name": "Proposer des solutions dans des situations de projet, de création, de résolution de problèmes",
+                  "rang": 4
+                },
+                {
+                  "name": "S'engager spontanément dans l'exploration libre, puis guidée, de différents outils et sur des supports variés",
+                  "rang": 4
+                },
+                {
+                  "name": "Commencer à représenter ou à illustrer ce qu'il voit, ce dont il se souvient ou ce qu'il imagine",
+                  "rang": 4
+                },
+                {
+                  "name": "Faire des choix d'outils et de procédés en fonction d'une intention donnée",
+                  "rang": 4
+                },
+                {
+                  "name": "S'exprimer sur sa production, sur celle d'un autre ou à propos d'une oeuvre d'artiste",
+                  "rang": 4
+                },
+                {
+                  "name": "S'exprimer sur sa production, sur celle d'un autre ou à propos d'une oeuvre d'artiste",
+                  "rang": 4
+                },
+                {
+                  "name": "Commencer à mettre en mots ce qu'il a voulu évoquer ou représenter",
+                  "rang": 4
+                },
+                {
+                  "name": "Commenter les effets produits, et les situer par rapport à ses intentions initiales",
+                  "rang": 4
+                },
+                {
+                  "name": "Contrôler et varier l'amplitude du geste pour s'adapter au format du support, produire des tracés de plus en plus diversifiés et plus précis",
+                  "rang": 4
+                },
+                {
+                  "name": "Reproduire, assembler, organiser, enchaîner des motifs graphiques puis en créer de nouveaux",
+                  "rang": 4
+                },
+                {
+                  "name": "S'exprimer sur ses propres tracés et nommer les éléments graphiques produits",
+                  "rang": 4
+                },
+                {
+                  "name": "Repérer des motifs graphiques sur différents supports ou dans son environnement pour constituer un répertoire",
+                  "rang": 4
+                },
+                {
+                  "name": "Commencer à mettre en mots ses procédures lors d'échanges entre pairs",
+                  "rang": 4
+                },
+                {
+                  "name": "Commencer à décrire une organisation produite ou observée",
+                  "rang": 4
+                },
+                {
+                  "name": "Explorer et s'approprier différents médiums, outils et matériaux",
+                  "rang": 4
+                },
+                {
+                  "name": "Faire des choix de médiums (craie, encre, peinture...), de matériaux, d'outils et de supports en fonction de son intention",
+                  "rang": 4
+                },
+                {
+                  "name": "S'exprimer sur sa production et / ou ses découvertes",
+                  "rang": 4
+                },
+                {
+                  "name": "Mémoriser et réinvestir un lexique approprié pour décrire les actions et / ou les effets produits",
+                  "rang": 4
+                },
+                {
+                  "name": "Observer des images fixes et animées, dire ce qu'il voit, ce qu'il imagine",
+                  "rang": 4
+                },
+                {
+                  "name": "Mettre en mots la relation entre ce qu'il a fait et ce qu'il souhaitait faire",
+                  "rang": 4
+                },
+                {
+                  "name": "Comparer pour commencer à classer en repérant les différences et les ressemblances entre des images fixes et animées selon des critères simples",
+                  "rang": 4
+                },
+                {
+                  "name": "Commencer à établir et verbaliser des liens entre des images sélectionnées",
+                  "rang": 4
+                },
+                {
+                  "name": "Entrer dans une lecture plus fine des images : lister les éléments narratifs et plastiques",
+                  "rang": 4
+                },
+                {
+                  "name": "Classer des images en déterminant des critères simples",
+                  "rang": 4
+                },
+                {
+                  "name": "Utiliser un lexique adapté pour décrire ce qu'il voit, dire son ressenti ou traduire sa compréhension",
+                  "rang": 4
+                },
+                {
+                  "name": "Transformer des images en respectant une consigne",
+                  "rang": 4
+                }
+              ]
+            },
+            {
+              "name": "Univers sonores",
+              "rang": 3,
+              "children": [
+                {
+                  "name": "Avoir mémorisé un répertoire varié de comptines et de chansons et les interpréter de manière expressive",
+                  "rang": 4
+                },
+                {
+                  "name": "Jouer avec sa voix pour explorer des variantes de timbre, d'intensité, de hauteur, de nuance",
+                  "rang": 4
+                },
+                {
+                  "name": "Repérer et reproduire, corporellement ou avec des instruments, des formules rythmiques simples",
+                  "rang": 4
+                },
+                {
+                  "name": "Proposer des solutions dans des situations de projet, de création, de résolution de problèmes, avec son corps, sa voix ou des objets sonores",
+                  "rang": 4
+                },
+                {
+                  "name": "Parler d'un extrait musical et exprimer son ressenti ou sa compréhension en utilisant un vocabulaire adapté",
+                  "rang": 4
+                },
+                {
+                  "name": "Oser jouer avec sa voix seul ou en groupe pour reproduire un motif musical, une phrase (chanson, comptine)",
+                  "rang": 4
+                },
+                {
+                  "name": "Mémoriser des comptines et des chansons pour chanter en choeur avec ses pairs",
+                  "rang": 4
+                },
+                {
+                  "name": "S'exprimer sur sa production et sur celles de ses pairs",
+                  "rang": 4
+                },
+                {
+                  "name": "S'exprimer sur sa production et sur celles de ses pairs",
+                  "rang": 4
+                },
+                {
+                  "name": "S'exprimer sur sa production et sur celles de ses pairs",
+                  "rang": 4
+                },
+                {
+                  "name": "Enrichir son bagage lexical spécifique au travers des chants et le réinvestir dans d'autres contextes",
+                  "rang": 4
+                },
+                {
+                  "name": "Mobiliser son attention lors de moments d'écoute",
+                  "rang": 4
+                },
+                {
+                  "name": "Faire des propositions musicales enrichies par les écoutes",
+                  "rang": 4
+                },
+                {
+                  "name": "Développer un vocabulaire pour nommer les paramètres du son",
+                  "rang": 4
+                },
+                {
+                  "name": "Réinvestir le vocabulaire acquis lors des diverses activités de production",
+                  "rang": 4
+                },
+                {
+                  "name": "Explorer différents instruments de musique, des objets sonores, les trier, les catégoriser (type de timbres et durée du son...)",
+                  "rang": 4
+                },
+                {
+                  "name": "Explorer son corps au travers de percussions corporelles",
+                  "rang": 4
+                },
+                {
+                  "name": "Faire le lien entre le geste et le son, le maîtriser en vue de produire un son attendu",
+                  "rang": 4
+                },
+                {
+                  "name": "S'exprimer sur sa production et sur celles de ses pairs",
+                  "rang": 4
+                },
+                {
+                  "name": "Développer un vocabulaire musical des actions liées au geste producteur ou caractérisant les principes sonores",
+                  "rang": 4
+                }
+              ]
+            },
+            {
+              "name": "Le spectacle vivant",
+              "rang": 3,
+              "children": [
+                {
+                  "name": "Proposer des solutions dans des situations de projet, de création, de résolution de problèmes, avec son corps, sa voix ou des objets sonores",
+                  "rang": 4
+                },
+                {
+                  "name": "Oser mettre en jeu son corps avec et face aux autres : en imitant ce que fait l'enseignant, un artiste ou un pair, en inventant ou en assemblant des propositions après avoir fait un choix",
+                  "rang": 4
+                },
+                {
+                  "name": "Occuper un espace et y évoluer",
+                  "rang": 4
+                },
+                {
+                  "name": "Transformer ses façons usuelles d'agir et de se déplacer",
+                  "rang": 4
+                },
+                {
+                  "name": "S'inscrire dans l'espace et le temps d'une production collective",
+                  "rang": 4
+                },
+                {
+                  "name": "Devenir un spectateur actif et attentif",
+                  "rang": 4
+                },
+                {
+                  "name": "Témoigner de sa sensibilité à la portée poétique et esthétique du mouvement",
+                  "rang": 4
+                },
+                {
+                  "name": "Exprimer intentionnellement des émotions par le visage ou par le corps",
+                  "rang": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Acquisition des premiers outils mathématiques",
+          "rang": 2,
+          "children": [
+            {
+              "name": "Découvrir les nombres",
+              "rang": 3,
+              "children": [
+                {
+                  "name": "Exprimer une quantité par un nombre",
+                  "rang": 4,
+                  "children": [
+                    {
+                      "name": "PS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "PS Comprendre qu'une quantité d'objets ne dépend ni de la nature de ces objets ni de leur organisation spatiale",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS Comprendre que si on ajoute un objet à une collection, le nombre qui désigne sa quantité est le suivant dans la suite orale des noms des nombres",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS Comprendre que dans la suite orale des noms des nombres, chaque nombre s'obtient en ajoutant un au nombre précédent",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS Dénombrer une collection d'objets (jusqu'à trois, voire quatre)",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS Constituer une collection (jusqu'à trois, voire quatre objets) d'un cardinal donné",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS Comparer des quantités",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS Composer et décomposer des nombres (deux, trois, voire quatre)",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS Manipuler et verbaliser des compositions et des décompositions de nombres",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS Associer une quantité, le nom d'un nombre et une écriture chiffrée",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS Connaitre la comptine numérique de un à six",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "MS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "MS Poursuivre la compréhension qu'une quantité d'objets ne dépend ni de leur nature ni de leur organisation spatiale",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Poursuivre la compréhension que si on ajoute un objet à une collection, le nombre qui désigne sa quantité est le suivant dans la suite orale des noms des nombres",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Parcourir une collection en passant une et une seule fois par chacun de ses éléments",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Dénombrer une collection d'objets (jusqu'à six)",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Constituer une collection d'un cardinal donné (jusqu'à six objets)",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Comparer des quantités",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Composer et décomposer des nombres inférieurs ou égaux à six",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Manipuler et verbaliser des compositions et des décompositions de nombres",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Associer une quantité, le nom d'un nombre et une écriture chiffrée",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Écrire en chiffres les nombres de un à six",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Connaitre la comptine numérique de un à douze",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "GS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "GS Poursuivre la compréhension qu'une quantité d'objets ne dépend ni de la nature de ces objets ni de leur organisation spatiale",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Poursuivre la compréhension que si on ajoute un objet à une collection, le nombre qui désigne sa quantité est le suivant dans la suite orale des noms des nombres",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Poursuivre la compréhension que dans la suite orale des nombres, chaque nombre s’obtient en ajoutant un au nombre précédent.",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Poursuivre les stratégies de parcours d'une collection en passant une et une seule fois par chacun de ses éléments",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Dénombrer une collection d'objets (jusqu'à dix, voire au-delà)",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Constituer une collection d'un cardinal donné (jusqu'à dix, voire au-delà)",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Comparer des quantités",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Comparer des quantités",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Manipuler et verbaliser des compositions et des décompositions de nombres",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Surcompter (c'est-à-dire compter de un en un à partir d'un nombre donné)",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Associer une quantité, le nom d'un nombre et une écriture chiffrée",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Écrire en chiffres les nombres de un à dix",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Connaitre et utiliser la comptine numérique jusqu'à trente",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Exprimer un rang ou une position par un nombre",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "MS",
+                          "rang": 6,
+                          "children": [
+                            {
+                              "name": "MS Comprendre la notion de rang",
+                              "rang": 7
+                            },
+                            {
+                              "name": "MS Déterminer l'effet d'un déplacement sur une position",
+                              "rang": 7
+                            },
+                            {
+                              "name": "MS Se familiariser avec le début de la bande numérique",
+                              "rang": 7
+                            }
+                          ]
+                        },
+                        {
+                          "name": "GS",
+                          "rang": 6,
+                          "children": [
+                            {
+                              "name": "GS Comprendre la notion de rang d'un objet",
+                              "rang": 7
+                            },
+                            {
+                              "name": "GS Déterminer l'effet d'un déplacement sur une position",
+                              "rang": 7
+                            },
+                            {
+                              "name": "GS Comprendre le lien entre un ajout et un avancement et celui entre un retrait et un recul",
+                              "rang": 7
+                            },
+                            {
+                              "name": "GS Construire la bande numérique jusqu'à dix",
+                              "rang": 7
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Utiliser les nombres pour résoudre des problèmes",
+              "rang": 3,
+              "children": [
+                {
+                  "name": "Résoudre des problèmes arithmétiques",
+                  "rang": 4,
+                  "children": [
+                    {
+                      "name": "PS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "PS Recherche du tout ou d'une partie dans un problème de parties-tout",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "MS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "MS Rechercher le tout ou une partie dans un problème de parties-tout",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Trouver une position finale à partir d'une position initiale et d'un déplacement sur une piste du type du jeu de l'oie ou sur la bande numérique",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Rechercher le tout dans un problème de groupements",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Rechercher la valeur d'une part dans un problème de partage équitable",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "GS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "GS Déterminer le tout ou une partie dans un problème de parties-tout (d'abord deux parties, puis éventuellement trois)",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Déterminer la quantité d'objets ayant été ajoutée ou retirée à une collection à partir de ses quantités initiale et finale",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Déterminer la position finale (respectivement initiale) à partir de la position initiale (respectivement finale) et d'un déplacement sur une piste du type du jeu de l'oie ou sur la bande numérique",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Déterminer le cardinal d'une collection à partir de celui d'une autre collection et de l'écart entre les deux",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Déterminer le tout dans un problème de groupement d'objets",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Déterminer la valeur d'une part dans un problème de partage équitable (avec éventuellement un reste)",
+                          "rang": 6
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Explorer les solides et les formes planes",
+              "rang": 3,
+              "children": [
+                {
+                  "name": "Explorer les formes et l'espace",
+                  "rang": 4,
+                  "children": [
+                    {
+                      "name": "PS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "PS Reconnaitre, trier et classer des objets selon leur forme",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS Percevoir l'invariance de la forme d'un objet par rapport aux déplacements qu'il peut subir",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS Reproduire des assemblages de solides ou de formes planes",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "MS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "MS Reconnaitre et classer des solides (cube, boule, pyramide à base carrée, cylindre) et des formes géométriques planes (triangle, carré, disque)",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Reproduire des assemblages de solides ou de formes planes (au maximum cinq)",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "GS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "GS Décrire quelques solides simples: cube, pavé, boule, pyramides à base carrée ou triangulaire, cylindre, cône",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Reconnaitre, trier et classer des formes géométriques planes, indépendamment d'autres critères comme la couleur, la taille, l'orientation",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Décrire et nommer quelques figures géométriques simples: carré, rectangle, triangle, disque",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Reproduire des assemblages de solides (au maximum cinq) et de formes planes (au maximum huit)",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS S'approprier la règle comme outil de tracé",
+                          "rang": 6
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Explorer des grandeurs : la longueur, la masse",
+              "rang": 3,
+              "children": [
+                {
+                  "name": "La longueur",
+                  "rang": 4,
+                  "children": [
+                    {
+                      "name": "PS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "PS Reconnaitre un objet de même longueur qu'un objet donné",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS Comparer des objets selon leur longueur",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "MS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "MS Comparer directement des longueurs d'objets rectilignes et verbaliser le résultat",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Classer des objets rectilignes selon leur longueur",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Ordonner des objets rectilignes selon leur longueur et verbaliser le résultat",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "GS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "GS Comparer indirectement des longueurs d'objets rectilignes",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Ordonner des objets rectilignes selon leur longueur (au maximum cinq)",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Produire un objet rectiligne de même longueur qu'un objet donné",
+                          "rang": 6
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "La masse",
+                  "rang": 4,
+                  "children": [
+                    {
+                      "name": "MS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "MS Comparer les masses de deux objets",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "GS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "GS Ordonner les masses de trois objets. Verbaliser les résultats",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Reconnaitre l'égalité de deux masses et verbaliser le résultat",
+                          "rang": 6
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Se familiariser avec les motifs organisés",
+              "rang": 3,
+              "children": [
+                {
+                  "name": "Motifs et algorithmes",
+                  "rang": 4,
+                  "children": [
+                    {
+                      "name": "PS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "PS Mémoriser un motif répétitif très simple",
+                          "rang": 6
+                        },
+                        {
+                          "name": "PS Reproduire un motif répétitif à l'identique",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "MS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "MS Mémoriser un motif répétitif simple",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Reconnaitre un motif répétitif à ses régularités",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Décrire oralement des motifs répétitifs simples de différentes natures, sans nécessairement recourir au vocabulaire spécialisé",
+                          "rang": 6
+                        },
+                        {
+                          "name": "MS Prolonger l'amorce d'un motif répétitif et verbaliser la règle de prolongement utilisée",
+                          "rang": 6
+                        }
+                      ]
+                    },
+                    {
+                      "name": "GS",
+                      "rang": 5,
+                      "children": [
+                        {
+                          "name": "GS Repérer et décrire oralement la structure d'un motif évolutif (par exemple relevant de la transcription formelle ABAABBAAABBB)",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Identifier la structure d'un motif répétitif ou évolutif indépendamment des éléments physiques qui le composent",
+                          "rang": 6
+                        },
+                        {
+                          "name": "GS Créer des motifs de différentes natures",
+                          "rang": 6
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Explorer le monde",
+          "rang": 2,
+          "children": [
+            {
+              "name": "Se repérer dans le temps et l'espace",
+              "rang": 3,
+              "children": [
+                {
+                  "name": "Se repérer dans le temps",
+                  "rang": 4,
+                  "children": [
+                    {
+                      "name": "Situer des événements vécus les uns par rapport aux autres et en les repérant dans la journée, la semaine, le mois ou une saison",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Ordonner une suite de photographies ou d'images, pour rendre compte d'une situation vécue ou d'un récit fictif entendu, en marquant de manière exacte succession et simultanéité",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Utiliser des marqueurs temporels adaptés (puis, pendant, avant, après...) dans des récits, descriptions ou explications",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Associer les moments de la journée avec des activités régulières de la classe",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Dire ce qu'on a fait avant et après une activité",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Se repérer dans les premiers éléments chronologiques sur un temps court (la demi-journée) et utiliser correctement les mots « matin », « apres-midi », « soir »",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Utiliser correctement les mots « jour » et « mois »",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Connaitre la suite des noms des jours, de la semaine et savoir dire « celui qui précède » et « celui qui suit » un jour donné",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Utiliser des marques temporelles dans le langage, notamment pour situer ce dont on parle par rapport au moment où l'on parle (hier, aujourd'hui, demain, plus tard...)",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Utiliser les formes des verbes adaptées (présent, futur, passé) même si la conjugaison exacte fait encore défaut",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Utiliser le vocabulaire adapté pour traduire une relation entre deux faits, deux moments : avant, après, pendant, bien avant, bien après, en même temps, plus tôt que, plus tard, dans deux jours",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Utiliser divers outils (comptage régulier, sablier, horloge...) pour comparer des durées",
+                      "rang": 5
+                    }
+                  ]
+                },
+                {
+                  "name": "se repérer dans l'espace",
+                  "rang": 4,
+                  "children": [
+                    {
+                      "name": "Situer des objets par rapport à soi, entre eux, par rapport à des objets repères",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Se situer par rapport à d'autres, par rapport à des objets repères",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Dans un environnement bien connu, réaliser un trajet, un parcours à partir de sa représentation (dessin ou codage)",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Élaborer des premiers essais de représentation plane, communicables (construction d'un code commun)",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Orienter et utiliser correctement une feuille de papier, un livre ou autre support d'écrit, en fonction de consignes, d'un but ou d'un projet précis",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Utiliser des marqueurs spatiaux adaptés (devant, derrière, droite, gauche, dessus, dessous...) dans des récits, des descriptions ou explications",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Se repérer dans l'espace de la classe",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Identifier les espaces communs de l'école (salle de classe, salle de jeux, couloirs, dortoir, salle de restauration, cour...) et s'y déplacer en autonomie",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Utiliser des locutions spatiales en particulier celles fondées sur des oppositions : sur/sous, dedans/dehors, à côté de/loin de...",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Se déplacer en respectant des règles ou consignes ",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Reconnaître et utiliser des représentations d'espaces connus",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Coder des déplacements, des emplacements sur un « plan » connu ou une photographie d'un espace vécu (salle de classe, salle de jeux, cour de récréation...)",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Repérer sa droite et sa gauche",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Décrire des positions dans l'espace : positions par rapport à soi ; positions relatives de deux objets ou deux personnes l'un(e) par rapport à l'autre",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Se repérer dans une page et utiliser le vocabulaire usuel (haut et bas notamment, gauche et droite)",
+                      "rang": 5
+                    },
+                    {
+                      "name": "Parler d'espaces lointains (hors du vécu) en employant un vocabulaire adapté pour décrire des habitats, des monuments, des paysages (en fonction de ce qui a été travaillé en classe)",
+                      "rang": 5
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Découvrir le monde du vivant",
+              "rang": 3,
+              "children": [
+                {
+                  "name": "Reconnaître et décrire les principales étapes du développement d'un animal ou d'un végétal, dans une situation d'observation du réel ou sur des images fixes ou animées",
+                  "rang": 4
+                },
+                {
+                  "name": "Connaître les besoins essentiels de quelques animaux et végétaux",
+                  "rang": 4
+                },
+                {
+                  "name": "Situer et nommer les différentes parties du corps humain, sur soi ou sur une représentation",
+                  "rang": 4
+                },
+                {
+                  "name": "Connaître et mettre en oeuvre quelques règles d'hygiène corporelle et d'une vie saine",
+                  "rang": 4
+                },
+                {
+                  "name": "Situer et nommer quelques parties du corps sur lui-même",
+                  "rang": 4
+                },
+                {
+                  "name": "Situer et nommer quelques parties du visage et du corps sur lui-même et sur une représentation",
+                  "rang": 4
+                },
+                {
+                  "name": "Lister les parties du corps nécessaires à une première représentation d'un être humain (tête, corps, bras, jambes, pieds, mains)",
+                  "rang": 4
+                },
+                {
+                  "name": "Situer et nommer les parties du visage, du corps et quelques articulations (cheville, genou, coude, hanche, épaule, nuque) sur lui-même ou sur une représentation",
+                  "rang": 4
+                },
+                {
+                  "name": "Évoluer de traces éparses à un dessin plus représentatif du corps humain",
+                  "rang": 4
+                },
+                {
+                  "name": "Dessiner un être humain complet (pieds, jambes, bassin, torse, bras, tête avec éventuellement quelques détails sur le visage)",
+                  "rang": 4
+                },
+                {
+                  "name": "Dessiner un être humain complet avec des parties de son visage. Les membres commencent à prendre de l'épaisseur",
+                  "rang": 4
+                },
+                {
+                  "name": "Se représenter avec un corps articulé en mouvement (en train de courir ou de sauter...)",
+                  "rang": 4
+                },
+                {
+                  "name": "Respecter les règles d'hygiène après invitation, avec l'aide de l'adulte",
+                  "rang": 4
+                },
+                {
+                  "name": "Réaliser les premiers gestes qui garantissent son hygiène corporelle",
+                  "rang": 4
+                },
+                {
+                  "name": "Demander de l'aide pour répondre à ses besoins physiologiques",
+                  "rang": 4
+                },
+                {
+                  "name": "Gérer ses besoins physiologiques de façon autonome",
+                  "rang": 4
+                },
+                {
+                  "name": "Réguler et anticiper ses besoins physiologiques pour ne pas arrêter les activités prévues",
+                  "rang": 4
+                },
+                {
+                  "name": "Énoncer les règles d'hygiène corporelle et de vie saine",
+                  "rang": 4
+                },
+                {
+                  "name": "Énoncer les règles d'hygiène corporelle et de vie saine",
+                  "rang": 4
+                },
+                {
+                  "name": "Établir des premiers liens entre ce qu'il consomme et les conséquences possibles sur sa santé",
+                  "rang": 4
+                },
+                {
+                  "name": "Reconnaître et nommer les animaux observés en classe et participer à l'entretien des élevages en fournissant la « nourriture » nécessaire, en assurant le nettoyage",
+                  "rang": 4
+                },
+                {
+                  "name": "Savoir que les animaux ont besoin de se nourrir et de boire pour vivre",
+                  "rang": 4
+                },
+                {
+                  "name": "Savoir que les animaux ont besoin de boire et d'une nourriture adaptée à leur régime alimentaire",
+                  "rang": 4
+                },
+                {
+                  "name": "Savoir que les animaux ont besoin de respirer, de dormir",
+                  "rang": 4
+                },
+                {
+                  "name": "Savoir que les animaux grandissent et se transforment",
+                  "rang": 4
+                },
+                {
+                  "name": "Connaître les principales étapes du développement d'un animal (naissance, croissance, reproduction, vieillissement, mort)",
+                  "rang": 4
+                },
+                {
+                  "name": "Observer et repérer les naissances dans les élevages",
+                  "rang": 4
+                },
+                {
+                  "name": "Savoir qu'en général, la reproduction animale nécessite un mâle et une femelle",
+                  "rang": 4
+                },
+                {
+                  "name": "Associer des modes de reproduction à des types d'animaux : Le bébé se développe dans le ventre de la femelle",
+                  "rang": 4
+                },
+                {
+                  "name": "Associer des modes de reproduction à des types d'animaux : Le bébé se développe dans un oeuf, à l'extérieur de la femelle",
+                  "rang": 4
+                },
+                {
+                  "name": "Savoir que chez certains animaux, les femelles peuvent avoir des bébés sans l'intervention d'un mâle",
+                  "rang": 4
+                },
+                {
+                  "name": "Reconnaître et nommer les plantes observées en classe et participer à l'entretien des plantations en fournissant l'arrosage et l'entretien nécessaires",
+                  "rang": 4
+                },
+                {
+                  "name": "Reconnaître et nommer les plantes observées en classe et participer à l'entretien des plantations en fournissant l'arrosage et l'entretien nécessaires",
+                  "rang": 4
+                },
+                {
+                  "name": "Savoir que les plantes ont des besoins : eau, lumière et nourriture pour se développer",
+                  "rang": 4
+                },
+                {
+                  "name": "Savoir que les végétaux sont vivants, que les plantes grandissent et se transforment",
+                  "rang": 4
+                },
+                {
+                  "name": "Reconnaître les principales étapes du développement d'un végétal",
+                  "rang": 4
+                },
+                {
+                  "name": "Établir des premiers liens entre fleur, fruit et graine",
+                  "rang": 4
+                }
+              ]
+            },
+            {
+              "name": "Explorer la matière",
+              "rang": 3,
+              "children": [
+                {
+                  "name": "Choisir, utiliser et savoir désigner des outils et des matériaux adaptés à une situation, à des actions techniques spécifiques (plier, couper, coller, assembler, actionner...)",
+                  "rang": 4
+                },
+                {
+                  "name": "Identifier quelques matériaux et les différencier en grandes familles (les papiers, les cartons, les tissus, les pâtes...)",
+                  "rang": 4
+                },
+                {
+                  "name": "Découvrir et manipuler des matériaux existants ou fabriqués en classe (ex : pâte à sel, pâte à tarte...) ",
+                  "rang": 4
+                },
+                {
+                  "name": "Trier, comparer des matériaux en fonction de caractéristiques physiques accessibles par les 5 sens (couleur, forme, taille, odeur, bruit, masse, texture, dureté) ou d'autres propriétés physiques (opaque, transparent, translucide ; attiré ou non par l'aimant ; perméable, imperméable...)",
+                  "rang": 4
+                },
+                {
+                  "name": "Connaître d'autres propriétés physiques des matériaux (perméabilité, magnétisme, transparence...)",
+                  "rang": 4
+                },
+                {
+                  "name": "Classer des objets selon le matériau qui les compose (manipulation) selon une propriété commune (formes, goût, texture...), selon leurs usages",
+                  "rang": 4
+                },
+                {
+                  "name": "Repérer des transformations de matériaux sous l'effet de la chaleur (sécher, durcir, fondre...), de l'eau (mouiller, dissoudre...), de l'air (déplacer, gonfler...), d'actions mécaniques avec des mains (froisser, plier...) et avec des outils (découper, percer...)",
+                  "rang": 4
+                },
+                {
+                  "name": "Agir de manière raisonnée sur un matériau, choisir le bon matériau en fonction d'un besoin, d'un effet attendu, d'un projet",
+                  "rang": 4
+                },
+                {
+                  "name": "Modifier une procédure si nécessaire pour l'adapter au résultat attendu",
+                  "rang": 4
+                },
+                {
+                  "name": "Prendre conscience du caractère réversible (ou non) de certaines actions",
+                  "rang": 4
+                },
+                {
+                  "name": "Lister les actions et l'ordre de réalisation, les transformations accomplies et les outils nécessaires",
+                  "rang": 4
+                }
+              ]
+            },
+            {
+              "name": "Utiliser, fabriquer, manipuler des objets",
+              "rang": 3,
+              "children": [
+                {
+                  "name": "Réaliser des constructions ; construire des maquettes simples en fonction de plans ou d'instructions de montage",
+                  "rang": 4
+                },
+                {
+                  "name": "Réaliser des montages de plus en plus complexes avec une intention repérable",
+                  "rang": 4
+                },
+                {
+                  "name": "Prendre en compte les risques de l'environnement familier proche (objets et comportements dangereux, produits toxiques) ",
+                  "rang": 4
+                },
+                {
+                  "name": "Réaliser des montages de plus en plus complexes avec une intention formulée",
+                  "rang": 4
+                },
+                {
+                  "name": "Réaliser une construction, reconstituer un objet en disposant d'un modèle de référence qu'il peut manipuler ou observer",
+                  "rang": 4
+                },
+                {
+                  "name": "Réaliser une construction, reconstituer un objet à partir d'un modèle représenté (photographie, dessin, schéma)",
+                  "rang": 4
+                },
+                {
+                  "name": "Réaliser une construction, reconstituer un objet à partir d'illustrations des étapes de la construction, de représentations avec différentes vues (en éclaté, en perspective, de plusieurs points de vue...)",
+                  "rang": 4
+                },
+                {
+                  "name": "Représenter par le dessin/schéma un montage qu'il a réalisé",
+                  "rang": 4
+                },
+                {
+                  "name": "Réaliser des photographies caractéristiques des différentes étapes du montage",
+                  "rang": 4
+                },
+                {
+                  "name": "Reconnaître les différents systèmes de fermeture des vêtements ou des chaussures (bouton, bouton-pression, fermeture éclair, lacets, bande autoagrippante...)",
+                  "rang": 4
+                },
+                {
+                  "name": "Découvrir la fonction d'usage (boutonner, attacher, fermer, fixer...) et réaliser les gestes adaptés (utiliser efficacement une fermeture à glissière, un boutonpression, etc.)",
+                  "rang": 4
+                },
+                {
+                  "name": "Reconnaître, identifier et nommer quelques objets parmi une famille d'objets",
+                  "rang": 4
+                },
+                {
+                  "name": "Trier, comparer en fonction des usages",
+                  "rang": 4
+                },
+                {
+                  "name": "Utiliser de manière raisonnée, choisir le bon outil en fonction d'un besoin, d'un effet attendu, d'un contexte d'utilisation",
+                  "rang": 4
+                },
+                {
+                  "name": "Identifier et nommer les risques liés à certaines activités ou à certains outils utilisés (chuter, se pincer, se couper, s'étouffer, s'électrocuter, se brûler...)",
+                  "rang": 4
+                },
+                {
+                  "name": "Adapter et justifier son comportement en fonction des risques identifiés",
+                  "rang": 4
+                },
+                {
+                  "name": "Reconnaître certains produits toxiques ou dangereux et le justifier grâce aux indications visuelles présentes",
+                  "rang": 4
+                },
+                {
+                  "name": "Alerter un adulte en cas de danger pour lui-même ou pour un camarade",
+                  "rang": 4
+                }
+              ]
+            },
+            {
+              "name": "Utiliser des outils numériques",
+              "rang": 3,
+              "children": [
+                {
+                  "name": "Utiliser des objets numériques : appareil photo, tablette, ordinateur",
+                  "rang": 4
+                },
+                {
+                  "name": "Agir sur une tablette numérique (allumer, éteindre, choisir une application : l'ouvrir, l'utiliser et la fermer)",
+                  "rang": 4
+                },
+                {
+                  "name": "Choisir l'outil numérique qui convient en fonction d'un besoin (photographier, filmer, enregistrer la voix, copier du texte...)",
+                  "rang": 4
+                },
+                {
+                  "name": "Manipuler une souris d'ordinateur pour pointer un élément, cliquer sur un élément, déplacer un élément",
+                  "rang": 4
+                },
+                {
+                  "name": "Repérer des lettres sur un clavier (ordinateur ou tablette)",
+                  "rang": 4
+                },
+                {
+                  "name": "Copier, écrire à l'aide d'un clavier (ordinateur ou tablette) : son prénom, des mots, le titre d'un livre, des phrases, de courts textes",
+                  "rang": 4
+                },
+                {
+                  "name": "Utiliser les touches de direction (haut, bas, gauche, droite) pour déplacer un personnage dans un jeu éducatif ",
+                  "rang": 4
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,488 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mes Séquences{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Styles pour l'organisation par années et périodes */
+    .year-section {
+        margin-bottom: 2rem;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .year-header {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        padding: 1rem;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+    
+    .periods-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .period-column {
+        background: #f8f9fa;
+        border: 2px dashed #dee2e6;
+        border-radius: 8px;
+        min-height: 200px;
+        padding: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .period-column.drag-over {
+        border-color: #007bff;
+        background: #e3f2fd;
+    }
+    
+    .period-header {
+        font-weight: bold;
+        color: #495057;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #dee2e6;
+    }
+    
+    .sequence-card {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        cursor: move;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .sequence-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .sequence-card.dragging {
+        opacity: 0.5;
+        transform: rotate(5deg);
+    }
+    
+    .sequence-title {
+        font-weight: bold;
+        color: #212529;
+        margin-bottom: 0.25rem;
+    }
+    
+    .sequence-meta {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    
+    .sequence-discipline {
+        display: inline-block;
+        padding: 0.2rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+    
+    .unassigned-sequences {
+        background: #fff3cd;
+        border: 2px dashed #ffc107;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .unassigned-header {
+        font-weight: bold;
+        color: #856404;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .unassigned-header i {
+        margin-right: 0.5rem;
+    }
+    
+    /* Styles pour le mode sombre */
+    [data-theme="dark"] .year-section {
+        border-color: #5a5a5a;
+    }
+    
+    [data-theme="dark"] .period-column {
+        background: #2a2a2a;
+        border-color: #5a5a5a;
+    }
+    
+    [data-theme="dark"] .period-column.drag-over {
+        background: #1a3a5a;
+        border-color: #007bff;
+    }
+    
+    [data-theme="dark"] .sequence-card {
+        background: #3a3a3a;
+        border-color: #5a5a5a;
+        color: #d0d0d0;
+    }
+    
+    [data-theme="dark"] .sequence-title {
+        color: #d0d0d0;
+    }
+    
+    [data-theme="dark"] .unassigned-sequences {
+        background: #3a3a2a;
+        border-color: #ffc107;
+    }
+    
+    [data-theme="dark"] .unassigned-header {
+        color: #ffc107;
+    }
+    
+    [data-theme="dark"] .period-header {
+        color: #d0d0d0;
+        border-color: #5a5a5a;
+    }
+    
+    [data-theme="dark"] .btn-outline-secondary {
+        color: #d0d0d0;
+        border-color: #5a5a5a;
+    }
+    
+    [data-theme="dark"] .btn-outline-secondary:hover {
+        background: #5a5a5a;
+        border-color: #5a5a5a;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- En-tête avec titre et contrôles -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-1">
+                        <i class="fas fa-layer-group me-2"></i>
+                        Mes Séquences
+                    </h1>
+                    <p class="text-muted mb-0">Organisez vos séquences par années et périodes</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <select class="form-select" id="yearSelector" style="width: auto;">
+                        {% for year in available_years %}
+                            <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>
+                                Année {{ year }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <a href="{% url 'sequences:sequences_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>
+                        Créer une séquence
+                    </a>
+                </div>
+            </div>
+
+            <!-- Séquences non assignées -->
+            {% if sequences_without_period %}
+            <div class="unassigned-sequences">
+                <div class="unassigned-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Séquences non assignées ({{ sequences_without_period|length }})
+                        </div>
+                        <div class="text-end">
+                            <strong class="text-warning">{{ unassigned_total_hours }}h</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for sequence in sequences_without_period %}
+                        <div class="sequence-card" draggable="true" data-sequence-id="{{ sequence.id }}">
+                            <div class="sequence-discipline" style="background-color: {{ sequence.discipline.color|default:'#007bff' }};">
+                                {{ sequence.discipline.title }}
+                            </div>
+                            <div class="sequence-title">{{ sequence.name }}</div>
+                            <div class="sequence-meta">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span><i class="fas fa-list-ul me-1"></i>{{ sequence.seances_count }} séances</span>
+                                    <strong class="text-success">{{ sequence.total_hours|floatformat:1 }}h</strong>
+                                </div>
+                                <div class="small text-muted">
+                                    <i class="fas fa-clock me-1"></i>{{ sequence.total_duration_str }}
+                                    {% if sequence.niveau %}
+                                        <span class="ms-2"><i class="fas fa-graduation-cap me-1"></i>{{ sequence.niveau }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Organisation par année scolaire -->
+            <div class="year-section">
+                <div class="year-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            Année scolaire {{ selected_year }}
+                        </div>
+                        <div class="text-end">
+                            <div class="h5 mb-0">
+                                <i class="fas fa-clock me-1"></i>
+                                {{ total_hours_year }}h au total
+                            </div>
+                            <small class="opacity-75">Toutes périodes confondues</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="periods-container">
+                    {% for period_id, period_data in sequences_by_period.items %}
+                        <div class="period-column" data-period-id="{{ period_id }}">
+                            <div class="period-header">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <i class="fas fa-calendar me-2"></i>
+                                        {{ period_data.periode.nom }}
+                                    </div>
+                                    <div class="text-end">
+                                        <strong class="text-primary">{{ period_data.total_hours }}h</strong>
+                                    </div>
+                                </div>
+                                <small class="text-muted d-block">{{ period_data.periode.description }}</small>
+                            </div>
+                            
+                            <div class="period-sequences">
+                                {% for sequence in period_data.sequences %}
+                                    <div class="sequence-card" draggable="true" data-sequence-id="{{ sequence.id }}">
+                                        <div class="sequence-discipline" style="background-color: {{ sequence.discipline.color|default:'#007bff' }};">
+                                            {{ sequence.discipline.title }}
+                                        </div>
+                                        <div class="sequence-title">{{ sequence.name }}</div>
+                                        <div class="sequence-meta">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <span><i class="fas fa-list-ul me-1"></i>{{ sequence.seances_count }} séances</span>
+                                                <strong class="text-success">{{ sequence.total_hours|floatformat:1 }}h</strong>
+                                            </div>
+                                            <div class="small text-muted">
+                                                <i class="fas fa-clock me-1"></i>{{ sequence.total_duration_str }}
+                                                {% if sequence.niveau %}
+                                                    <span class="ms-2"><i class="fas fa-graduation-cap me-1"></i>{{ sequence.niveau }}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="mt-2">
+                                            <a href="{% url 'sequences:sequences_detail' sequence.id %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye me-1"></i>Voir
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% empty %}
+                                    <div class="text-center text-muted py-3">
+                                        <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                                        <small>Glissez vos séquences ici</small>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Message si aucune séquence -->
+            {% if not sequences_by_period and not sequences_without_period %}
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-layer-group fa-4x text-muted"></i>
+                    </div>
+                    <h4 class="text-muted mb-3">Aucune séquence créée</h4>
+                    <p class="text-muted mb-4">
+                        Commencez par créer votre première séquence pédagogique.
+                    </p>
+                    <a href="{% url 'sequences:sequences_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>
+                        Créer ma première séquence
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion du changement d'année scolaire
+    const yearSelector = document.getElementById('yearSelector');
+    if (yearSelector) {
+        yearSelector.addEventListener('change', function() {
+            const selectedYear = this.value;
+            const url = new URL(window.location);
+            url.searchParams.set('year', selectedYear);
+            window.location.href = url.toString();
+        });
+    }
+    
+    // Variables pour le drag and drop
+    let draggedElement = null;
+    let draggedSequenceId = null;
+    
+    // Gestion du drag and drop pour les séquences
+    const sequenceCards = document.querySelectorAll('.sequence-card');
+    const periodColumns = document.querySelectorAll('.period-column');
+    const unassignedArea = document.querySelector('.unassigned-sequences');
+    
+    // Événements de drag pour les cartes de séquences
+    sequenceCards.forEach(card => {
+        card.addEventListener('dragstart', function(e) {
+            draggedElement = this;
+            draggedSequenceId = this.getAttribute('data-sequence-id');
+            this.classList.add('dragging');
+            
+            // Définir les données de transfert
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', this.outerHTML);
+        });
+        
+        card.addEventListener('dragend', function(e) {
+            this.classList.remove('dragging');
+            draggedElement = null;
+            draggedSequenceId = null;
+        });
+    });
+    
+    // Événements de drop pour les colonnes de périodes
+    periodColumns.forEach(column => {
+        column.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            this.classList.add('drag-over');
+        });
+        
+        column.addEventListener('dragleave', function(e) {
+            // Vérifier si on quitte vraiment la colonne (pas juste un enfant)
+            if (!this.contains(e.relatedTarget)) {
+                this.classList.remove('drag-over');
+            }
+        });
+        
+        column.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            
+            if (draggedSequenceId) {
+                const periodId = this.getAttribute('data-period-id');
+                moveSequenceToPeriod(draggedSequenceId, periodId);
+            }
+        });
+    });
+    
+    // Événements de drop pour la zone des séquences non assignées
+    if (unassignedArea) {
+        unassignedArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            this.style.backgroundColor = '#fff3cd';
+        });
+        
+        unassignedArea.addEventListener('dragleave', function(e) {
+            if (!this.contains(e.relatedTarget)) {
+                this.style.backgroundColor = '';
+            }
+        });
+        
+        unassignedArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.style.backgroundColor = '';
+            
+            if (draggedSequenceId) {
+                moveSequenceToPeriod(draggedSequenceId, null); // null = retirer de la période
+            }
+        });
+    }
+    
+    // Fonction pour déplacer une séquence vers une période
+    function moveSequenceToPeriod(sequenceId, periodId) {
+        const formData = new FormData();
+        formData.append('sequence_id', sequenceId);
+        if (periodId) {
+            formData.append('period_id', periodId);
+        }
+        
+        // Ajouter le token CSRF
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+                         document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        if (csrfToken) {
+            formData.append('csrfmiddlewaretoken', csrfToken);
+        }
+        
+        fetch('{% url "sequences:move_sequence_to_period" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Afficher un message de succès
+                showMessage(data.message, 'success');
+                
+                // Recharger la page pour voir les changements
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                showMessage(data.error || 'Erreur lors du déplacement', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            showMessage('Erreur lors du déplacement de la séquence', 'error');
+        });
+    }
+    
+    // Fonction pour afficher des messages
+    function showMessage(message, type) {
+        // Créer un élément de message
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+        messageDiv.style.position = 'fixed';
+        messageDiv.style.top = '20px';
+        messageDiv.style.right = '20px';
+        messageDiv.style.zIndex = '9999';
+        messageDiv.style.minWidth = '300px';
+        
+        messageDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(messageDiv);
+        
+        // Supprimer automatiquement après 5 secondes
+        setTimeout(() => {
+            if (messageDiv.parentNode) {
+                messageDiv.parentNode.removeChild(messageDiv);
+            }
+        }, 5000);
+    }
+});
+</script>
+{% endblock %}

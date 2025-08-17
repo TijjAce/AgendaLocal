@@ -1,0 +1,408 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mes séquences - Planif facile{% endblock %}
+
+{% block extra_css %}
+<style>
+    .sequences-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        color: white;
+        padding: 3rem 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .sequence-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        border: none;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+    
+    .sequence-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+    
+    .sequence-card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 1.5rem;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .sequence-title {
+        color: #495057;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        font-size: 1.25rem;
+    }
+    
+    .sequence-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+    
+    .sequence-card-body {
+        padding: 1.5rem;
+    }
+    
+    .sequence-description {
+        color: #6c757d;
+        margin-bottom: 1rem;
+        line-height: 1.6;
+    }
+    
+    .sequence-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid #f8f9fa;
+    }
+    
+    .btn-outline-primary {
+        border-radius: 8px;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-danger {
+        border-radius: 8px;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 12px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #6c757d;
+    }
+    
+    .empty-state-icon {
+        font-size: 4rem;
+        color: #dee2e6;
+        margin-bottom: 1rem;
+    }
+    
+    .filter-section {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .stats-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        border-left: 4px solid #667eea;
+    }
+    
+    .stats-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stats-label {
+        color: #6c757d;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .discipline-badge {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .level-badge {
+        background: #28a745;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .search-box {
+        border-radius: 12px;
+        border: 2px solid #e9ecef;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .search-box:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- En-tête -->
+    <div class="sequences-header">
+        <h1 class="mb-3">
+            <i class="fas fa-layer-group me-2"></i>
+            Mes séquences pédagogiques
+        </h1>
+        <p class="mb-0 opacity-75">
+            Organisez et gérez vos séquences d'apprentissage
+        </p>
+    </div>
+    
+    <!-- Statistiques et actions -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stats-number">{{ sequences|length }}</div>
+                <div class="stats-label">Séquence{{ sequences|length|pluralize }}</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="filter-section">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <input type="text" 
+                               class="form-control search-box" 
+                               id="search-sequences" 
+                               placeholder="Rechercher une séquence...">
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-select" id="filter-discipline">
+                            <option value="">Toutes les disciplines</option>
+                            {% for discipline in disciplines %}
+                                <option value="{{ discipline.id }}">{{ discipline.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 text-end">
+            <a href="{% url 'sequences:sequences_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>
+                Nouvelle séquence
+            </a>
+        </div>
+    </div>
+    
+    <!-- Liste des séquences -->
+    <div class="row">
+        <div class="col-12">
+            {% if sequences %}
+                <div id="sequences-container">
+                    {% for sequence in sequences %}
+                        <div class="sequence-card" 
+                             data-discipline="{{ sequence.discipline.id }}" 
+                             data-name="{{ sequence.name|lower }}">
+                            <div class="sequence-card-header">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h3 class="sequence-title">{{ sequence.name }}</h3>
+                                        <div class="sequence-meta">
+                                            <div class="meta-item">
+                                                <i class="fas fa-book"></i>
+                                                <span class="discipline-badge">{{ sequence.discipline.name }}</span>
+                                            </div>
+                                            {% if sequence.level %}
+                                                <div class="meta-item">
+                                                    <i class="fas fa-graduation-cap"></i>
+                                                    <span class="level-badge">{{ sequence.level }}</span>
+                                                </div>
+                                            {% endif %}
+                                            {% if sequence.duration %}
+                                                <div class="meta-item">
+                                                    <i class="fas fa-clock"></i>
+                                                    <span>{{ sequence.duration }} séance{{ sequence.duration|pluralize }}</span>
+                                                </div>
+                                            {% endif %}
+                                            <div class="meta-item">
+                                                <i class="fas fa-calendar-plus"></i>
+                                                <span>{{ sequence.created_at|date:"d/m/Y" }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="sequence-card-body">
+                                {% if sequence.description %}
+                                    <p class="sequence-description">{{ sequence.description|truncatewords:30 }}</p>
+                                {% else %}
+                                    <p class="sequence-description text-muted fst-italic">Aucune description</p>
+                                {% endif %}
+                                
+                                <div class="sequence-actions">
+                                    <div>
+                                        <small class="text-muted">
+                                            <i class="fas fa-edit me-1"></i>
+                                            Modifiée le {{ sequence.updated_at|date:"d/m/Y" }}
+                                        </small>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <a href="{% url 'sequences_detail' sequence.id %}" 
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-eye me-1"></i>
+                                            Voir
+                                        </a>
+                                        <a href="{% url 'sequences:sequences_edit' sequence.id %}" 
+                                           class="btn btn-outline-secondary btn-sm">
+                                            <i class="fas fa-edit me-1"></i>
+                                            Modifier
+                                        </a>
+                                        <button type="button" 
+                                                class="btn btn-outline-danger btn-sm" 
+                                                onclick="confirmDelete('{{ sequence.name }}', '{% url 'sequences_delete' sequence.id %}')">
+                                            <i class="fas fa-trash me-1"></i>
+                                            Supprimer
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <h3 class="mb-3">Aucune séquence créée</h3>
+                    <p class="mb-4">
+                        Commencez par créer votre première séquence pédagogique pour organiser vos cours.
+                    </p>
+                    <a href="{% url 'sequences:sequences_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>
+                        Créer ma première séquence
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                    Confirmer la suppression
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer la séquence <strong id="sequence-name"></strong> ?</p>
+                <p class="text-muted">Cette action est irréversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <a href="#" id="confirm-delete" class="btn btn-danger">
+                    <i class="fas fa-trash me-1"></i>
+                    Supprimer
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search-sequences');
+    const disciplineFilter = document.getElementById('filter-discipline');
+    const sequencesContainer = document.getElementById('sequences-container');
+    
+    // Fonction de recherche et filtrage
+    function filterSequences() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const selectedDiscipline = disciplineFilter.value;
+        const sequences = document.querySelectorAll('.sequence-card');
+        
+        sequences.forEach(sequence => {
+            const name = sequence.getAttribute('data-name');
+            const discipline = sequence.getAttribute('data-discipline');
+            
+            const matchesSearch = !searchTerm || name.includes(searchTerm);
+            const matchesDiscipline = !selectedDiscipline || discipline === selectedDiscipline;
+            
+            if (matchesSearch && matchesDiscipline) {
+                sequence.style.display = 'block';
+                sequence.style.animation = 'fadeIn 0.3s ease';
+            } else {
+                sequence.style.display = 'none';
+            }
+        });
+    }
+    
+    // Event listeners pour les filtres
+    if (searchInput) {
+        searchInput.addEventListener('input', filterSequences);
+    }
+    
+    if (disciplineFilter) {
+        disciplineFilter.addEventListener('change', filterSequences);
+    }
+});
+
+// Fonction de confirmation de suppression
+function confirmDelete(sequenceName, deleteUrl) {
+    document.getElementById('sequence-name').textContent = sequenceName;
+    document.getElementById('confirm-delete').href = deleteUrl;
+    
+    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    modal.show();
+}
+
+// Animation CSS
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

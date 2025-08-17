@@ -1,0 +1,466 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Analyse des Compétences - Planif Facile{% endblock %}
+
+{% block extra_css %}
+<style>
+    .analytics-container {
+        padding: 20px;
+    }
+    
+    .chart-container {
+        position: relative;
+        height: 400px;
+        margin: 20px 0;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 20px;
+    }
+    
+    .controls-panel {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .chart-type-selector {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .chart-type-btn {
+        padding: 8px 16px;
+        border: 2px solid #dee2e6;
+        background: white;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .chart-type-btn.active {
+        background: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+    
+    .chart-type-btn:hover {
+        border-color: #007bff;
+    }
+    
+    .stats-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .stat-number {
+        font-size: 2em;
+        font-weight: bold;
+        color: #007bff;
+    }
+    
+    .stat-label {
+        color: #6c757d;
+        margin-top: 5px;
+    }
+    
+    .loading {
+        text-align: center;
+        padding: 40px;
+        color: #6c757d;
+    }
+    
+    .error {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 15px 0;
+    }
+    
+    .comparison-mode {
+        background: #e7f3ff;
+        border: 2px solid #007bff;
+    }
+    
+    .discipline-selector {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        padding: 10px;
+    }
+    
+    .discipline-checkbox {
+        margin: 5px 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analytics-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-chart-radar"></i> Analyse des Compétences</h1>
+        <button class="btn btn-outline-primary" id="toggleComparison">
+            <i class="fas fa-balance-scale"></i> Mode Comparaison
+        </button>
+    </div>
+
+    <!-- Panneau de contrôles -->
+    <div class="controls-panel" id="controlsPanel">
+        <div class="row">
+            <div class="col-md-3">
+                <label for="schoolYearSelect" class="form-label">Année scolaire</label>
+                <select class="form-select" id="schoolYearSelect">
+                    {% for year in school_years %}
+                        <option value="{{ year }}" {% if year == current_year %}selected{% endif %}>
+                            {{ year }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-3" id="singleDisciplineSelector">
+                <label for="disciplineSelect" class="form-label">Discipline</label>
+                <select class="form-select" id="disciplineSelect">
+                    <option value="">Toutes les disciplines</option>
+                    {% for discipline in disciplines %}
+                        <option value="{{ discipline.id }}">{{ discipline.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-3" id="multipleDisciplineSelector" style="display: none;">
+                <label class="form-label">Disciplines à comparer</label>
+                <div class="discipline-selector">
+                    {% for discipline in disciplines %}
+                        <div class="discipline-checkbox">
+                            <input type="checkbox" class="form-check-input discipline-compare" 
+                                   id="discipline_{{ discipline.id }}" value="{{ discipline.id }}">
+                            <label class="form-check-label" for="discipline_{{ discipline.id }}">
+                                {{ discipline.title }}
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="col-md-3" id="chartTypeSelector">
+                <label class="form-label">Type d'analyse</label>
+                <div class="chart-type-selector">
+                    <button class="chart-type-btn active" data-type="frequency">
+                        <i class="fas fa-hashtag"></i> Fréquence
+                    </button>
+                    <button class="chart-type-btn" data-type="coverage">
+                        <i class="fas fa-percentage"></i> Couverture
+                    </button>
+                    <button class="chart-type-btn" data-type="progression">
+                        <i class="fas fa-chart-line"></i> Progression
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cartes de statistiques -->
+    <div class="stats-cards" id="statsCards">
+        <div class="stat-card">
+            <div class="stat-number" id="totalSessions">-</div>
+            <div class="stat-label">Séances totales</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="totalCompetencies">-</div>
+            <div class="stat-label">Compétences travaillées</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="avgCompetencies">-</div>
+            <div class="stat-label">Moyenne par séance</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="disciplineCount">-</div>
+            <div class="stat-label">Disciplines actives</div>
+        </div>
+    </div>
+
+    <!-- Conteneur du graphique -->
+    <div class="chart-container">
+        <canvas id="competenciesChart"></canvas>
+        <div class="loading" id="chartLoading">
+            <i class="fas fa-spinner fa-spin"></i> Chargement des données...
+        </div>
+        <div class="error" id="chartError" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i> <span id="errorMessage"></span>
+        </div>
+    </div>
+
+    <!-- Aide contextuelle -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5><i class="fas fa-info-circle"></i> Guide d'utilisation</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <h6><i class="fas fa-hashtag text-primary"></i> Fréquence</h6>
+                    <p>Montre combien de fois chaque compétence a été travaillée dans l'année.</p>
+                </div>
+                <div class="col-md-4">
+                    <h6><i class="fas fa-percentage text-success"></i> Couverture</h6>
+                    <p>Affiche le pourcentage de séances où chaque compétence a été abordée.</p>
+                </div>
+                <div class="col-md-4">
+                    <h6><i class="fas fa-chart-line text-warning"></i> Progression</h6>
+                    <p>Analyse la répartition des compétences dans l'année scolaire.</p>
+                </div>
+            </div>
+            <hr>
+            <p><strong>Mode Comparaison :</strong> Sélectionnez plusieurs disciplines pour comparer leur couverture de compétences sur le même graphique.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let competenciesChart = null;
+let isComparisonMode = false;
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializeChart();
+    setupEventListeners();
+    loadChartData();
+});
+
+function setupEventListeners() {
+    // Sélecteurs de contrôle
+    document.getElementById('schoolYearSelect').addEventListener('change', loadChartData);
+    document.getElementById('disciplineSelect').addEventListener('change', loadChartData);
+    
+    // Types de graphique
+    document.querySelectorAll('.chart-type-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            loadChartData();
+        });
+    });
+    
+    // Mode comparaison
+    document.getElementById('toggleComparison').addEventListener('click', toggleComparisonMode);
+    
+    // Checkboxes de disciplines (mode comparaison)
+    document.querySelectorAll('.discipline-compare').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            if (isComparisonMode) {
+                loadComparisonData();
+            }
+        });
+    });
+}
+
+function initializeChart() {
+    const ctx = document.getElementById('competenciesChart').getContext('2d');
+    competenciesChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const chartType = getActiveChartType();
+                            let suffix = '';
+                            if (chartType === 'coverage') suffix = '%';
+                            else if (chartType === 'frequency') suffix = ' séances';
+                            else if (chartType === 'progression') suffix = ' pts';
+                            
+                            return context.dataset.label + ': ' + context.parsed.r.toFixed(1) + suffix;
+                        }
+                    }
+                }
+            },
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    },
+                    pointLabels: {
+                        font: {
+                            size: 12
+                        },
+                        callback: function(label) {
+                            // Tronquer les labels trop longs
+                            return label.length > 15 ? label.substring(0, 15) + '...' : label;
+                        }
+                    }
+                }
+            },
+            animation: {
+                duration: 1000,
+                easing: 'easeInOutQuart'
+            }
+        }
+    });
+}
+
+function toggleComparisonMode() {
+    isComparisonMode = !isComparisonMode;
+    const toggleBtn = document.getElementById('toggleComparison');
+    const controlsPanel = document.getElementById('controlsPanel');
+    const singleSelector = document.getElementById('singleDisciplineSelector');
+    const multipleSelector = document.getElementById('multipleDisciplineSelector');
+    const chartTypeSelector = document.getElementById('chartTypeSelector');
+    
+    if (isComparisonMode) {
+        toggleBtn.innerHTML = '<i class="fas fa-chart-radar"></i> Mode Simple';
+        toggleBtn.classList.remove('btn-outline-primary');
+        toggleBtn.classList.add('btn-primary');
+        controlsPanel.classList.add('comparison-mode');
+        singleSelector.style.display = 'none';
+        multipleSelector.style.display = 'block';
+        chartTypeSelector.style.display = 'none'; // Masquer en mode comparaison
+        loadComparisonData();
+    } else {
+        toggleBtn.innerHTML = '<i class="fas fa-balance-scale"></i> Mode Comparaison';
+        toggleBtn.classList.remove('btn-primary');
+        toggleBtn.classList.add('btn-outline-primary');
+        controlsPanel.classList.remove('comparison-mode');
+        singleSelector.style.display = 'block';
+        multipleSelector.style.display = 'none';
+        chartTypeSelector.style.display = 'block';
+        loadChartData();
+    }
+}
+
+function getActiveChartType() {
+    return document.querySelector('.chart-type-btn.active').dataset.type;
+}
+
+function showLoading() {
+    document.getElementById('chartLoading').style.display = 'block';
+    document.getElementById('chartError').style.display = 'none';
+}
+
+function hideLoading() {
+    document.getElementById('chartLoading').style.display = 'none';
+}
+
+function showError(message) {
+    document.getElementById('errorMessage').textContent = message;
+    document.getElementById('chartError').style.display = 'block';
+    document.getElementById('chartLoading').style.display = 'none';
+}
+
+function updateStats(meta) {
+    document.getElementById('totalSessions').textContent = meta.total_sessions || '-';
+    document.getElementById('totalCompetencies').textContent = meta.total_competencies || '-';
+    
+    if (meta.total_sessions && meta.total_competencies) {
+        const avg = (meta.total_competencies / meta.total_sessions).toFixed(1);
+        document.getElementById('avgCompetencies').textContent = avg;
+    } else {
+        document.getElementById('avgCompetencies').textContent = '-';
+    }
+    
+    document.getElementById('disciplineCount').textContent = meta.disciplines_count || '1';
+}
+
+function loadChartData() {
+    if (isComparisonMode) return;
+    
+    showLoading();
+    
+    const params = new URLSearchParams({
+        school_year: document.getElementById('schoolYearSelect').value,
+        chart_type: getActiveChartType(),
+    });
+    
+    const disciplineId = document.getElementById('disciplineSelect').value;
+    if (disciplineId) {
+        params.append('discipline_id', disciplineId);
+    }
+    
+    fetch(`/calendar/api/competencies-data/?${params}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                showError(data.error);
+                return;
+            }
+            
+            competenciesChart.data = data;
+            competenciesChart.update();
+            updateStats(data.meta);
+            hideLoading();
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            showError('Erreur lors du chargement des données');
+        });
+}
+
+function loadComparisonData() {
+    const selectedDisciplines = Array.from(document.querySelectorAll('.discipline-compare:checked'))
+        .map(cb => cb.value);
+    
+    if (selectedDisciplines.length === 0) {
+        competenciesChart.data = { labels: [], datasets: [] };
+        competenciesChart.update();
+        updateStats({});
+        return;
+    }
+    
+    showLoading();
+    
+    const params = new URLSearchParams({
+        school_year: document.getElementById('schoolYearSelect').value,
+    });
+    
+    selectedDisciplines.forEach(id => {
+        params.append('discipline_ids[]', id);
+    });
+    
+    fetch(`/calendar/api/competencies-comparison/?${params}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                showError(data.error);
+                return;
+            }
+            
+            competenciesChart.data = data;
+            competenciesChart.update();
+            updateStats(data.meta);
+            hideLoading();
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            showError('Erreur lors du chargement des données de comparaison');
+        });
+}
+</script>
+{% endblock %}

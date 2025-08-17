@@ -1,0 +1,68 @@
+ PlanifFacile 
+ Description
+
+Ce projet est une application web développée avec Django 5.2.4, utilisant une architecture modulaire et des outils pour la gestion de contenu et d’arborescences hiérarchiques.
+
+Dépendances principales
+
+Le projet repose sur les dépendances suivantes :
+
+Django 5.2.4 – Framework web Python
+
+Licence : BSD-3-Clause
+
+django-bootstrap5 25.2 – Intégration de Bootstrap 5 dans Django
+
+Licence : MIT
+
+django-mptt 0.17.0 – Modélisation d’arbres hiérarchiques
+
+Licence : MIT
+
+Pillow 11.3.0 – Traitement d’images
+
+Licence : HPND
+
+python-dotenv 1.1.1 – Gestion des variables d’environnement
+
+Licence : BSD-3-Clause
+
+requests 2.32.4 – Client HTTP pour Python
+
+Licence : Apache 2.0
+
+
+Icônes et ressources graphiques
+
+Icônes fournies par Flaticon
+
+Auteur : Freepik
+
+Licence : Attribution requise (usage gratuit avec mention de l’auteur)]
+
+Ces licences s’appliquent uniquement aux dépendances listées, et non au code de ce projet.
+
+Installation
+
+git clone https://github.com/TijjAce/AgendaLocal.git
+cd ./AgendaLocal
+##Sur windows
+./start.sh
+
+##Sur Macos
+./start.sh
+
+
+
+Copyright (c) 2025 Titet Clément 
+
+Tous droits réservés.
+
+Ce projet est strictement propriétaire.  
+Toute reproduction, distribution, modification, extraction de code ou utilisation, 
+partielle ou totale, est interdite sans autorisation écrite préalable de l’auteur.  
+
+Les utilisateurs sont uniquement autorisés à exécuter ce projet pour un usage 
+strictement privé et personnel.  
+
+Toute utilisation commerciale est interdite.  

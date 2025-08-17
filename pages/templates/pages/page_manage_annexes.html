@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Gérer les annexes - {{ page.title }}</h2>
+                <a href="{{ page.get_absolute_url }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour à la compétence
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-paperclip"></i> Annexes (images et PDF)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" id="annexes-form">
+                        {% csrf_token %}
+                        
+                        <div id="annexes-formset">
+                            {{ formset.management_form }}
+                            
+                            {% for form in formset %}
+                                <div class="annexe-form border rounded p-3 mb-3" data-form-index="{{ forloop.counter0 }}">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="mb-0">
+                                            {% if form.instance.pk %}
+                                                Annexe existante
+                                            {% else %}
+                                                Nouvelle annexe
+                                            {% endif %}
+                                        </h6>
+                                        <button type="button" class="btn btn-outline-danger btn-sm remove-annexe" data-form-index="{{ forloop.counter0 }}">
+                                            <i class="fas fa-trash"></i> Supprimer
+                                        </button>
+                                    </div>
+                                    
+                                    {% if form.instance.pk and form.instance.fichier %}
+                                        <div class="current-file mb-3">
+                                            <div class="alert alert-info">
+                                                <strong>Fichier actuel :</strong> {{ form.instance.nom }}
+                                                {% if form.instance.est_image %}
+                                                    <div class="mt-2">
+                                                        <img src="{% url 'page_annexe_view' page.id form.instance.id %}" 
+                                                             alt="{{ form.instance.nom }}" 
+                                                             class="img-thumbnail" 
+                                                             style="max-height: 100px;">
+                                                    </div>
+                                                {% endif %}
+                                                <small class="d-block mt-1">
+                                                    Taille: {{ form.instance.taille_lisible }} | 
+                                                    Ajouté le {{ form.instance.date_ajout|date:"d/m/Y à H:i" }}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            {% bootstrap_field form.nom %}
+                                        </div>
+                                        <div class="col-md-3">
+                                            {% bootstrap_field form.ordre %}
+                                        </div>
+                                        <div class="col-md-3">
+                                            {% if form.DELETE %}
+                                                <div class="form-check mt-4">
+                                                    {{ form.DELETE }}
+                                                    <label class="form-check-label text-danger" for="{{ form.DELETE.id_for_label }}">
+                                                        Marquer pour suppression
+                                                    </label>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            {% bootstrap_field form.fichier %}
+                                            <small class="form-text text-muted">
+                                                Formats acceptés: JPG, PNG, GIF, WebP, PDF (max 10MB)
+                                            </small>
+                                        </div>
+                                        <div class="col-md-6">
+                                            {% bootstrap_field form.description %}
+                                        </div>
+                                    </div>
+                                    
+                                    {% for hidden in form.hidden_fields %}
+                                        {{ hidden }}
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="mt-4">
+                            <button type="button" id="add-annexe" class="btn btn-outline-primary">
+                                <i class="fas fa-plus"></i> Ajouter une annexe
+                            </button>
+                        </div>
+                        
+                        <div class="mt-4 d-flex justify-content-between">
+                            <a href="{{ page.get_absolute_url }}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Enregistrer les annexes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const formsetContainer = document.getElementById('annexes-formset');
+    const addButton = document.getElementById('add-annexe');
+    const totalFormsInput = document.getElementById('id_annexes-TOTAL_FORMS');
+    
+    let formCount = parseInt(totalFormsInput.value);
+    
+    // Fonction pour ajouter une nouvelle annexe
+    addButton.addEventListener('click', function() {
+        const emptyForm = document.querySelector('.annexe-form').cloneNode(true);
+        
+        // Remplacer les indices dans le formulaire
+        const formRegex = /annexes-\d+-/g;
+        emptyForm.innerHTML = emptyForm.innerHTML.replace(formRegex, `annexes-${formCount}-`);
+        
+        // Nettoyer les valeurs
+        const inputs = emptyForm.querySelectorAll('input, textarea, select');
+        inputs.forEach(input => {
+            if (input.type !== 'hidden') {
+                input.value = '';
+            }
+        });
+        
+        // Supprimer la section "fichier actuel"
+        const currentFileDiv = emptyForm.querySelector('.current-file');
+        if (currentFileDiv) {
+            currentFileDiv.remove();
+        }
+        
+        // Mettre à jour l'index du formulaire
+        emptyForm.setAttribute('data-form-index', formCount);
+        emptyForm.querySelector('.remove-annexe').setAttribute('data-form-index', formCount);
+        
+        // Changer le titre
+        emptyForm.querySelector('h6').textContent = 'Nouvelle annexe';
+        
+        // Ajouter au container
+        formsetContainer.appendChild(emptyForm);
+        
+        // Mettre à jour le compteur
+        formCount++;
+        totalFormsInput.value = formCount;
+        
+        // Ajouter l'événement de suppression
+        attachRemoveEvent(emptyForm.querySelector('.remove-annexe'));
+    });
+    
+    // Fonction pour attacher l'événement de suppression
+    function attachRemoveEvent(button) {
+        button.addEventListener('click', function() {
+            const formDiv = this.closest('.annexe-form');
+            const deleteInput = formDiv.querySelector('input[name$="-DELETE"]');
+            
+            if (deleteInput) {
+                // Marquer pour suppression au lieu de supprimer immédiatement
+                deleteInput.checked = true;
+                formDiv.style.opacity = '0.5';
+                formDiv.style.pointerEvents = 'none';
+                this.textContent = 'Marqué pour suppression';
+                this.classList.remove('btn-outline-danger');
+                this.classList.add('btn-danger');
+            } else {
+                // Nouveau formulaire, on peut le supprimer directement
+                formDiv.remove();
+                formCount--;
+                totalFormsInput.value = formCount;
+            }
+        });
+    }
+    
+    // Attacher les événements aux boutons existants
+    document.querySelectorAll('.remove-annexe').forEach(attachRemoveEvent);
+});
+</script>
+{% endblock %}

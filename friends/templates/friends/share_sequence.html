@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Partager une séquence{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    .share-form {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .sequence-preview {
+        background: #f8f9fa;
+        border-left: 4px solid #007bff;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    .friend-card {
+        border: 2px solid transparent;
+        border-radius: 8px;
+        padding: 15px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .friend-card:hover {
+        border-color: #007bff;
+        background: #f8f9fa;
+    }
+    .friend-card.selected {
+        border-color: #007bff;
+        background: #e7f3ff;
+    }
+    .friend-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="share-form">
+                <h2 class="mb-4">
+                    <i class="fas fa-share-alt text-primary"></i> 
+                    Partager une séquence
+                </h2>
+                
+                <!-- Aperçu de la séquence -->
+                <div class="sequence-preview">
+                    <h4>{{ sequence.titre }}</h4>
+                    <p class="text-muted mb-2">
+                        <span class="badge bg-primary me-2">{{ sequence.discipline.title }}</span>
+                        <span class="badge bg-secondary me-2">{{ sequence.level }}</span>
+                        <small><i class="fas fa-clock me-1"></i>{{ sequence.estimated_duration }}h estimées</small>
+                    </p>
+                    {% if sequence.description %}
+                        <p class="mb-0">{{ sequence.description|truncatewords:20 }}</p>
+                    {% endif %}
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- Sélection de l'ami -->
+                    <div class="mb-4">
+                        <h5><i class="fas fa-users"></i> Choisir un ami</h5>
+                        {% if friends %}
+                            <div class="row">
+                                {% for friend in friends %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="friend-card" onclick="selectFriend('{{ friend.username }}')">
+                                        <div class="d-flex align-items-center">
+                                            {% if friend.profile.bitmoji_url %}
+                                                <img src="{{ friend.profile.bitmoji_url }}" alt="Bitmoji" class="friend-avatar me-3">
+                                            {% else %}
+                                                <div class="friend-avatar bg-secondary d-flex align-items-center justify-content-center me-3">
+                                                    <i class="fas fa-user text-white"></i>
+                                                </div>
+                                            {% endif %}
+                                            <div>
+                                                <h6 class="mb-0">{{ friend.get_full_name|default:friend.username }}</h6>
+                                                {% if friend.profile.ville %}
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-map-marker-alt"></i> {{ friend.profile.ville }}
+                                                    </small>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <input type="hidden" name="friend_username" id="selectedFriend" required>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                Vous n'avez pas encore d'amis. 
+                                <a href="{% url 'friends:dashboard' %}">Ajoutez des amis</a> pour pouvoir partager vos séquences.
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {% if friends %}
+                    <!-- Message d'accompagnement -->
+                    <div class="mb-4">
+                        <label for="message" class="form-label">
+                            <i class="fas fa-comment"></i> Message d'accompagnement (optionnel)
+                        </label>
+                        <textarea class="form-control" id="message" name="message" rows="3" 
+                                  placeholder="Ajoutez un message pour votre ami..."></textarea>
+                    </div>
+
+                    <!-- Options de partage -->
+                    <div class="mb-4">
+                        <h5><i class="fas fa-cog"></i> Options de partage</h5>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="can_edit" name="can_edit">
+                            <label class="form-check-label" for="can_edit">
+                                Permettre à mon ami de modifier cette séquence
+                            </label>
+                            <div class="form-text">
+                                Si coché, votre ami pourra apporter des modifications à votre séquence.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Boutons d'action -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'sequences:sequences_detail' sequence.id %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="shareBtn" disabled>
+                            <i class="fas fa-share-alt"></i> Partager la séquence
+                        </button>
+                    </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function selectFriend(username) {
+    // Désélectionner toutes les cartes
+    document.querySelectorAll('.friend-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    
+    // Sélectionner la carte cliquée
+    event.currentTarget.classList.add('selected');
+    
+    // Mettre à jour le champ caché
+    document.getElementById('selectedFriend').value = username;
+    
+    // Activer le bouton de partage
+    document.getElementById('shareBtn').disabled = false;
+}
+</script>
+{% endblock %}

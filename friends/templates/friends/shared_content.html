@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contenu partagé{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    .shared-item {
+        background: var(--card-bg);
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        transition: all 0.2s ease;
+    }
+    
+    [data-theme="dark"] .shared-item {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .shared-item:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        transform: translateY(-2px);
+    }
+    
+    [data-theme="dark"] .shared-item:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    }
+    
+    .shared-sequence {
+        border-left: 4px solid var(--btn-primary-bg);
+    }
+    
+    .shared-fiche {
+        border-left: 4px solid #28a745;
+    }
+    
+    [data-theme="dark"] .shared-fiche {
+        border-left: 4px solid #4caf50;
+    }
+    
+    .sender-info {
+        background: var(--alert-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px 8px 0 0;
+        padding: 15px;
+        color: var(--text-color);
+    }
+    
+    .content-preview {
+        padding: 20px;
+        background: var(--card-bg);
+        color: var(--text-color);
+    }
+    
+    .bitmoji-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--border-color);
+    }
+    
+    .unread-badge {
+        background: #dc3545;
+        color: white;
+        font-size: 0.75rem;
+        padding: 2px 6px;
+        border-radius: 10px;
+    }
+    
+    [data-theme="dark"] .unread-badge {
+        background: #e74c3c;
+    }
+    
+    /* Amélioration des onglets en mode sombre */
+    [data-theme="dark"] .nav-tabs .nav-link {
+        background: var(--card-bg);
+        color: var(--text-color);
+        border-color: var(--border-color);
+    }
+    
+    [data-theme="dark"] .nav-tabs .nav-link.active {
+        background: var(--bg-color);
+        color: var(--text-color);
+        border-color: var(--border-color) var(--border-color) var(--bg-color);
+    }
+    
+    [data-theme="dark"] .nav-tabs {
+        border-bottom-color: var(--border-color);
+    }
+    
+    /* Amélioration des badges et permissions */
+    .permission-badge {
+        background: var(--btn-secondary-bg);
+        color: white;
+        font-size: 0.75rem;
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+    
+    .text-muted {
+        color: var(--text-color) !important;
+        opacity: 0.7;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2><i class="fas fa-share-alt"></i> Contenu partagé avec moi</h2>
+            <p class="text-muted mb-4">Découvrez les séquences et fiches que vos amis ont partagées avec vous.</p>
+            
+            <!-- Navigation par onglets -->
+            <ul class="nav nav-tabs mb-4" id="sharedTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="sequences-tab" data-bs-toggle="tab" data-bs-target="#sequences" type="button" role="tab">
+                        <i class="fas fa-list-ul me-2"></i>Séquences ({{ shared_sequences|length }})
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="fiches-tab" data-bs-toggle="tab" data-bs-target="#fiches" type="button" role="tab">
+                        <i class="fas fa-file-alt me-2"></i>Fiches ({{ shared_fiches|length }})
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="sharedTabsContent">
+                <!-- Onglet Séquences -->
+                <div class="tab-pane fade show active" id="sequences" role="tabpanel">
+                    {% if shared_sequences %}
+                        {% for shared in shared_sequences %}
+                        <div class="shared-item shared-sequence">
+                            <div class="sender-info">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-center">
+                                        {% if shared.shared_by.profile.bitmoji_url %}
+                                            <img src="{{ shared.shared_by.profile.bitmoji_url }}" alt="Bitmoji" class="bitmoji-avatar me-3">
+                                        {% else %}
+                                            <div class="bitmoji-avatar bg-secondary d-flex align-items-center justify-content-center me-3">
+                                                <i class="fas fa-user text-white"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div>
+                                            <h6 class="mb-0">{{ shared.shared_by.get_full_name|default:shared.shared_by.username }}</h6>
+                                            <small class="text-muted">{{ shared.created_at|date:"d/m/Y à H:i" }}</small>
+                                        </div>
+                                    </div>
+                                    {% if not shared.is_read %}
+                                        <span class="unread-badge">Nouveau</span>
+                                    {% endif %}
+                                </div>
+                                {% if shared.message %}
+                                    <div class="mt-2">
+                                        <small class="text-muted">
+                                            <i class="fas fa-quote-left me-1"></i>{{ shared.message }}
+                                        </small>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="content-preview">
+                                <h5>{{ shared.sequence.titre }}</h5>
+                                <p class="text-muted mb-2">
+                                    <span class="badge bg-primary me-2">{{ shared.sequence.discipline.title }}</span>
+                                    <span class="badge bg-secondary me-2">{{ shared.sequence.level }}</span>
+                                    <small><i class="fas fa-clock me-1"></i>{{ shared.sequence.estimated_duration }}h estimées</small>
+                                </p>
+                                {% if shared.sequence.description %}
+                                    <p class="mb-3">{{ shared.sequence.description|truncatewords:20 }}</p>
+                                {% endif %}
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        {% if shared.can_edit %}
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-edit me-1"></i>Modifiable
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    <a href="{% url 'friends:shared_sequence_detail' shared.sequence.id %}" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-eye me-1"></i>Voir la séquence
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-list-ul fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">Aucune séquence partagée</h4>
+                            <p class="text-muted">Vos amis n'ont pas encore partagé de séquences avec vous.</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Onglet Fiches -->
+                <div class="tab-pane fade" id="fiches" role="tabpanel">
+                    {% if shared_fiches %}
+                        {% for shared in shared_fiches %}
+                        <div class="shared-item shared-fiche">
+                            <div class="sender-info">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-center">
+                                        {% if shared.shared_by.profile.bitmoji_url %}
+                                            <img src="{{ shared.shared_by.profile.bitmoji_url }}" alt="Bitmoji" class="bitmoji-avatar me-3">
+                                        {% else %}
+                                            <div class="bitmoji-avatar bg-secondary d-flex align-items-center justify-content-center me-3">
+                                                <i class="fas fa-user text-white"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div>
+                                            <h6 class="mb-0">{{ shared.shared_by.get_full_name|default:shared.shared_by.username }}</h6>
+                                            <small class="text-muted">{{ shared.created_at|date:"d/m/Y à H:i" }}</small>
+                                        </div>
+                                    </div>
+                                    {% if not shared.is_read %}
+                                        <span class="unread-badge">Nouveau</span>
+                                    {% endif %}
+                                </div>
+                                {% if shared.message %}
+                                    <div class="mt-2">
+                                        <small class="text-muted">
+                                            <i class="fas fa-quote-left me-1"></i>{{ shared.message }}
+                                        </small>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="content-preview">
+                                <h5>{{ shared.fiche.titre }}</h5>
+                                <p class="text-muted mb-2">
+                                    <span class="badge bg-success me-2">{{ shared.fiche.discipline.title }}</span>
+                                    <span class="badge bg-secondary me-2">{{ shared.fiche.niveau }}</span>
+                                    {% if shared.fiche.date %}
+                                        <small><i class="fas fa-calendar me-1"></i>{{ shared.fiche.date|date:"d/m/Y" }}</small>
+                                    {% endif %}
+                                </p>
+                                {% if shared.fiche.objectif %}
+                                    <p class="mb-3"><strong>Objectif :</strong> {{ shared.fiche.objectif|truncatewords:15 }}</p>
+                                {% endif %}
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        {% if shared.can_edit %}
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-edit me-1"></i>Modifiable
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    <a href="{% url 'friends:shared_fiche_detail' shared.fiche.id %}" class="btn btn-success btn-sm">
+                                        <i class="fas fa-eye me-1"></i>Voir la fiche
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">Aucune fiche partagée</h4>
+                            <p class="text-muted">Vos amis n'ont pas encore partagé de fiches avec vous.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

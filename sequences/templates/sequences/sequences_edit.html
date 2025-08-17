@@ -1,0 +1,267 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Modifier {{ sequence.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-floating > .form-control:focus ~ label,
+    .form-floating > .form-control:not(:placeholder-shown) ~ label {
+        opacity: .65;
+        transform: scale(.85) translateY(-0.5rem) translateX(0.15rem);
+    }
+    
+    .form-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        border-left: 4px solid #007bff;
+    }
+    
+    .sequence-preview {
+        background: linear-gradient(135deg, {{ sequence.discipline.color|default:'#007bff' }}20, {{ sequence.discipline.color|default:'#007bff' }}10);
+        border: 1px solid {{ sequence.discipline.color|default:'#007bff' }}40;
+        border-radius: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <div class="d-flex align-items-center mb-3">
+                        <a href="{% url 'sequences:sequences_detail' sequence.id %}" class="btn btn-outline-secondary me-3">
+                            <i class="fas fa-arrow-left"></i>
+                        </a>
+                        <div>
+                            <h1 class="h4 mb-1">
+                                <i class="fas fa-edit text-primary me-2"></i>
+                                Modifier la séquence
+                            </h1>
+                            <p class="text-muted mb-0">{{ sequence.name }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <form method="post" id="editSequenceForm">
+                        {% csrf_token %}
+                        
+                        <!-- Section: Informations générales -->
+                        <div class="form-section p-4 mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-info-circle text-primary me-2"></i>
+                                Informations générales
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" id="name" name="name" 
+                                               placeholder="Nom de la séquence" value="{{ sequence.name }}" required>
+                                        <label for="name">Nom de la séquence *</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="discipline" name="discipline" required>
+                                            <option value="">Choisir une discipline</option>
+                                            {% for discipline in disciplines %}
+                                                <option value="{{ discipline.id }}" 
+                                                        data-color="{{ discipline.color|default:'#007bff' }}"
+                                                        {% if discipline.id == sequence.discipline.id %}selected{% endif %}>
+                                                    {{ discipline.title }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                        <label for="discipline">Discipline *</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="form-floating">
+                                    <textarea class="form-control" id="description" name="description" 
+                                              placeholder="Description de la séquence" style="height: 100px;">{{ sequence.description }}</textarea>
+                                    <label for="description">Description</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Section: Paramètres -->
+                        <div class="form-section p-4 mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-cogs text-primary me-2"></i>
+                                Paramètres pédagogiques
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="level" name="level" required>
+                                            <option value="">Choisir un niveau</option>
+                                            <option value="PS" {% if sequence.level == "PS" %}selected{% endif %}>PS - Petite Section</option>
+                                            <option value="MS" {% if sequence.level == "MS" %}selected{% endif %}>MS - Moyenne Section</option>
+                                            <option value="GS" {% if sequence.level == "GS" %}selected{% endif %}>GS - Grande Section</option>
+                                            <option value="CP" {% if sequence.level == "CP" %}selected{% endif %}>CP - Cours Préparatoire</option>
+                                            <option value="CE1" {% if sequence.level == "CE1" %}selected{% endif %}>CE1 - Cours Élémentaire 1</option>
+                                            <option value="CE2" {% if sequence.level == "CE2" %}selected{% endif %}>CE2 - Cours Élémentaire 2</option>
+                                            <option value="CM1" {% if sequence.level == "CM1" %}selected{% endif %}>CM1 - Cours Moyen 1</option>
+                                            <option value="CM2" {% if sequence.level == "CM2" %}selected{% endif %}>CM2 - Cours Moyen 2</option>
+                                        </select>
+                                        <label for="level">Niveau de classe *</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" id="estimated_duration" 
+                                               name="estimated_duration" placeholder="Durée estimée" 
+                                               min="1" max="100" step="0.5" value="{{ sequence.estimated_duration }}">
+                                        <label for="estimated_duration">Durée estimée (heures)</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" id="ordering" name="ordering" 
+                                               placeholder="Ordre" min="1" value="{{ sequence.ordering }}">
+                                        <label for="ordering">Ordre dans la progression</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Messages d'erreur -->
+                        {% if form.errors %}
+                            <div class="alert alert-danger" role="alert">
+                                <h6><i class="fas fa-exclamation-triangle me-2"></i>Erreurs dans le formulaire :</h6>
+                                <ul class="mb-0">
+                                    {% for field, errors in form.errors.items %}
+                                        {% for error in errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Boutons d'action -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'sequences:sequences_detail' sequence.id %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>
+                                Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                Enregistrer les modifications
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Panneau d'informations -->
+        <div class="col-lg-4">
+            <div class="sequence-preview p-4 mb-4">
+                <h5 class="mb-3">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Informations actuelles
+                </h5>
+                
+                <div class="mb-3">
+                    <h6 class="mb-2">{{ sequence.name }}</h6>
+                    <span class="badge me-2" style="background-color: {{ sequence.discipline.color|default:'#007bff' }};">
+                        {{ sequence.discipline.title }}
+                    </span>
+                    <span class="badge bg-secondary">{{ sequence.level }}</span>
+                </div>
+                
+                {% if sequence.description %}
+                    <div class="mb-3">
+                        <p class="small text-muted">{{ sequence.description }}</p>
+                    </div>
+                {% endif %}
+                
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="mb-1">
+                            <i class="fas fa-list-ul"></i>
+                        </div>
+                        <small>{{ sequence.sessions_count }} séances</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="mb-1">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <small>{{ sequence.estimated_duration }}h</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="mb-1">
+                            <i class="fas fa-sort-numeric-up"></i>
+                        </div>
+                        <small>N°{{ sequence.ordering }}</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Actions rapides -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h6 class="mb-0">
+                        <i class="fas fa-bolt text-warning me-2"></i>
+                        Actions rapides
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'sequences:sequences_detail' sequence.id %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-eye me-2"></i>
+                            Voir la séquence
+                        </a>
+                        <a href="{% url 'sequences:add_seance_to_sequence' sequence.id %}" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-plus me-2"></i>
+                            Ajouter une séance
+                        </a>
+                        <hr class="my-2">
+                        <a href="{% url 'sequences:sequences_delete' sequence.id %}" class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-trash me-2"></i>
+                            Supprimer la séquence
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Validation du formulaire
+    const form = document.getElementById('editSequenceForm');
+    form.addEventListener('submit', function(e) {
+        const requiredFields = ['name', 'discipline', 'level'];
+        let isValid = true;
+        
+        requiredFields.forEach(fieldName => {
+            const field = document.getElementById(fieldName);
+            if (!field.value.trim()) {
+                field.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Veuillez remplir tous les champs obligatoires.');
+        }
+    });
+});
+</script>
+{% endblock %}

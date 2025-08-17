@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Périodes Scolaires{% endblock %}
+
+{% block extra_css %}
+<style>
+    .period-card {
+        border-left: 4px solid;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .period-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .period-card.active {
+        background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+        border-left-color: #28a745 !important;
+    }
+    
+    .period-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+        font-size: 1.2em;
+    }
+    
+    .year-section {
+        margin-bottom: 2rem;
+    }
+    
+    .stats-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .create-periods-btn {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        border-radius: 25px;
+        padding: 12px 30px;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .create-periods-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- En-tête -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-calendar-alt text-primary me-2"></i>
+                        Périodes Scolaires
+                    </h2>
+                    <p class="text-muted mb-0">Organisez vos séquences par périodes de l'année scolaire</p>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <a href="{% url 'sequences:period_calendar' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-calendar me-1"></i> Vue Calendrier
+                    </a>
+                    <a href="{% url 'sequences:test_deployment' %}" class="btn btn-outline-success">
+                        <i class="fas fa-rocket me-1"></i> Test Déploiement
+                    </a>
+                </div>
+            </div>
+
+            <!-- Statistiques -->
+            <div class="stats-card">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <h3 class="mb-1">{{ total_periodes }}</h3>
+                        <small>Périodes créées</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h3 class="mb-1">{{ annee_scolaire_actuelle }}</h3>
+                        <small>Année actuelle</small>
+                    </div>
+                    <div class="col-md-3">
+                        {% if periode_actuelle %}
+                            <h3 class="mb-1">{{ periode_actuelle.nom }}</h3>
+                            <small>Période active</small>
+                        {% else %}
+                            <h3 class="mb-1">Aucune</h3>
+                            <small>Période active</small>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-3">
+                        <h3 class="mb-1">5 max</h3>
+                        <small>Par année</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Création rapide des périodes -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-plus-circle text-success me-2"></i>
+                        Création rapide des périodes
+                    </h5>
+                    <p class="card-text text-muted">
+                        Créez automatiquement les 5 périodes standard pour une année scolaire.
+                    </p>
+                    
+                    <form method="post" action="{% url 'sequences:create_default_periods' %}" class="d-flex align-items-end gap-3">
+                        {% csrf_token %}
+                        <div class="flex-grow-1">
+                            <label for="annee_scolaire" class="form-label">Année scolaire</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="annee_scolaire" 
+                                   name="annee_scolaire" 
+                                   value="{{ annee_scolaire_actuelle }}"
+                                   placeholder="Ex: 2024-2025"
+                                   pattern="[0-9]{4}-[0-9]{4}"
+                                   required>
+                            <small class="form-text text-muted">Format: YYYY-YYYY</small>
+                        </div>
+                        <button type="submit" class="create-periods-btn">
+                            <i class="fas fa-magic me-1"></i>
+                            Créer les 5 périodes
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Liste des périodes par année -->
+            {% if periodes_by_year %}
+                {% for annee, periodes in periodes_by_year.items %}
+                <div class="year-section">
+                    <h4 class="mb-3">
+                        <i class="fas fa-graduation-cap text-primary me-2"></i>
+                        Année scolaire {{ annee }}
+                        <span class="badge bg-secondary ms-2">{{ periodes|length }} période{{ periodes|length|pluralize }}</span>
+                    </h4>
+                    
+                    <div class="row">
+                        {% for periode in periodes %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card period-card h-100 {% if periode.est_active %}active{% endif %}" 
+                                 style="border-left-color: {{ periode.couleur }};">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-start mb-3">
+                                        <div class="period-number me-3" style="background-color: {{ periode.couleur }};">
+                                            {{ periode.numero }}
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="card-title mb-1">{{ periode.nom }}</h6>
+                                            {% if periode.est_active %}
+                                                <span class="badge bg-success mb-2">
+                                                    <i class="fas fa-play me-1"></i>En cours
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-calendar me-1"></i>
+                                            {{ periode.date_debut|date:"d/m/Y" }} - {{ periode.date_fin|date:"d/m/Y" }}
+                                        </small>
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-clock me-1"></i>
+                                            {{ periode.duree_jours }} jours
+                                        </small>
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-list me-1"></i>
+                                            {{ periode.sequences.count }} séquence{{ periode.sequences.count|pluralize }}
+                                        </small>
+                                    </div>
+                                    
+                                    {% if periode.description %}
+                                    <p class="card-text small text-muted mb-3">{{ periode.description|truncatewords:15 }}</p>
+                                    {% endif %}
+                                    
+                                    <div class="d-flex gap-2">
+                                        <a href="{% url 'sequences:period_detail' periode.id %}" 
+                                           class="btn btn-sm btn-outline-primary flex-grow-1">
+                                            <i class="fas fa-eye me-1"></i>Voir
+                                        </a>
+                                        <button class="btn btn-sm btn-outline-secondary" 
+                                                onclick="assignSequencesToPeriod({{ periode.id }})">
+                                            <i class="fas fa-link me-1"></i>Assigner
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <!-- Aucune période -->
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-calendar-times text-muted" style="font-size: 4rem;"></i>
+                    </div>
+                    <h4 class="text-muted mb-3">Aucune période créée</h4>
+                    <p class="text-muted mb-4">
+                        Commencez par créer vos périodes scolaires pour organiser vos séquences.
+                    </p>
+                    <button class="btn btn-primary btn-lg" onclick="$('#annee_scolaire').focus()">
+                        <i class="fas fa-plus me-2"></i>
+                        Créer mes premières périodes
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour assigner des séquences -->
+<div class="modal fade" id="assignModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Assigner des séquences à la période</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="assignModalContent">
+                    <!-- Contenu chargé dynamiquement -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function assignSequencesToPeriod(periodId) {
+    // Fonction pour assigner des séquences à une période
+    // À implémenter selon vos besoins
+    alert('Fonctionnalité d\'assignation à implémenter');
+}
+
+// Animation au chargement
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.period-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            card.style.transition = 'all 0.5s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

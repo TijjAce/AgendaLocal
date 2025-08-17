@@ -1,0 +1,465 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load django_bootstrap5 %}
+
+{% block title %}Créer une séquence - Planif facile{% endblock %}
+
+{% block extra_css %}
+<style>
+    .sequence-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        color: white;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .sequence-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    }
+    
+    .form-container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        padding: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 12px;
+        border: 2px solid #e9ecef;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 12px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-secondary {
+        border-radius: 12px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .icon-wrapper {
+        width: 60px;
+        height: 60px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+    }
+    
+    .step-indicator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+    
+    .step {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #6c757d;
+        position: relative;
+    }
+    
+    .step.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .step-line {
+        width: 60px;
+        height: 2px;
+        background: #e9ecef;
+        margin: 0 10px;
+    }
+    
+    .step-line.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .help-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+    
+    .required-field {
+        color: #dc3545;
+    }
+    
+    .form-floating {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-floating > .form-control,
+    .form-floating > .form-select {
+        height: calc(3.5rem + 2px);
+        line-height: 1.25;
+    }
+    
+    .form-floating > label {
+        padding: 1rem;
+        color: #6c757d;
+    }
+    
+    .sequence-preview {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        border: 2px dashed #dee2e6;
+    }
+    
+    .preview-title {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- En-tête avec carte attractive -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-8">
+            <div class="card sequence-card text-center p-4">
+                <div class="icon-wrapper">
+                    <i class="fas fa-plus-circle fa-2x"></i>
+                </div>
+                <h1 class="card-title mb-3">Créer une nouvelle séquence</h1>
+                <p class="card-text opacity-75">
+                    Organisez vos cours en séquences pédagogiques cohérentes et structurées
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Indicateur d'étapes -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="step-indicator">
+                <div class="step active">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <div class="step-line active"></div>
+                <div class="step">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <div class="step-line"></div>
+                <div class="step">
+                    <i class="fas fa-check"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Formulaire principal -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="form-container">
+                <form method="post" id="sequence-form">
+                    {% csrf_token %}
+                    
+                    <!-- Informations de base -->
+                    <div class="row">
+                        <div class="col-12">
+                            <h3 class="mb-4 text-center">
+                                <i class="fas fa-edit me-2 text-primary"></i>
+                                Informations de la séquence
+                            </h3>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-floating">
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="id_name" 
+                                       name="name" 
+                                       placeholder="Nom de la séquence"
+                                       required>
+                                <label for="id_name">
+                                    <i class="fas fa-tag me-1"></i>
+                                    Nom de la séquence <span class="required-field">*</span>
+                                </label>
+                            </div>
+                            <div class="help-text">
+                                <i class="fas fa-lightbulb me-1"></i>
+                                Exemple: "Les fractions", "La révolution française", "L'écosystème forestier"
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                <select class="form-select" id="id_discipline" name="discipline" required>
+                                    <option value="">Choisir...</option>
+                                    {% for discipline in disciplines %}
+                                        <option value="{{ discipline.id }}" {% if selected_discipline and selected_discipline.id == discipline.id %}selected{% endif %}>
+                                            {{ discipline.title }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <label for="id_discipline">
+                                    <i class="fas fa-book me-1"></i>
+                                    Discipline <span class="required-field">*</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <textarea class="form-control" 
+                                          id="id_description" 
+                                          name="description" 
+                                          placeholder="Description de la séquence"
+                                          style="height: 120px;"></textarea>
+                                <label for="id_description">
+                                    <i class="fas fa-align-left me-1"></i>
+                                    Description
+                                </label>
+                            </div>
+                            <div class="help-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Décrivez les objectifs et le contenu de cette séquence
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Paramètres avancés -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h4 class="mb-3">
+                                <i class="fas fa-sliders-h me-2 text-secondary"></i>
+                                Paramètres optionnels
+                            </h4>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="id_duration" 
+                                       name="duration" 
+                                       placeholder="Durée estimée"
+                                       min="1" 
+                                       max="50">
+                                <label for="id_duration">
+                                    <i class="fas fa-clock me-1"></i>
+                                    Durée estimée (séances)
+                                </label>
+                            </div>
+                            <div class="help-text">
+                                <i class="fas fa-calendar-alt me-1"></i>
+                                Nombre de séances prévues pour cette séquence
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <select class="form-select" id="id_level" name="level">
+                                    <option value="">Niveau...</option>
+                                    <option value="PS">PS - Petite Section</option>
+                                    <option value="MS">MS - Moyenne Section</option>
+                                    <option value="GS">GS - Grande Section</option>
+                                    <option value="CP">CP - Cours Préparatoire</option>
+                                    <option value="CE1">CE1 - Cours Élémentaire 1</option>
+                                    <option value="CE2">CE2 - Cours Élémentaire 2</option>
+                                    <option value="CM1">CM1 - Cours Moyen 1</option>
+                                    <option value="CM2">CM2 - Cours Moyen 2</option>
+                                    <option value="6ème">6ème - Sixième</option>
+                                    <option value="5ème">5ème - Cinquième</option>
+                                    <option value="4ème">4ème - Quatrième</option>
+                                    <option value="3ème">3ème - Troisième</option>
+                                </select>
+                                <label for="id_level">
+                                    <i class="fas fa-graduation-cap me-1"></i>
+                                    Niveau de classe
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Aperçu -->
+                    <div class="sequence-preview" id="sequence-preview" style="display: none;">
+                        <div class="preview-title">
+                            <i class="fas fa-eye me-1"></i>
+                            Aperçu de votre séquence
+                        </div>
+                        <div id="preview-content">
+                            <!-- Le contenu sera généré par JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Boutons d'action -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{% url 'disciplines' %}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-1"></i>
+                                    Retour
+                                </a>
+                                
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-outline-primary" id="preview-btn">
+                                        <i class="fas fa-eye me-1"></i>
+                                        Aperçu
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-1"></i>
+                                        Créer la séquence
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript pour l'interactivité -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('sequence-form');
+    const previewBtn = document.getElementById('preview-btn');
+    const previewDiv = document.getElementById('sequence-preview');
+    const previewContent = document.getElementById('preview-content');
+    
+    // Fonction pour générer l'aperçu
+    function generatePreview() {
+        const name = document.getElementById('id_name').value;
+        const discipline = document.getElementById('id_discipline');
+        const disciplineName = discipline.options[discipline.selectedIndex]?.text || '';
+        const description = document.getElementById('id_description').value;
+        const duration = document.getElementById('id_duration').value;
+        const level = document.getElementById('id_level').value;
+        
+        if (!name) {
+            alert('Veuillez saisir au moins le nom de la séquence pour voir l\'aperçu.');
+            return;
+        }
+        
+        let previewHTML = `
+            <div class="row">
+                <div class="col-md-8">
+                    <h5 class="text-primary mb-2">
+                        <i class="fas fa-bookmark me-1"></i>
+                        ${name}
+                    </h5>
+                    ${disciplineName ? `<p class="mb-1"><strong>Discipline:</strong> <span class="badge bg-primary">${disciplineName}</span></p>` : ''}
+                    ${level ? `<p class="mb-1"><strong>Niveau:</strong> <span class="badge bg-secondary">${level}</span></p>` : ''}
+                    ${description ? `<p class="mb-2"><strong>Description:</strong><br>${description}</p>` : ''}
+                </div>
+                <div class="col-md-4 text-end">
+                    ${duration ? `
+                        <div class="text-muted">
+                            <i class="fas fa-clock me-1"></i>
+                            ${duration} séance${duration > 1 ? 's' : ''}
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+        
+        previewContent.innerHTML = previewHTML;
+        previewDiv.style.display = 'block';
+        previewDiv.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Event listener pour le bouton aperçu
+    previewBtn.addEventListener('click', generatePreview);
+    
+    // Validation du formulaire
+    form.addEventListener('submit', function(e) {
+        const name = document.getElementById('id_name').value.trim();
+        const discipline = document.getElementById('id_discipline').value;
+        
+        if (!name) {
+            e.preventDefault();
+            alert('Le nom de la séquence est obligatoire.');
+            document.getElementById('id_name').focus();
+            return;
+        }
+        
+        if (!discipline) {
+            e.preventDefault();
+            alert('Veuillez sélectionner une discipline.');
+            document.getElementById('id_discipline').focus();
+            return;
+        }
+    });
+    
+    // Animation des étapes
+    const steps = document.querySelectorAll('.step');
+    const stepLines = document.querySelectorAll('.step-line');
+    
+    // Simulation de progression (peut être étendue)
+    setTimeout(() => {
+        if (steps[1]) {
+            steps[1].classList.add('active');
+            if (stepLines[1]) stepLines[1].classList.add('active');
+        }
+    }, 1000);
+    
+    // Auto-focus sur le premier champ
+    document.getElementById('id_name').focus();
+});
+</script>
+{% endblock %}

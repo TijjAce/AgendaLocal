@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}Fiche non accessible{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-container {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 40px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin: 50px auto;
+        max-width: 600px;
+    }
+    
+    .error-icon {
+        color: #dc3545;
+        margin-bottom: 20px;
+    }
+    
+    [data-theme="dark"] .error-icon {
+        color: #ff6b6b;
+    }
+    
+    .error-title {
+        color: var(--text-color);
+        margin-bottom: 15px;
+    }
+    
+    .error-message {
+        color: var(--text-color);
+        margin-bottom: 30px;
+        line-height: 1.6;
+    }
+    
+    .btn-return {
+        background: var(--btn-primary-bg);
+        border-color: var(--btn-primary-bg);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-return:hover {
+        background: var(--btn-primary-hover);
+        border-color: var(--btn-primary-hover);
+        color: white;
+        text-decoration: none;
+        transform: translateY(-1px);
+    }
+    
+    .suggestions {
+        background: var(--alert-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 30px;
+        text-align: left;
+    }
+    
+    .suggestions h5 {
+        color: var(--text-color);
+        margin-bottom: 15px;
+    }
+    
+    .suggestions ul {
+        color: var(--text-color);
+        margin-bottom: 0;
+    }
+    
+    .suggestions li {
+        margin-bottom: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="error-container">
+        <i class="fas fa-exclamation-triangle fa-4x error-icon"></i>
+        
+        <h2 class="error-title">Fiche non accessible</h2>
+        
+        <div class="error-message">
+            <p><strong>Cette fiche n'est pas partagée avec vous ou n'existe pas.</strong></p>
+            <p>Seules les fiches que vos amis ont explicitement partagées avec vous sont accessibles via cette interface.</p>
+        </div>
+        
+        <a href="{% url 'friends:shared_content' %}" class="btn-return">
+            <i class="fas fa-arrow-left me-2"></i>Retour au contenu partagé
+        </a>
+        
+        <div class="suggestions">
+            <h5><i class="fas fa-lightbulb me-2"></i>Que faire ?</h5>
+            <ul>
+                <li>Vérifiez votre <a href="{% url 'friends:shared_content' %}">contenu partagé</a> pour voir les fiches disponibles</li>
+                <li>Demandez à votre ami de partager cette fiche avec vous</li>
+                <li>Vérifiez que vous êtes connecté avec le bon compte</li>
+                <li>Contactez votre ami pour confirmer le partage</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

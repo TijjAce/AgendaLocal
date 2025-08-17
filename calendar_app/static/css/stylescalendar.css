@@ -1,0 +1,310 @@
+/* stylescalendar.css amélioré */
+
+/* Styles généraux pour le calendrier */
+.calendar-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Grille responsive pour les mois */
+#year-calendar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+/* Cartes des mois */
+.month-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.month-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+/* En-tête des mois */
+.month-header {
+  background: linear-gradient(135deg, #0d6efd, #4a90e2);
+  color: white;
+  padding: 1rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+/* Corps des cartes */
+.card-body {
+  padding: 0;
+  overflow: visible;
+}
+
+/* Tableaux des calendriers */
+.calendar-table {
+  width: 100%;
+  margin: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* En-têtes des jours de la semaine */
+.calendar-table th {
+  background: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+  text-align: center;
+  padding: 0.5rem 0.25rem;
+  font-size: 0.8rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+/* Cellules des jours */
+.calendar-table td {
+  width: 14.28%;
+  height: 45px;
+  padding: 2px;
+  vertical-align: top;
+  border-right: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
+  position: relative;
+  background: white;
+}
+
+.calendar-table td:last-child {
+  border-right: none;
+}
+
+/* Numéros des jours */
+.day-number {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 1px;
+  text-align: center;
+  line-height: 1;
+}
+
+/* Jours du mois précédent/suivant */
+.other-month {
+  color: #adb5bd;
+  background: #f8f9fa;
+}
+
+/* Jour actuel */
+.today .day-number {
+  background: #dc3545;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  margin: 0 auto 1px;
+}
+
+/* Jours avec vacances */
+.holiday-day {
+  background: #d4edda !important;
+}
+
+.holiday-day .day-number {
+  color: #155724;
+  font-weight: 600;
+}
+
+/* Événements dans les cellules */
+.event {
+  background-color: #0d6efd;
+  color: white;
+  padding: 1px 3px;
+  margin: 1px 0;
+  border-radius: 3px;
+  font-size: 0.65rem;
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.event:hover {
+  background-color: #0b5ed7;
+  transform: scale(1.02);
+}
+
+/* Événements de vacances */
+.holiday-event {
+  background-color: #28a745;
+  font-size: 0.6rem;
+}
+
+.holiday-event:hover {
+  background-color: #218838;
+}
+
+/* Indicateur de vacances dans les cellules */
+.holiday-indicator {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 6px;
+  height: 6px;
+  background: #28a745;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+/* Indicateur de fiches/séances dans les cellules */
+.fiche-indicator {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 8px;
+  height: 8px;
+  background: #0d6efd;
+  border-radius: 50%;
+  z-index: 1;
+  cursor: pointer;
+}
+
+/* Contrôles du calendrier */
+.calendar-controls {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-bottom: 1.5rem;
+}
+
+.calendar-controls .btn {
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+/* Légende */
+.calendar-legend {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-bottom: 1.5rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #year-calendar {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .calendar-table td {
+    height: 40px;
+    font-size: 0.7rem;
+  }
+  
+  .event {
+    font-size: 0.6rem;
+    padding: 1px 2px;
+  }
+}
+
+/* Mode sombre pour le calendrier */
+[data-theme="dark"] .month-card {
+  background: #3a3a3a;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+[data-theme="dark"] .month-header {
+  background: linear-gradient(135deg, #4a90e2, #2a5a8a);
+}
+
+[data-theme="dark"] .calendar-table th {
+  background: #404040;
+  color: #d0d0d0;
+  border-bottom-color: #5a5a5a;
+}
+
+[data-theme="dark"] .calendar-table td {
+  background: #3a3a3a;
+  border-color: #5a5a5a;
+}
+
+[data-theme="dark"] .day-number {
+  color: #d0d0d0;
+}
+
+[data-theme="dark"] .other-month {
+  background: #2d2d2d;
+  color: #7a7a7a;
+}
+
+[data-theme="dark"] .holiday-day {
+  background: #2d4a2d !important;
+}
+
+[data-theme="dark"] .holiday-day .day-number {
+  color: #90c695;
+}
+
+[data-theme="dark"] .calendar-controls,
+[data-theme="dark"] .calendar-legend {
+  background: #3a3a3a;
+  color: #d0d0d0;
+}
+
+[data-theme="dark"] .holiday-indicator {
+  background: #90c695;
+}
+
+/* Tooltip amélioré */
+.event[data-tooltip],
+.fiche-indicator[data-tooltip],
+.holiday-indicator[data-tooltip] {
+  position: relative;
+}
+
+.event[data-tooltip]:hover::after,
+.fiche-indicator[data-tooltip]:hover::after,
+.holiday-indicator[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 5px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 6px 8px;
+  font-size: 0.7rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+[data-theme="dark"] .event[data-tooltip]:hover::after {
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+}

@@ -1,0 +1,311 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ fiche.titre }} - Fiche partagée{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Bannière de partage */
+    .shared-banner {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border: 1px solid var(--border-color);
+    }
+    
+    [data-theme="dark"] .shared-banner {
+        background: linear-gradient(135deg, #4caf50, #26c6da);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .shared-info {
+        background: var(--alert-bg);
+        border-left: 4px solid #28a745;
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 0 8px 8px 0;
+    }
+    
+    [data-theme="dark"] .shared-info {
+        border-left-color: #4caf50;
+    }
+    
+    .readonly-badge {
+        background: var(--btn-secondary-bg);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8em;
+    }
+    
+    .can-edit-badge {
+        background: #28a745;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8em;
+    }
+    
+    [data-theme="dark"] .can-edit-badge {
+        background: #4caf50;
+    }
+    
+    /* Styles originaux de fiche_detail.html */
+    .table td img {
+        max-width: 100%;
+        height: auto;
+        max-height: 200px;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border: 1px solid var(--border-color);
+    }
+    
+    [data-theme="dark"] .table td img {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .table th:nth-child(1), .table td:nth-child(1) { width: 6.25%; }
+    .table th:nth-child(2), .table td:nth-child(2) { width: 18.75%; }
+    .table th:nth-child(3), .table td:nth-child(3) { width: 18.75%; }
+    .table th:nth-child(4), .table td:nth-child(4) { width: 18.75%; }
+    .table th:nth-child(5), .table td:nth-child(5) { width: 50%; }
+    .table th:nth-child(6), .table td:nth-child(6) { width: 25%; }
+    
+    .table {
+        table-layout: fixed;
+        width: 100%;
+        background: var(--card-bg);
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+    }
+    
+    .table th, .table td {
+        word-wrap: break-word;
+        vertical-align: top;
+        border-color: var(--border-color);
+        color: var(--text-color);
+    }
+    
+    .table th {
+        background: var(--alert-bg);
+        font-weight: 600;
+    }
+    
+    .table-striped > tbody > tr:nth-of-type(odd) > td {
+        background-color: var(--alert-bg);
+    }
+    
+    .table td .deroulement-content {
+        max-height: 250px;
+        overflow-y: auto;
+        padding: 5px;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+    }
+    
+    /* Amélioration des cartes */
+    .card {
+        background: var(--card-bg);
+        border-color: var(--border-color);
+        color: var(--text-color);
+    }
+    
+    .card-header {
+        background: var(--btn-primary-bg) !important;
+        border-color: var(--border-color);
+        color: white !important;
+    }
+    
+    .card-body {
+        background: var(--card-bg);
+        color: var(--text-color);
+    }
+    
+    /* Amélioration des titres et textes */
+    h1, h2, h3, h4, h5, h6 {
+        color: var(--text-color);
+    }
+    
+    .shared-info h6 {
+        color: #28a745;
+        margin-bottom: 10px;
+    }
+    
+    [data-theme="dark"] .shared-info h6 {
+        color: #4caf50;
+    }
+    
+    strong {
+        color: var(--text-color);
+    }
+    
+    /* Amélioration des boutons de retour */
+    .btn-outline-primary {
+        border-color: var(--btn-primary-bg);
+        color: var(--btn-primary-bg);
+    }
+    
+    [data-theme="dark"] .btn-outline-primary:hover {
+        background-color: var(--btn-primary-bg);
+        border-color: var(--btn-primary-bg);
+        color: white;
+    }
+    
+    /* Amélioration des badges de compétences */
+    .badge {
+        background: var(--btn-secondary-bg);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Bannière de partage -->
+    <div class="shared-banner">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h4><i class="fas fa-share-alt"></i> Fiche partagée par {{ shared_fiche.shared_by.username }}</h4>
+                <p class="mb-0">
+                    {% if shared_fiche.message %}
+                        <i class="fas fa-comment"></i> "{{ shared_fiche.message }}"
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-md-4 text-right">
+                {% if can_edit %}
+                    <span class="can-edit-badge">
+                        <i class="fas fa-edit"></i> Modification autorisée
+                    </span>
+                {% else %}
+                    <span class="readonly-badge">
+                        <i class="fas fa-eye"></i> Lecture seule
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Informations de partage -->
+    <div class="shared-info">
+        <h6><i class="fas fa-info-circle"></i> Informations de partage</h6>
+        <p class="mb-1"><strong>Partagé le :</strong> {{ shared_fiche.created_at|date:"d/m/Y à H:i" }}</p>
+        <p class="mb-0"><strong>Auteur original :</strong> {{ fiche.user.first_name }} {{ fiche.user.last_name }} ({{ fiche.user.username }})</p>
+    </div>
+    
+    <!-- Titre principal -->
+    <h1 class="mb-4">{{ fiche.titre }}</h1>
+
+    <!-- Informations générales -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white fw-bold">Informations générales</div>
+        <div class="card-body row">
+            <div class="col-md-4"><strong>Discipline :</strong> {{ fiche.discipline.title|default:"-" }}</div>
+            <div class="col-md-4"><strong>Séquence :</strong> {{ fiche.sequence|default:"-" }}</div>
+            <div class="col-md-4"><strong>Niveau :</strong> {{ fiche.niveau|default:"-" }}</div>
+            <div class="col-md-4 mt-2"><strong>Date :</strong> {{ fiche.date|date:"d/m/Y" }}</div>
+            <div class="col-md-4 mt-2"><strong>Horaire :</strong>
+                {% if fiche.heure_debut and fiche.heure_fin %}
+                    {{ fiche.heure_debut|time:"H:i" }} - {{ fiche.heure_fin|time:"H:i" }}
+                {% else %}
+                    Non renseigné
+                {% endif %}
+            </div>
+            <div class="col-md-4 mt-2"><strong>Durée :</strong> {{ fiche.duree|default:"-" }}</div>
+            <div class="col-md-4 mt-2">
+                <strong>Couleur :</strong>
+                {% if fiche.couleur %}
+                    <span style="display:inline-block;width:20px;height:20px;background-color:{{ fiche.couleur }};border:1px solid #ccc;"></span>
+                    {{ fiche.couleur }}
+                {% else %}
+                    -
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Compétences associées -->
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white fw-bold">Compétences associées</div>
+        <div class="card-body">
+            {% if fiche.competences.exists %}
+                <ul class="list-group">
+                    {% for competence in fiche.competences.all %}
+                        <li class="list-group-item">{{ competence.title }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>Aucune compétence associée.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Phases sous forme de tableau -->
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white fw-bold">Phases de la séance</div>
+        <div class="card-body table-responsive">
+            {% if fiche.phases.all %}
+                <table class="table table-striped table-bordered align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Phase</th>
+                            <th>Durée</th>
+                            <th>Compétence évaluée</th>
+                            <th>Déroulement</th>
+                            <th>Posture</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for phase in fiche.phases.all %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ phase.phase }}</td>
+                                <td>{{ phase.duree|default:"-" }}</td>
+                                <td>{{ phase.ce|default:"-" }}</td>
+                                <td>
+                                    <div class="deroulement-content">
+                                        {{ phase.deroulement|safe }}
+                                    </div>
+                                </td>
+                                <td>{{ phase.posture|default:"-" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>Aucune phase définie.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Bilan -->
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white fw-bold">Bilan</div>
+        <div class="card-body">
+            {% if fiche.bilan %}
+                <div class="border p-3 rounded" style="background:#f8f9fa;">
+                    {{ fiche.bilan|safe }}
+                </div>
+            {% else %}
+                <p>Aucun bilan renseigné.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Actions -->
+    <div class="mt-4 text-center">
+        <a href="{% url 'friends:shared_content' %}" class="btn btn-primary">
+            <i class="fas fa-arrow-left"></i> Retour au contenu partagé
+        </a>
+        <a href="{% url 'friends:dashboard' %}" class="btn btn-secondary">
+            <i class="fas fa-users"></i> Dashboard amis
+        </a>
+    </div>
+</div>
+{% endblock %}

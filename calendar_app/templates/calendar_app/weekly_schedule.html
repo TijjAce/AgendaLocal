@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_tags %}
+
+{% block title %}Semaine {{ week }} - {{ year }} - Planif facile{% endblock %}
+
+{% block extra_css %}
+<style>
+    .weekly-schedule-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    .schedule-header {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        padding: 2rem;
+        border-radius: 10px 10px 0 0;
+        text-align: center;
+    }
+    
+    .schedule-header h1 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 600;
+    }
+    
+    .week-navigation {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .schedule-content {
+        background: var(--card-bg, #ffffff);
+        border-radius: 0 0 10px 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    [data-theme="dark"] .schedule-content {
+        background: #3a3a3a !important;
+    }
+    
+    .schedule-controls {
+        padding: 1rem;
+        background: var(--alert-bg, #f8f9fa);
+        border-bottom: 1px solid var(--border-color, #dee2e6);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    [data-theme="dark"] .schedule-controls {
+        background: #3a3a3a !important;
+        border-color: #4a4a4a !important;
+    }
+    
+    .create-session-btn {
+        background: #28a745;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .create-session-btn:hover {
+        background: #218838;
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .legend-color {
+        width: 15px;
+        height: 15px;
+        border-radius: 3px;
+        margin-right: 8px;
+    }
+    
+    /* Styles pour la vue hebdomadaire */
+    .weekly-overview {
+        background: var(--bg-color);
+        border-radius: 10px;
+        padding: 15px;
+    }
+    
+    .day-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .day-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .day-header {
+        background: var(--primary-color);
+        color: white;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .day-name {
+        font-size: 0.9rem;
+    }
+    
+    .day-date {
+        font-size: 0.75rem;
+        opacity: 0.9;
+    }
+    
+    .day-schedule {
+        background: linear-gradient(to bottom, 
+            transparent 0%, 
+            rgba(0,0,0,0.02) 8.33%, 
+            transparent 8.33%, 
+            transparent 16.66%, 
+            rgba(0,0,0,0.02) 16.66%, 
+            transparent 16.66%);
+        background-size: 100% 33.33px;
+    }
+    
+    .session-block {
+        border-radius: 4px;
+        padding: 4px 6px;
+        margin: 1px 0;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-left: 3px solid;
+        font-size: 0.7rem;
+        line-height: 1.1;
+    }
+    
+    .session-planned {
+        background: rgba(0, 123, 255, 0.8);
+        color: white;
+        border-left-color: #0056b3;
+    }
+    
+    .session-done {
+        background: rgba(40, 167, 69, 0.8);
+        color: white;
+        border-left-color: #1e7e34;
+    }
+    
+    .session-block:hover {
+        transform: scale(1.02);
+        z-index: 10;
+    }
+    
+    .session-time {
+        font-weight: 600;
+        margin-bottom: 2px;
+    }
+    
+    .session-title {
+        margin-bottom: 1px;
+    }
+    
+    .session-discipline {
+        font-size: 0.6rem;
+        opacity: 0.9;
+    }
+    
+    .no-sessions {
+        font-size: 0.8rem;
+    }
+    
+    .tiny {
+        font-size: 0.6rem;
+    }
+    
+    /* Mode sombre */
+    [data-theme="dark"] .day-card {
+        background: #4a4a4a;
+        border-color: #5a5a5a;
+    }
+    
+    [data-theme="dark"] .day-header {
+        background: #0056b3;
+    }
+    
+    [data-theme="dark"] .weekly-overview {
+        background: #2a2a2a;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="weekly-schedule-container">
+    <div class="schedule-header">
+        <h1>Semaine {{ week }} - {{ year }}</h1>
+        <p class="mb-0">Du {{ week_start|date:"d/m/Y" }} au {{ week_end|date:"d/m/Y" }}</p>
+        
+        <div class="week-navigation">
+            <a href="{% url 'weekly_schedule_with_params' prev_year prev_week %}" class="btn btn-outline-light">
+                <i class="fas fa-arrow-left me-1"></i> Semaine précédente
+            </a>
+            <a href="{% url 'weekly_schedule' %}" class="btn btn-light">
+                <i class="fas fa-calendar-day me-1"></i> Semaine actuelle
+            </a>
+            <a href="{% url 'weekly_schedule_with_params' next_year next_week %}" class="btn btn-outline-light">
+                Semaine suivante <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="schedule-content">
+        <div class="schedule-controls">
+            <div>
+                <a href="{% url 'calendar' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Retour au calendrier
+                </a>
+                
+            </div>
+        </div>
+
+        <div class="weekly-overview mb-4">
+            <div class="row g-2">
+                {% for day_name, day_date, sessions in week_data %}
+                <div class="col">
+                    <div class="day-card h-100">
+                        <div class="day-header text-center py-2">
+                            <div class="day-name fw-bold">{{ day_name }}</div>
+                            <div class="day-date small text-muted">{{ day_date|date:"d/m" }}</div>
+                        </div>
+                        <div class="day-schedule" style="min-height: 400px; position: relative;">
+                            {% if sessions %}
+                                {% for session in sessions %}
+                                <div class="session-block {% if session.realise %}session-done{% else %}session-planned{% endif %}" 
+                                     style="position: absolute; 
+                                            left: 5px; 
+                                            right: 5px; 
+                                            top: {{ session.top_position }}px; 
+                                            height: {{ session.height }}px;"
+                                     onclick="window.location.href='{% url 'daily_schedule' day_date.year day_date.month day_date.day %}'">
+                                    <div class="session-time small">{{ session.heure_debut|time:"H:i" }}-{{ session.heure_fin|time:"H:i" }}</div>
+                                    <div class="session-title small fw-bold">{{ session.titre|truncatechars:15 }}</div>
+                                    {% if session.discipline %}
+                                    <div class="session-discipline tiny">{{ session.discipline.nom|truncatechars:12 }}</div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="no-sessions text-center text-muted py-4">
+                                    <i class="fas fa-calendar-times"></i>
+                                    <div class="small">Aucune séance</div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="legend mb-4">
+            <div class="d-flex flex-wrap gap-3 justify-content-center">
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #007bff;"></div>
+                    <span>Séances programmées</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #28a745;"></div>
+                    <span>Séances réalisées</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

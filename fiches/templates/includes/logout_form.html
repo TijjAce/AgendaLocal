@@ -1,0 +1,7 @@
+<!-- Formulaire de déconnexion sécurisé avec méthode POST -->
+<form method="post" action="{% url 'logout' %}" style="display: inline;">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-outline-danger">
+        <i class="bi bi-box-arrow-right"></i> Déconnexion
+    </button>
+</form>

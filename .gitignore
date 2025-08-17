@@ -1,0 +1,68 @@
+# Django
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.pythonanywhere
+
+# Static files (will be regenerated)
+staticfiles/
+static_collected/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Deployment
+deployment_package/
+backup_before_deploy/
+deployment.log
+*.tar.gz
+
+# Python
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node.js (si utilise)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Snyk
+.snyk
+.snyk_d/
+snyk_report/
+*.snyk
+
+# GitLeaks
+.gitleaks/
+gitleaks-report.json
+gitleaks-report.sarif
+
+# Temporary files
+*.tmp
+*.temp
+.current_config
+
+# Virtual environment
+venv/

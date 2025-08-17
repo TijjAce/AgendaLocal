@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Supprimer {{ sequence.name }} - Séquences{% endblock %}
+
+{% block extra_css %}
+<style>
+    .delete-warning {
+        background: linear-gradient(135deg, #dc354515, #dc354505);
+        border-left: 4px solid #dc3545;
+    }
+    
+    .sequence-info {
+        background: linear-gradient(135deg, {{ sequence.discipline.color|default:'#007bff' }}15, {{ sequence.discipline.color|default:'#007bff' }}05);
+        border-left: 4px solid {{ sequence.discipline.color|default:'#007bff' }};
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <!-- En-tête -->
+            <div class="d-flex align-items-center mb-4">
+                <a href="{% url 'sequences_detail' sequence.id %}" class="btn btn-outline-secondary me-3">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h1 class="h3 mb-0">Supprimer la séquence</h1>
+            </div>
+
+            <!-- Avertissement -->
+            <div class="card border-0 shadow-sm delete-warning mb-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-exclamation-triangle text-danger fa-2x me-3"></i>
+                        <div>
+                            <h5 class="mb-1 text-danger">Attention !</h5>
+                            <p class="mb-0 text-muted">Cette action est irréversible.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informations sur la séquence -->
+            <div class="card border-0 shadow-sm sequence-info mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-list-ol me-2"></i>
+                        {{ sequence.name }}
+                    </h5>
+                    
+                    <div class="row">
+                        <div class="col-sm-6 mb-3">
+                            <strong>Discipline :</strong><br>
+                            <span class="badge" style="background-color: {{ sequence.discipline.color|default:'#007bff' }};">
+                                {{ sequence.discipline.title }}
+                            </span>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <strong>Niveau :</strong><br>
+                            <span class="badge bg-secondary">{{ sequence.level }}</span>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <strong>Durée estimée :</strong><br>
+                            {{ sequence.estimated_duration }}h
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <strong>Séances associées :</strong><br>
+                            <span class="text-primary fw-bold">{{ seances_count }} séance{{ seances_count|pluralize }}</span>
+                        </div>
+                    </div>
+                    
+                    {% if sequence.description %}
+                        <div class="mt-3">
+                            <strong>Description :</strong><br>
+                            <p class="text-muted mb-0">{{ sequence.description }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Conséquences de la suppression -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h6 class="card-title text-warning">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Que va-t-il se passer ?
+                    </h6>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            La séquence sera définitivement supprimée
+                        </li>
+                        {% if seances_count > 0 %}
+                            <li class="mb-2">
+                                <i class="fas fa-unlink text-info me-2"></i>
+                                Les {{ seances_count }} séance{{ seances_count|pluralize }} associée{{ seances_count|pluralize }} seront détachée{{ seances_count|pluralize }} mais conservée{{ seances_count|pluralize }}
+                            </li>
+                        {% endif %}
+                        <li class="mb-0">
+                            <i class="fas fa-history text-muted me-2"></i>
+                            Cette action ne peut pas être annulée
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Formulaire de confirmation -->
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-flex gap-3">
+                    <a href="{% url 'sequences_detail' sequence.id %}" class="btn btn-outline-secondary flex-grow-1">
+                        <i class="fas fa-times me-2"></i>
+                        Annuler
+                    </a>
+                    <button type="submit" class="btn btn-danger flex-grow-1">
+                        <i class="fas fa-trash me-2"></i>
+                        Supprimer définitivement
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

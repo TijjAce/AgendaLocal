@@ -1,0 +1,42 @@
+# Configuration GitLeaks pour Planif Facile
+# https://github.com/gitleaks/gitleaks
+
+[extend]
+# Utilise la configuration par défaut de GitLeaks
+useDefault = true
+
+# Règles personnalisées pour ignorer les faux positifs
+[[rules]]
+id = "django-secret-key-example"
+description = "Ignore Django secret key examples in documentation"
+regex = '''django\.contrib\.auth\.hashers\.make_password'''
+path = '''(docs/|README\.md|\.md)'''
+
+# Ignorer les secrets dans les fichiers de test avec des valeurs factices
+[[rules]]
+id = "test-secrets"
+description = "Ignore test secrets with obvious fake values"
+regex = '''(test_|fake_|example_|dummy_)[a-zA-Z0-9]{20,}'''
+path = '''(test_|tests/|spec/)'''
+
+# Allowlist pour les fichiers qui peuvent contenir des exemples
+[allowlist]
+description = "Allowlist for documentation and configuration examples"
+paths = [
+    '''\.env\.example$''',
+    '''\.env\.template$''',
+    '''README\.md$''',
+    '''SECURITY\.md$''',
+    '''docs/''',
+]
+
+# Stopwords - mots qui indiquent des faux positifs
+stopwords = [
+    "example",
+    "test",
+    "fake",
+    "dummy",
+    "placeholder",
+    "changeme",
+    "your-key-here",
+]

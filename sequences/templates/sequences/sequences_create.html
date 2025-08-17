@@ -1,0 +1,420 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Créer une séquence{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-floating > .form-control:focus ~ label,
+    .form-floating > .form-control:not(:placeholder-shown) ~ label {
+        opacity: .65;
+        transform: scale(.85) translateY(-0.5rem) translateX(0.15rem);
+    }
+    
+    .preview-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        position: sticky;
+        top: 20px;
+    }
+    
+    .discipline-badge {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
+    }
+    
+    .step-indicator {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #6c757d;
+    }
+    
+    .step-indicator.active {
+        background: #007bff;
+        color: white;
+    }
+    
+    .form-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        border-left: 4px solid #007bff;
+    }
+    
+    /* Styles pour le mode sombre */
+    [data-theme="dark"] .form-section {
+        background: #404040;
+        border-left-color: #4a90e2;
+    }
+    
+    [data-theme="dark"] .step-indicator {
+        background: #5a5a5a;
+        color: #d0d0d0;
+    }
+    
+    [data-theme="dark"] .step-indicator.active {
+        background: #4a90e2;
+        color: white;
+    }
+    
+    [data-theme="dark"] .preview-card {
+        background: linear-gradient(135deg, #4a5568 0%, #553c7b 100%);
+    }
+    
+    [data-theme="dark"] .card {
+        background: #3a3a3a;
+        border-color: #5a5a5a;
+    }
+    
+    [data-theme="dark"] .card-header {
+        background: #404040 !important;
+        border-color: #5a5a5a;
+    }
+    
+    [data-theme="dark"] .form-control {
+        background: #404040;
+        border-color: #5a5a5a;
+        color: #d0d0d0;
+    }
+    
+    [data-theme="dark"] .form-control:focus {
+        background: #404040;
+        border-color: #4a90e2;
+        color: #d0d0d0;
+        box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+    }
+    
+    [data-theme="dark"] .form-select {
+        background: #404040;
+        border-color: #5a5a5a;
+        color: #d0d0d0;
+    }
+    
+    [data-theme="dark"] .form-select:focus {
+        background: #404040;
+        border-color: #4a90e2;
+        color: #d0d0d0;
+        box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+    }
+    
+    [data-theme="dark"] .form-floating > label {
+        color: #9a9a9a;
+    }
+    
+    [data-theme="dark"] .btn-outline-secondary {
+        color: #d0d0d0;
+        border-color: #5a5a5a;
+    }
+    
+    [data-theme="dark"] .btn-outline-secondary:hover {
+        background: #5a5a5a;
+        border-color: #5a5a5a;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Formulaire principal -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 pb-0">
+                    <div class="d-flex align-items-center mb-3">
+                        <a href="{% url 'sequences:sequences_list' %}" class="btn btn-outline-secondary me-3">
+                            <i class="fas fa-arrow-left"></i>
+                        </a>
+                        <div>
+                            <h1 class="h4 mb-1">
+                                <i class="fas fa-plus-circle text-primary me-2"></i>
+                                Créer une nouvelle séquence
+                            </h1>
+                            <p class="text-muted mb-0">Définissez les paramètres de votre séquence pédagogique</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Indicateur d'étapes -->
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="step-indicator active me-3">1</div>
+                        <span class="me-4">Informations générales</span>
+                        <div class="step-indicator me-3">2</div>
+                        <span class="me-4">Paramètres</span>
+                        <div class="step-indicator me-3">3</div>
+                        <span>Validation</span>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <form method="post" id="sequenceForm">
+                        {% csrf_token %}
+                        
+                        <!-- Section 1: Informations de base -->
+                        <div class="form-section p-4 mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-info-circle text-primary me-2"></i>
+                                Informations générales
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" id="name" name="name" 
+                                               placeholder="Nom de la séquence" required>
+                                        <label for="name">Nom de la séquence *</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="discipline" name="discipline" required>
+                                            <option value="">Choisir une discipline</option>
+                                            {% for discipline in disciplines %}
+                                                <option value="{{ discipline.id }}" 
+                                                        data-color="{{ discipline.color|default:'#007bff' }}"
+                                                        {% if request.GET.discipline == discipline.id|stringformat:"s" %}selected{% endif %}>
+                                                    {{ discipline.title }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                        <label for="discipline">Discipline *</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="form-floating">
+                                    <textarea class="form-control" id="description" name="description" 
+                                              placeholder="Description de la séquence" style="height: 100px;"></textarea>
+                                    <label for="description">Description</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Section 2: Paramètres -->
+                        <div class="form-section p-4 mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-cogs text-primary me-2"></i>
+                                Paramètres pédagogiques
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="level" name="level" required>
+                                            <option value="">Choisir un niveau</option>
+                                            <option value="PS">PS - Petite Section</option>
+                                            <option value="MS">MS - Moyenne Section</option>
+                                            <option value="GS">GS - Grande Section</option>
+                                            <option value="CP">CP - Cours Préparatoire</option>
+                                            <option value="CE1">CE1 - Cours Élémentaire 1</option>
+                                            <option value="CE2">CE2 - Cours Élémentaire 2</option>
+                                            <option value="CM1">CM1 - Cours Moyen 1</option>
+                                            <option value="CM2">CM2 - Cours Moyen 2</option>
+                                        </select>
+                                        <label for="level">Niveau de classe *</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" id="estimated_duration" 
+                                               name="estimated_duration" placeholder="Durée estimée" min="1" max="100" step="0.5">
+                                        <label for="estimated_duration">Durée estimée (heures)</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" id="ordering" name="ordering" 
+                                               placeholder="Ordre" min="1" value="1">
+                                        <label for="ordering">Ordre dans la progression</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Messages d'erreur -->
+                        {% if form.errors %}
+                            <div class="alert alert-danger" role="alert">
+                                <h6><i class="fas fa-exclamation-triangle me-2"></i>Erreurs dans le formulaire :</h6>
+                                <ul class="mb-0">
+                                    {% for field, errors in form.errors.items %}
+                                        {% for error in errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Boutons d'action -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'sequences:sequences_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>
+                                Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                Créer la séquence
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Panneau de prévisualisation -->
+        <div class="col-lg-4">
+            <div class="preview-card p-4">
+                <h5 class="mb-3">
+                    <i class="fas fa-eye me-2"></i>
+                    Aperçu de la séquence
+                </h5>
+                
+                <div class="mb-3">
+                    <h6 id="preview-name" class="mb-2">Nom de la séquence</h6>
+                    <span id="preview-discipline" class="discipline-badge px-2 py-1 rounded-pill small">
+                        Discipline non sélectionnée
+                    </span>
+                </div>
+                
+                <div class="mb-3">
+                    <p id="preview-description" class="small opacity-75">
+                        Description de la séquence...
+                    </p>
+                </div>
+                
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="mb-1">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <small id="preview-level">Niveau</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="mb-1">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <small id="preview-duration">0h</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="mb-1">
+                            <i class="fas fa-sort-numeric-up"></i>
+                        </div>
+                        <small id="preview-ordering">N°1</small>
+                    </div>
+                </div>
+                
+                <hr class="my-3" style="border-color: rgba(255,255,255,0.3);">
+                
+                <div class="text-center">
+                    <small class="opacity-75">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Vous pourrez ajouter des séances après la création
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Éléments du formulaire
+    const nameInput = document.getElementById('name');
+    const disciplineSelect = document.getElementById('discipline');
+    const descriptionTextarea = document.getElementById('description');
+    const levelSelect = document.getElementById('level');
+    const durationInput = document.getElementById('estimated_duration');
+    const orderingInput = document.getElementById('ordering');
+    
+    // Éléments de prévisualisation
+    const previewName = document.getElementById('preview-name');
+    const previewDiscipline = document.getElementById('preview-discipline');
+    const previewDescription = document.getElementById('preview-description');
+    const previewLevel = document.getElementById('preview-level');
+    const previewDuration = document.getElementById('preview-duration');
+    const previewOrdering = document.getElementById('preview-ordering');
+    
+    // Fonction de mise à jour de la prévisualisation
+    function updatePreview() {
+        // Nom
+        previewName.textContent = nameInput.value || 'Nom de la séquence';
+        
+        // Discipline
+        const selectedDiscipline = disciplineSelect.options[disciplineSelect.selectedIndex];
+        if (selectedDiscipline.value) {
+            previewDiscipline.textContent = selectedDiscipline.text;
+            previewDiscipline.style.background = selectedDiscipline.dataset.color + '40';
+            previewDiscipline.style.borderColor = selectedDiscipline.dataset.color;
+        } else {
+            previewDiscipline.textContent = 'Discipline non sélectionnée';
+            previewDiscipline.style.background = 'rgba(255, 255, 255, 0.2)';
+            previewDiscipline.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+        }
+        
+        // Description
+        previewDescription.textContent = descriptionTextarea.value || 'Description de la séquence...';
+        
+        // Niveau
+        const selectedLevel = levelSelect.options[levelSelect.selectedIndex];
+        previewLevel.textContent = selectedLevel.value || 'Niveau';
+        
+        // Durée
+        previewDuration.textContent = (durationInput.value || '0') + 'h';
+        
+        // Ordre
+        previewOrdering.textContent = 'N°' + (orderingInput.value || '1');
+    }
+    
+    // Écouteurs d'événements
+    nameInput.addEventListener('input', updatePreview);
+    disciplineSelect.addEventListener('change', updatePreview);
+    descriptionTextarea.addEventListener('input', updatePreview);
+    levelSelect.addEventListener('change', updatePreview);
+    durationInput.addEventListener('input', updatePreview);
+    orderingInput.addEventListener('input', updatePreview);
+    
+    // Pré-sélection de la discipline si passée en paramètre GET
+    const urlParams = new URLSearchParams(window.location.search);
+    const disciplineParam = urlParams.get('discipline');
+    if (disciplineParam) {
+        disciplineSelect.value = disciplineParam;
+        updatePreview();
+    }
+    
+    // Mise à jour initiale
+    updatePreview();
+    
+    // Validation du formulaire
+    const form = document.getElementById('sequenceForm');
+    form.addEventListener('submit', function(e) {
+        const requiredFields = ['name', 'discipline', 'level'];
+        let isValid = true;
+        
+        requiredFields.forEach(fieldName => {
+            const field = document.getElementById(fieldName);
+            if (!field.value.trim()) {
+                field.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Veuillez remplir tous les champs obligatoires.');
+        }
+    });
+});
+</script>
+{% endblock %}

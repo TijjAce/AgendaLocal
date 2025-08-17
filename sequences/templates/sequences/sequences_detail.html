@@ -1,0 +1,970 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ sequence.name }} - Détail{% endblock %}
+
+{% block extra_css %}
+<style>
+    .sequence-header {
+        background: linear-gradient(135deg, {{ sequence.discipline.color|default:'#007bff' }}15, {{ sequence.discipline.color|default:'#007bff' }}05);
+        border-left: 4px solid {{ sequence.discipline.color|default:'#007bff' }};
+    }
+    
+    .session-card {
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
+    }
+    
+    .session-card:hover {
+        border-left-color: {{ sequence.discipline.color|default:'#007bff' }};
+        transform: translateX(2px);
+    }
+    
+    .stats-card {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    }
+    
+    .floating-add-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    /* Styles pour le mode sombre */
+    [data-theme="dark"] .sequence-header {
+        background: linear-gradient(135deg, {{ sequence.discipline.color|default:'#007bff' }}25, {{ sequence.discipline.color|default:'#007bff' }}10);
+        border-left-color: {{ sequence.discipline.color|default:'#007bff' }};
+    }
+    
+    [data-theme="dark"] .stats-card {
+        background: linear-gradient(135deg, #404040, #3a3a3a);
+    }
+    
+    [data-theme="dark"] .card {
+        background: #3a3a3a;
+        border-color: #5a5a5a;
+    }
+    
+    [data-theme="dark"] .card-header {
+        background: #404040 !important;
+        border-color: #5a5a5a;
+    }
+    
+    [data-theme="dark"] .session-card:hover {
+        background: #404040;
+        border-left-color: {{ sequence.discipline.color|default:'#007bff' }};
+    }
+    
+    [data-theme="dark"] .btn-outline-secondary {
+        color: #d0d0d0;
+        border-color: #5a5a5a;
+    }
+    
+    [data-theme="dark"] .btn-outline-secondary:hover {
+        background: #5a5a5a;
+        border-color: #5a5a5a;
+        color: white;
+    }
+    
+    /* Styles pour la section de gestion des séances en mode sombre */
+    [data-theme="dark"] .nav-tabs {
+        border-color: #5a5a5a;
+    }
+    
+    [data-theme="dark"] .nav-tabs .nav-link {
+        color: #d0d0d0;
+        border-color: transparent;
+    }
+    
+    [data-theme="dark"] .nav-tabs .nav-link:hover {
+        border-color: #5a5a5a;
+        background: #404040;
+    }
+    
+    [data-theme="dark"] .nav-tabs .nav-link.active {
+        color: #ffffff;
+        background: #3a3a3a;
+        border-color: #5a5a5a #5a5a5a #3a3a3a;
+    }
+    
+    [data-theme="dark"] .selectable-card {
+        background: #404040;
+        border-color: #5a5a5a;
+    }
+    
+    [data-theme="dark"] .selectable-card:hover {
+        background: #454545;
+        border-color: #6a6a6a;
+    }
+    
+    [data-theme="dark"] .selectable-card.border-success {
+        border-color: #28a745 !important;
+    }
+    
+    [data-theme="dark"] .bg-success-subtle {
+        background-color: rgba(40, 167, 69, 0.1) !important;
+    }
+    
+    [data-theme="dark"] .form-check-input {
+        background-color: #404040;
+        border-color: #6a6a6a;
+    }
+    
+    [data-theme="dark"] .form-check-input:checked {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+    
+    [data-theme="dark"] .btn-outline-primary {
+        color: #007bff;
+        border-color: #007bff;
+    }
+    
+    [data-theme="dark"] .btn-outline-primary:hover {
+        background: #007bff;
+        border-color: #007bff;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- En-tête de la séquence -->
+            <div class="sequence-header rounded p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex align-items-center">
+                        <a href="{% url 'sequences:sequences_list' %}" class="btn btn-outline-secondary me-3">
+                            <i class="fas fa-arrow-left"></i>
+                        </a>
+                        <div>
+                            <h1 class="h3 mb-1">{{ sequence.name }}</h1>
+                            <div class="d-flex align-items-center">
+                                <span class="badge me-2" style="background-color: {{ sequence.discipline.color|default:'#007bff' }};">
+                                    {{ sequence.discipline.title }}
+                                </span>
+                                <span class="badge bg-secondary me-2">{{ sequence.level }}</span>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    {{ sequence.estimated_duration }}h estimées
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'sequences:sequences_edit' sequence.id %}">
+                                    <i class="fas fa-edit me-2"></i>Modifier
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'sequences:add_seance_to_sequence' sequence.id %}">
+                                    <i class="fas fa-plus me-2"></i>Ajouter une séance
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'friends:share_sequence' sequence.id %}">
+                                    <i class="fas fa-share-alt me-2"></i>Partager avec un ami
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="{% url 'sequences:sequences_delete' sequence.id %}">
+                                    <i class="fas fa-trash me-2"></i>Supprimer
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                {% if sequence.description %}
+                    <p class="mb-0 text-muted">{{ sequence.description }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Statistiques rapides -->
+            <div class="row mb-4">
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="card stats-card border-0 h-100">
+                        <div class="card-body text-center">
+                            <div class="text-primary mb-2">
+                                <i class="fas fa-list-ul fa-2x"></i>
+                            </div>
+                            <h4 class="mb-1">{{ sessions|length }}</h4>
+                            <small class="text-muted">Séances créées</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="card stats-card border-0 h-100">
+                        <div class="card-body text-center">
+                            <div class="text-success mb-2">
+                                <i class="fas fa-clock fa-2x"></i>
+                            </div>
+                            <h4 class="mb-1">{{ stats.total_duration }}</h4>
+                            <small class="text-muted">Durée réelle</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="card stats-card border-0 h-100">
+                        <div class="card-body text-center">
+                            <div class="text-info mb-2">
+                                <i class="fas fa-percentage fa-2x"></i>
+                            </div>
+                            <h4 class="mb-1" id="progression-percentage">{{ completion_percentage|floatformat:0 }}%</h4>
+                            <small class="text-muted">Progression</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="card stats-card border-0 h-100">
+                        <div class="card-body text-center">
+                            <div class="text-warning mb-2">
+                                <i class="fas fa-sort-numeric-up fa-2x"></i>
+                            </div>
+                            <h4 class="mb-1">N°{{ sequence.ordering }}</h4>
+                            <small class="text-muted">Position</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Liste des séances -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list-ul text-primary me-2"></i>
+                        Séances de la séquence
+                    </h5>
+                </div>
+                
+                <div class="card-body">
+                    {% if sessions %}
+                        <div class="row">
+                            {% for session in sessions %}
+                                <div class="col-lg-6 col-xl-4 mb-3">
+                                    <div class="card session-card border-0 shadow-sm h-100">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h6 class="card-title mb-0">{{ session.titre }} : {{session.groupes}}</h6>
+<!-- Menu déroulant supprimé selon demande utilisateur -->
+                                            </div>
+                                            
+                                            <div class="mb-2">
+                                                {% if session.date %}
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-calendar me-1"></i>
+                                                        {{ session.date|date:"d/m/Y" }}
+                                                        {% if session.heure_debut %}
+                                                            à {{ session.heure_debut|time:"H:i" }}
+                                                        {% endif %}
+                                                    </small>
+                                                {% else %}
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-calendar me-1"></i>
+                                                        Date non définie
+                                                    </small>
+                                                {% endif %}
+                                            </div>
+                                            
+                                            {% if session.objectifs %}
+                                                <p class="card-text small text-muted">
+                                                    {{ session.objectifs|truncatechars:80 }}
+                                                </p>
+                                            {% endif %}
+                                            
+                                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                                <div class="d-flex align-items-center">
+                                                    {% if session.duree %}
+                                                        <small class="text-muted me-3">
+                                                            <i class="fas fa-clock me-1"></i>
+                                                            {{ session.duree }}min
+                                                        </small>
+                                                    {% endif %}
+                                                    {% if session.niveau %}
+                                                        <span class="badge bg-secondary small">{{ session.niveau }}</span>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <!-- Bouton de completion -->
+                                                    <button class="btn btn-sm {% if session.is_completed %}btn-success{% else %}btn-outline-warning{% endif %}" 
+                                                            onclick="toggleSessionCompletion({{ session.id }})" 
+                                                            id="completion-btn-{{ session.id }}">
+                                                        {% if session.is_completed %}
+                                                            <i class="fas fa-check"></i> Fait
+                                                        {% else %}
+                                                            <i class="fas fa-clock"></i> À faire
+                                                        {% endif %}
+                                                    </button>
+                                                    <a href="{% url 'fiche_detail' session.id %}" class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="mb-4">
+                                <i class="fas fa-list-ul fa-4x text-muted"></i>
+                            </div>
+                            <h5 class="text-muted mb-3">Aucune séance dans cette séquence</h5>
+                            <p class="text-muted">
+                                Cette séquence ne contient pas encore de séances.
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Section de gestion des séances -->
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-plus-circle me-2 text-success"></i>
+                            Gérer les séances
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Onglets pour organiser les actions -->
+                        <ul class="nav nav-tabs" id="seancesTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="available-tab" data-bs-toggle="tab" data-bs-target="#available" type="button" role="tab">
+                                    <i class="fas fa-list me-1"></i>
+                                    Séances disponibles ({{ available_fiches.count }})
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="create-tab" data-bs-toggle="tab" data-bs-target="#create" type="button" role="tab">
+                                    <i class="fas fa-plus me-1"></i>
+                                    Créer une nouvelle séance
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="create-multiple-tab" data-bs-toggle="tab" data-bs-target="#create-multiple" type="button" role="tab">
+                                    <i class="fas fa-copy me-1"></i>
+                                    Créer plusieurs séances
+                                </button>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content mt-3" id="seancesTabsContent">
+                            <!-- Onglet : Séances disponibles -->
+                            <div class="tab-pane fade show active" id="available" role="tabpanel">
+                                {% if available_fiches %}
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <div class="mb-3">
+                                            <p class="text-muted mb-3">
+                                                Sélectionnez les séances de la discipline "{{ sequence.discipline.title }}" à ajouter à cette séquence :
+                                            </p>
+                                            
+                                            <!-- Boutons de sélection -->
+                                            <div class="mb-3">
+                                                <button type="button" class="btn btn-sm btn-outline-primary me-2" id="select-all">
+                                                    <i class="fas fa-check-square me-1"></i>Tout sélectionner
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary" id="deselect-all">
+                                                    <i class="fas fa-square me-1"></i>Tout désélectionner
+                                                </button>
+                                                <span class="ms-3 text-muted small" id="selection-count">0 séance(s) sélectionnée(s)</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            {% for fiche in available_fiches %}
+                                                <div class="col-md-6 col-lg-4 mb-3">
+                                                    <div class="card h-100 selectable-card" data-fiche-id="{{ fiche.id }}">
+                                                        <div class="card-body">
+                                                            <div class="form-check mb-2">
+                                                                <input class="form-check-input fiche-checkbox" type="checkbox" name="selected_fiches" value="{{ fiche.id }}" id="fiche_{{ fiche.id }}">
+                                                                <label class="form-check-label fw-bold" for="fiche_{{ fiche.id }}">
+                                                                    {{ fiche.titre }} : {{fiche.groupes}}
+                                                                </label>
+                                                            </div>
+                                                            
+                                                            <div class="mb-2">
+                                                                {% if fiche.date %}
+                                                                    <small class="text-muted">
+                                                                        <i class="fas fa-calendar me-1"></i>
+                                                                        {{ fiche.date|date:"d/m/Y" }}
+                                                                        {% if fiche.heure_debut %}
+                                                                            à {{ fiche.heure_debut|time:"H:i" }}
+                                                                        {% endif %}
+                                                                    </small>
+                                                                {% else %}
+                                                                    <small class="text-muted">
+                                                                        <i class="fas fa-calendar me-1"></i>
+                                                                        Date non définie
+                                                                    </small>
+                                                                {% endif %}
+                                                            </div>
+                                                            
+                                                            {% if fiche.objectifs %}
+                                                                <p class="card-text small text-muted mb-2">
+                                                                    {{ fiche.objectifs|truncatechars:60 }}
+                                                                </p>
+                                                            {% endif %}
+                                                            
+                                                            <div class="d-flex justify-content-between align-items-center">
+                                                                <div>
+                                                                    {% if fiche.duree %}
+                                                                        <small class="text-muted">
+                                                                            <i class="fas fa-clock me-1"></i>
+                                                                            {{ fiche.duree }}min
+                                                                        </small>
+                                                                    {% endif %}
+                                                                </div>
+                                                                {% if fiche.niveau %}
+                                                                    <span class="badge bg-secondary small">{{ fiche.niveau }}</span>
+                                                                {% endif %}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                        
+                                        <div class="text-center mt-4">
+                                            <button type="submit" class="btn btn-success" id="add-selected-btn" disabled>
+                                                <i class="fas fa-plus me-2"></i>
+                                                Ajouter les séances sélectionnées
+                                            </button>
+                                        </div>
+                                    </form>
+                                {% else %}
+                                    <div class="text-center py-4">
+                                        <div class="mb-3">
+                                            <i class="fas fa-inbox fa-3x text-muted"></i>
+                                        </div>
+                                        <h6 class="text-muted mb-2">Aucune séance disponible</h6>
+                                        <p class="text-muted small mb-0">
+                                            Toutes les séances de la discipline "{{ sequence.discipline.title }}" sont déjà assignées à des séquences.
+                                        </p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Onglet : Créer une nouvelle séance -->
+                            <div class="tab-pane fade" id="create" role="tabpanel">
+                                <div class="text-center py-4">
+                                    <div class="mb-3">
+                                        <i class="fas fa-plus-circle fa-3x text-success"></i>
+                                    </div>
+                                    <h6 class="mb-3">Créer une nouvelle séance</h6>
+                                    <p class="text-muted mb-4">
+                                        Créez une nouvelle séance qui sera automatiquement ajoutée à cette séquence.
+                                    </p>
+                                    <a href="/fiches/create/?discipline_id={{ sequence.discipline.id }}&sequence={{ sequence.id }}" class="btn btn-success">
+                                        <i class="fas fa-plus me-2"></i>
+                                        Créer une nouvelle séance
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <!-- Onglet : Créer plusieurs séances -->
+                            <div class="tab-pane fade" id="create-multiple" role="tabpanel">
+                                <div class="py-4">
+                                    <div class="mb-4 text-center">
+                                        <i class="fas fa-copy fa-3x text-primary mb-3"></i>
+                                        <h6 class="mb-3">Créer plusieurs séances</h6>
+                                        <p class="text-muted mb-4">
+                                            Créez plusieurs séances d'un coup avec des paramètres similaires.
+                                        </p>
+                                    </div>
+                                    
+                                    <form id="multipleSessionsForm">
+                                        {% csrf_token %}
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="sessionTitle" class="form-label">Titre de base</label>
+                                                    <input type="text" class="form-control" id="sessionTitle" placeholder="Ex: Séance" required>
+                                                    <small class="form-text text-muted">Les séances seront numérotées automatiquement</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="sessionCount" class="form-label">Nombre de séances</label>
+                                                    <input type="number" class="form-control" id="sessionCount" min="2" max="20" value="3" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="sessionDuration" class="form-label">Durée (minutes)</label>
+                                                    <select class="form-select" id="sessionDuration">
+                                                        <option value="30">30 minutes</option>
+                                                        <option value="45">45 minutes</option>
+                                                        <option value="60" selected>1 heure</option>
+                                                        <option value="90">1h30</option>
+                                                        <option value="120">2 heures</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="sessionInterval" class="form-label">Intervalle entre séances</label>
+                                                    <select class="form-select" id="sessionInterval">
+                                                        <option value="1">Chaque jour</option>
+                                                        <option value="7" selected>Chaque semaine</option>
+                                                        <option value="14">Toutes les 2 semaines</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="startDate" class="form-label">Date de début</label>
+                                                    <input type="date" class="form-control" id="startDate" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="startTime" class="form-label">Heure de début</label>
+                                                    <input type="time" class="form-control" id="startTime" value="08:00" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="sessionDescription" class="form-label">Description (optionnel)</label>
+                                            <textarea class="form-control" id="sessionDescription" rows="3" placeholder="Description commune à toutes les séances..."></textarea>
+                                        </div>
+                                        
+                                        <div class="d-flex justify-content-between">
+                                            <button type="button" class="btn btn-outline-secondary" onclick="previewSessions()">
+                                                <i class="fas fa-eye me-2"></i>Aperçu
+                                            </button>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-plus me-2"></i>Créer les séances
+                                            </button>
+                                        </div>
+                                    </form>
+                                    
+                                    <!-- Aperçu des séances -->
+                                    <div id="sessionsPreview" class="mt-4" style="display: none;">
+                                        <h6>Aperçu des séances à créer :</h6>
+                                        <div id="previewList" class="list-group">
+                                            <!-- Généré par JavaScript -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAllBtn = document.getElementById('select-all');
+    const deselectAllBtn = document.getElementById('deselect-all');
+    const checkboxes = document.querySelectorAll('.fiche-checkbox');
+    const selectionCount = document.getElementById('selection-count');
+    const addSelectedBtn = document.getElementById('add-selected-btn');
+    const selectableCards = document.querySelectorAll('.selectable-card');
+    
+    // Fonction pour mettre à jour le compteur et le bouton
+    function updateSelection() {
+        const checkedBoxes = document.querySelectorAll('.fiche-checkbox:checked');
+        const count = checkedBoxes.length;
+        
+        selectionCount.textContent = `${count} séance(s) sélectionnée(s)`;
+        addSelectedBtn.disabled = count === 0;
+        
+        // Mettre à jour l'apparence des cartes
+        selectableCards.forEach(card => {
+            const checkbox = card.querySelector('.fiche-checkbox');
+            if (checkbox.checked) {
+                card.classList.add('border-success', 'bg-success-subtle');
+            } else {
+                card.classList.remove('border-success', 'bg-success-subtle');
+            }
+        });
+    }
+    
+    // Événements pour les boutons de sélection
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener('click', function() {
+            checkboxes.forEach(cb => cb.checked = true);
+            updateSelection();
+        });
+    }
+    
+    if (deselectAllBtn) {
+        deselectAllBtn.addEventListener('click', function() {
+            checkboxes.forEach(cb => cb.checked = false);
+            updateSelection();
+        });
+    }
+    
+    // Événements pour les checkboxes
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelection);
+    });
+    
+    // Permettre de cliquer sur la carte pour sélectionner
+    selectableCards.forEach(card => {
+        card.addEventListener('click', function(e) {
+            if (e.target.type !== 'checkbox' && e.target.tagName !== 'LABEL') {
+                const checkbox = card.querySelector('.fiche-checkbox');
+                checkbox.checked = !checkbox.checked;
+                updateSelection();
+            }
+        });
+    });
+    
+    // Initialisation
+    updateSelection();
+    
+    // Initialiser la date de début à aujourd'hui
+    const today = new Date().toISOString().split('T')[0];
+    const startDateInput = document.getElementById('startDate');
+    if (startDateInput) {
+        startDateInput.value = today;
+    }
+});
+
+// Fonction pour prévisualiser les séances multiples
+function previewSessions() {
+    const title = document.getElementById('sessionTitle').value;
+    const count = parseInt(document.getElementById('sessionCount').value);
+    const duration = parseInt(document.getElementById('sessionDuration').value);
+    const interval = parseInt(document.getElementById('sessionInterval').value);
+    const startDate = new Date(document.getElementById('startDate').value);
+    const startTime = document.getElementById('startTime').value;
+    
+    if (!title || !count || !startDate || !startTime) {
+        alert('Veuillez remplir tous les champs obligatoires.');
+        return;
+    }
+    
+    const previewDiv = document.getElementById('sessionsPreview');
+    const previewList = document.getElementById('previewList');
+    
+    previewList.innerHTML = '';
+    
+    for (let i = 1; i <= count; i++) {
+        const sessionDate = new Date(startDate);
+        sessionDate.setDate(startDate.getDate() + (i - 1) * interval);
+        
+        const endTime = new Date(`2000-01-01T${startTime}:00`);
+        endTime.setMinutes(endTime.getMinutes() + duration);
+        
+        const sessionItem = document.createElement('div');
+        sessionItem.className = 'list-group-item';
+        sessionItem.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1">${title} ${i}</h6>
+                    <p class="mb-1 text-muted">
+                        <i class="fas fa-calendar me-1"></i>${sessionDate.toLocaleDateString('fr-FR')}
+                        <i class="fas fa-clock ms-3 me-1"></i>${startTime} - ${endTime.toTimeString().slice(0, 5)}
+                        <span class="badge bg-secondary ms-2">${duration} min</span>
+                    </p>
+                </div>
+                <i class="fas fa-check-circle text-success"></i>
+            </div>
+        `;
+        previewList.appendChild(sessionItem);
+    }
+    
+    previewDiv.style.display = 'block';
+}
+
+// Gestion du formulaire de création multiple
+document.getElementById('multipleSessionsForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        title: document.getElementById('sessionTitle').value,
+        count: parseInt(document.getElementById('sessionCount').value),
+        duration: parseInt(document.getElementById('sessionDuration').value),
+        interval: parseInt(document.getElementById('sessionInterval').value),
+        startDate: document.getElementById('startDate').value,
+        startTime: document.getElementById('startTime').value,
+        description: document.getElementById('sessionDescription').value,
+        sequenceId: {{ sequence.id }}
+    };
+    
+    // Afficher un indicateur de chargement
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Création en cours...';
+    submitBtn.disabled = true;
+    
+    // Envoyer la requête
+    fetch('/sequences/create-multiple-sessions/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Afficher un message de succès
+            showToast('success', `${data.created_count} séances créées avec succès!`);
+            
+            // Recharger la page pour afficher les nouvelles séances
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            showToast('error', data.message || 'Erreur lors de la création des séances');
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        showToast('error', 'Erreur de connexion');
+    })
+    .finally(() => {
+        // Restaurer le bouton
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+});
+
+// Fonction pour afficher des messages toast
+function showToast(type, message) {
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} position-fixed`;
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    toast.innerHTML = `
+        <strong>${type === 'success' ? 'Succès!' : 'Erreur!'}</strong> ${message}
+        <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.remove();
+        }
+    }, 5000);
+};
+
+// Fonction pour recalculer la progression
+function recalculateProgression() {
+    const btn = document.getElementById('recalculate-btn');
+    const originalContent = btn.innerHTML;
+    
+    // Désactiver le bouton et afficher un spinner
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Calcul...';
+    
+    // Faire la requête AJAX
+    fetch(`/sequences/{{ sequence.id }}/recalculate-progression/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Mettre à jour les statistiques affichées
+            document.getElementById('progression-percentage').textContent = data.stats.completion_percentage + '%';
+            
+            // Mettre à jour les autres statistiques si nécessaire
+            const totalSeancesElement = document.querySelector('.stats-card:first-child h4');
+            if (totalSeancesElement) {
+                totalSeancesElement.textContent = data.stats.total_seances;
+            }
+            
+            const totalDurationElement = document.querySelector('.stats-card:nth-child(2) h4');
+            if (totalDurationElement) {
+                totalDurationElement.textContent = data.stats.total_duration;
+            }
+            
+            // Afficher un message de succès
+            showToast('success', data.message);
+        } else {
+            showToast('error', data.error || 'Erreur lors du recalcul');
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        showToast('error', 'Erreur de connexion');
+    })
+    .finally(() => {
+        // Réactiver le bouton
+        btn.disabled = false;
+        btn.innerHTML = originalContent;
+    });
+}
+
+// Fonction pour afficher des messages toast
+function showToast(type, message) {
+    // Créer un toast Bootstrap ou utiliser une notification simple
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const iconClass = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
+    
+    const toast = document.createElement('div');
+    toast.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    toast.innerHTML = `
+        <i class="fas ${iconClass} me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Supprimer automatiquement après 5 secondes
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    }, 5000);
+}
+
+// Fonction pour toggler la completion d'une séance et mettre à jour la progression
+function toggleSessionCompletion(sessionId) {
+    const btn = document.getElementById(`completion-btn-${sessionId}`);
+    const originalContent = btn.innerHTML;
+    
+    // Indicateur de chargement
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    
+    fetch(`/calendar/toggle-completion/${sessionId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Mettre à jour le bouton
+            if (data.is_completed) {
+                btn.className = 'btn btn-sm btn-success';
+                btn.innerHTML = '<i class="fas fa-check"></i> Fait';
+            } else {
+                btn.className = 'btn btn-sm btn-outline-warning';
+                btn.innerHTML = '<i class="fas fa-clock"></i> À faire';
+            }
+            
+            // Mettre à jour la progression de la séquence
+            if (data.progression) {
+                const progressElement = document.getElementById('progression-percentage');
+                if (progressElement) {
+                    progressElement.textContent = `${data.progression.progression_percentage}%`;
+                }
+            }
+            
+            // Message de succès
+            showToast('success', data.message || 'Statut mis à jour avec succès');
+        } else {
+            // Restaurer le bouton en cas d'erreur
+            btn.innerHTML = originalContent;
+            showToast('error', data.error || 'Erreur lors de la mise à jour');
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        btn.innerHTML = originalContent;
+        showToast('error', 'Erreur de connexion');
+    })
+    .finally(() => {
+        btn.disabled = false;
+    });
+}
+
+// Auto-association des séances disponibles si aucune séance n'est associée
+document.addEventListener('DOMContentLoaded', function() {
+    // Ajouter le token CSRF si manquant
+    if (!document.querySelector('[name=csrfmiddlewaretoken]')) {
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = '{{ csrf_token }}';
+        document.body.appendChild(csrfInput);
+    }
+    
+    // Si la progression est à 0% et qu'il y a des séances disponibles, proposer l'association
+    const progressionElement = document.getElementById('progression-percentage');
+    const availableSessionsCount = document.querySelectorAll('.fiche-checkbox').length;
+    
+    if (progressionElement && progressionElement.textContent.trim() === '0%' && availableSessionsCount > 0) {
+        // Afficher un message d'aide
+        showAutoAssociationHint();
+    }
+    
+    // Recalculer la progression après un petit délai
+    setTimeout(function() {
+        recalculateProgression();
+    }, 500);
+});
+
+// Fonction pour afficher un hint d'association automatique
+function showAutoAssociationHint() {
+    const hintElement = document.createElement('div');
+    hintElement.className = 'alert alert-info alert-dismissible fade show mt-3';
+    hintElement.innerHTML = `
+        <i class="fas fa-lightbulb me-2"></i>
+        <strong>Astuce :</strong> Vous avez des séances disponibles mais aucune n'est associée à cette séquence. 
+        <button type="button" class="btn btn-sm btn-primary ms-2" onclick="autoAssociateAllSessions()">
+            <i class="fas fa-magic me-1"></i>Associer toutes les séances
+        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    const statsCard = document.querySelector('.stats-card')?.closest('.row');
+    if (statsCard) {
+        statsCard.insertAdjacentElement('afterend', hintElement);
+    }
+}
+
+// Fonction pour associer automatiquement toutes les séances disponibles
+function autoAssociateAllSessions() {
+    const checkboxes = document.querySelectorAll('.fiche-checkbox');
+    checkboxes.forEach(cb => cb.checked = true);
+    
+    // Soumettre le formulaire
+    const form = document.querySelector('form[method="post"]');
+    if (form) {
+        // Ajouter un indicateur de chargement
+        const submitBtn = document.createElement('button');
+        submitBtn.type = 'submit';
+        submitBtn.style.display = 'none';
+        form.appendChild(submitBtn);
+        
+        showToast('info', 'Association des séances en cours...');
+        submitBtn.click();
+    }
+}
+</script>
+
+<!-- Bouton flottant supprimé selon demande utilisateur -->
+{% endblock %}
