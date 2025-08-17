@@ -44,7 +44,13 @@ IF %ERRORLEVEL% NEQ 0 (
     echo Erreur lors de l'installation des dépendances.
     exit /b 1
 )
-"%VENV_PY%" -m pip install xhtml2pdf django --upgrade
+
+:: Installer/mettre à jour xhtml2pdf et Django
+"%VENV_PY%" -m pip install --upgrade xhtml2pdf django
+IF %ERRORLEVEL% NEQ 0 (
+    echo Erreur lors de l'installation de xhtml2pdf ou Django.
+    exit /b 1
+)
 
 echo === Vérification des dépendances ===
 "%VENV_PY%" -c "import django, xhtml2pdf; print('Dépendances OK')"
@@ -81,7 +87,7 @@ set DESKTOP=%USERPROFILE%\Desktop
 echo Set WshShell = WScript.CreateObject("WScript.Shell")
 echo Set Shortcut = WshShell.CreateShortcut("%DESKTOP%\AgendaLocal.lnk")
 echo Shortcut.TargetPath = "cmd.exe"
-echo Shortcut.Arguments = "/k cd /d ^""%CD%^"" && %VENV_PY% manage.py runserver"
+echo Shortcut.Arguments = "/k cd /d ^^"%CD%^^" && %VENV_PY% manage.py runserver"
 echo Shortcut.IconLocation = "%CD%\agenda.ico"
 echo Shortcut.Save
 ) > create_shortcut.vbs
