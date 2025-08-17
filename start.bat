@@ -38,15 +38,18 @@ python import_pages.py
 
 echo === Création du raccourci sur le bureau ===
 set DESKTOP=%USERPROFILE%\Desktop
-set SHORTCUT=%DESKTOP%\AgendaLocal.lnk
 
-powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-  "$WshShell = New-Object -ComObject WScript.Shell; `
-   $Shortcut = $WshShell.CreateShortcut('%SHORTCUT%'); `
-   $Shortcut.TargetPath = 'cmd.exe'; `
-   $Shortcut.Arguments = '/k cd /d \"%cd%\" && venv\Scripts\activate && python manage.py runserver'; `
-   $Shortcut.IconLocation = '%cd%\agenda.ico'; `
-   $Shortcut.Save()"
+:: Création d'un fichier VBS temporaire pour générer le raccourci
+echo Set WshShell = WScript.CreateObject("WScript.Shell") > create_shortcut.vbs
+echo Set Shortcut = WshShell.CreateShortcut("%DESKTOP%\AgendaLocal.lnk") >> create_shortcut.vbs
+echo Shortcut.TargetPath = "cmd.exe" >> create_shortcut.vbs
+echo Shortcut.Arguments = "/k cd /d \"%cd%\" && venv\Scripts\activate && python manage.py runserver" >> create_shortcut.vbs
+echo Shortcut.IconLocation = "%cd%\agenda.ico" >> create_shortcut.vbs
+echo Shortcut.Save >> create_shortcut.vbs
+
+:: Exécution du script VBS et suppression
+cscript //nologo create_shortcut.vbs
+del create_shortcut.vbs
 
 echo ✅ Installation terminée ! Lancez l'application via le raccourci sur le bureau.
 pause
