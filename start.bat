@@ -71,6 +71,20 @@ IF %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
+echo === Importation des pages ===
+IF EXIST import_pages.py (
+    "%VENV_PY%" import_pages.py
+    IF %ERRORLEVEL% NEQ 0 (
+        echo Erreur lors de l'importation des pages.
+        exit /b 1
+    )
+) ELSE (
+    echo import_pages.py introuvable.
+)
+
+
+
+
 @echo off
 echo === Création du raccourci sur le bureau ===
 set DESKTOP=%USERPROFILE%\Desktop
