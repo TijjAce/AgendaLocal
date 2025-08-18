@@ -98,7 +98,7 @@ class FicheForm(forms.ModelForm):
             'date', 'heure_debut', 'heure_fin',
             'sequence', 'duree', 'niveau',
             'bilan', 'couleur', 'competencesSup', 'groupes', 
-            'AFC', 'objectifGeneral'
+            'AFC', 'objectifGeneral','materiel'
         ]
         widgets = {
             'titre': forms.TextInput(attrs={'class': 'form-control'}),
@@ -111,6 +111,7 @@ class FicheForm(forms.ModelForm):
             'groupes': forms.TextInput(attrs={'class': 'form-control'}), 
             'AFC': forms.TextInput(attrs={'class': 'form-control'}),
             'objectifGeneral': forms.TextInput(attrs={'class': 'form-control'}),
+            'materiel': forms.TextInput(attrs={'class': 'form-control'}),
             'bilan': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),  
         }
 

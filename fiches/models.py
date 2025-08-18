@@ -31,6 +31,7 @@ class Fiche(models.Model):
     heure_debut = models.TimeField(null=True, blank=True, verbose_name="Heure de début")
     heure_fin = models.TimeField(null=True, blank=True, verbose_name="Heure de fin")
     duree = models.CharField(max_length=50, blank=True, verbose_name="Durée (calculée ou manuelle)")
+    materiel =models.CharField(max_length=250, blank=True, verbose_name="materiel")
     
     # Durée persistante en minutes pour optimiser les performances et analyses
     duration_minutes = models.IntegerField(
