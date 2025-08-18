@@ -1,4 +1,3 @@
-
 {% extends 'base.html' %}
 {% load static %}
 {% load custom_tags %}
@@ -28,6 +27,7 @@
 .session-title { margin-bottom:1px; }
 .session-discipline { font-size:0.6rem; opacity:0.9; }
 .no-sessions { font-size:0.8rem; text-align:center; padding:10px; }
+.view-day-btn { position:absolute; top:5px; right:5px; font-size:0.7rem; padding:2px 6px; }
 </style>
 
 <div class="weekly-schedule-container">
@@ -46,60 +46,53 @@
             <a href="{% url 'calendar' %}" class="btn btn-outline-secondary">← Retour au calendrier</a>
         </div>
 
-<div class="weekly-overview mb-4">
-    <div class="row g-2">
-        {# Test si week_data existe et n'est pas vide #}
-        {% if week_data %}
-            {% for day in week_data %}
-                {# Déstructuration sécurisée #}
-                {% with day_name=day.0 day_date=day.1 sessions=day.2 %}
-                    <div class="col">
-                        <div class="day-card h-100">
-                            <div class="day-header text-center py-2">
-                                <div class="day-name fw-bold">{{ day_name }}</div>
-                                <div class="day-date small text-muted">{{ day_date|date:"d/m" }}</div>
-                            </div>
-                            <div class="day-schedule" data-day="{{ day_date|date:"Y-m-d" }}">
-                                {# Test si sessions existe et n'est pas vide #}
-                                {% if sessions %}
-                                    {% for session in sessions %}
-                                        {# Test attributs session #}
-                                        {% if session.titre and session.heure_debut and session.heure_fin %}
-                                            <div class="session-block {% if session.realise %}session-done{% else %}session-planned{% endif %}" 
-                                                 draggable="true"
-                                                 data-session-id="{{ session.id }}"
-                                                 style="top: {{ session.top_position }}px; height: {{ session.height }}px;">
-                                                <div class="session-time">{{ session.heure_debut|time:"H:i" }} - {{ session.heure_fin|time:"H:i" }}</div>
-                                                <div class="session-title">{{ session.titre }}</div>
-                                                <div class="session-discipline">{{ session.discipline.nom }}</div>
-                                            </div>
+        <div class="weekly-overview mb-4">
+            <div class="row g-2">
+                {% if week_data %}
+                    {% for day in week_data %}
+                        {% with day_name=day.0 day_date=day.1 sessions=day.2 %}
+                            <div class="col">
+                                <div class="day-card h-100">
+                                    <div class="day-header text-center py-2">
+                                        <div class="day-name fw-bold">{{ day_name }}</div>
+                                        <div class="day-date small text-muted">{{ day_date|date:"d/m" }}</div>
+                                    </div>
+
+                                    <a href="{% url 'daily_schedule' day_date.year day_date.month day_date.day %}" class="btn btn-sm btn-light view-day-btn">Voir journée</a>
+
+                                    <div class="day-schedule" data-day="{{ day_date|date:"Y-m-d" }}">
+                                        {% if sessions %}
+                                            {% for session in sessions %}
+                                                {% if session.titre and session.heure_debut and session.heure_fin %}
+                                                    <div class="session-block {% if session.realise %}session-done{% else %}session-planned{% endif %}" 
+                                                         draggable="true"
+                                                         data-session-id="{{ session.id }}"
+                                                         style="top: {{ session.top_position }}px; height: {{ session.height }}px;">
+                                                        <div class="session-time">{{ session.heure_debut|time:"H:i" }} - {{ session.heure_fin|time:"H:i" }}</div>
+                                                        <div class="session-title">{{ session.titre }}</div>
+                                                        <div class="session-discipline">{{ session.discipline.nom }}</div>
+                                                    </div>
+                                                {% else %}
+                                                    <div class="no-sessions">Session incomplète : {{ session.id }}</div>
+                                                {% endif %}
+                                            {% endfor %}
                                         {% else %}
-                                            <div class="no-sessions">Session incomplète : {{ session.id }}</div>
+                                            <div class="no-sessions">Aucune séance ce jour</div>
                                         {% endif %}
-                                    {% endfor %}
-                                {% else %}
-                                    <div class="no-sessions">Aucune séance ce jour</div>
-                                {% endif %}
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        {% endwith %}
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12">
+                        <div class="no-sessions text-center">Pas de données pour cette semaine</div>
                     </div>
-                {% endwith %}
-            {% endfor %}
-        {% else %}
-            <div class="col-12">
-                <div class="no-sessions text-center">Pas de données pour cette semaine</div>
+                {% endif %}
             </div>
-        {% endif %}
+        </div>
     </div>
 </div>
-        
-    </div>
-</div>
-
-
-
-
-
 
 <script>
 function getCookie(name) {
@@ -183,21 +176,9 @@ document.addEventListener('DOMContentLoaded', () => {
             draggedSession.style.top = `${offsetY}px`;
             day.appendChild(draggedSession);
 
-            // On envoie la nouvelle position et la date
             updateSessionPosition(sessionId, day.dataset.day, offsetY);
         });
     });
 });
 </script>
-
-
-
-
-
-
 {% endblock %}
-
-
-
-
-
