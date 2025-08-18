@@ -192,16 +192,23 @@
             <h1>Programme du {{ selected_date|date:"d F Y" }}</h1>
         </div>
         
-        <div class="schedule-content">
+    
             <div class="schedule-controls">
-                <a href="{% url 'calendar' %}" class="btn btn-outline-primary">
-                    <i class="fas fa-arrow-left me-1"></i> Retour au calendrier
-                </a>
-                <a href="{% url 'fiche_create' %}?date={{ selected_date|date:'Y-m-d' }}" class="create-session-btn">
-                    <i class="fas fa-plus"></i>
-                    Créer une séance
-                </a>
-            </div>
+    <a href="{% url 'calendar' %}" class="btn btn-outline-primary">
+        <i class="fas fa-arrow-left me-1"></i> Retour au calendrier
+    </a>
+    <div class="d-flex gap-2">
+        <!-- Bouton Matériel -->
+        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#materielModal">
+            <i class="fas fa-box-open me-1"></i> Matériel
+        </button>
+        <a href="{% url 'fiche_create' %}?date={{ selected_date|date:'Y-m-d' }}" class="create-session-btn">
+            <i class="fas fa-plus"></i>
+            Créer une séance
+        </a>
+    </div>
+</div>
+
 
             {% if sessions %}
                 <!-- Barre de progression des séances -->
@@ -239,6 +246,42 @@
             {% endif %}
         </div>
     </div>
+    <!-- Modal Matériel -->
+<div class="modal fade" id="materielModal" tabindex="-1" aria-labelledby="materielModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="materielModalLabel">
+          <i class="fas fa-box-open me-2"></i> Matériel du {{ selected_date|date:"d F Y" }}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        {% if sessions %}
+            <ul class="list-group">
+                {% for session in sessions %}
+                    {% if session.materiel %}
+                        <li class="list-group-item">
+                            <strong>{{ session.titre }}</strong>
+                            <span class="text-muted">({{ session.heure_debut|time:"H:i" }} - {{ session.heure_fin|time:"H:i" }})</span><br>
+                            {{ session.materiel|linebreaksbr }}
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            {% if not sessions|dictsort:"materiel" %}
+                <p class="text-muted">Aucun matériel prévu pour cette journée.</p>
+            {% endif %}
+        {% else %}
+            <p class="text-muted">Aucune séance prévue pour cette date.</p>
+        {% endif %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
 </div>
 
 <!-- Tooltip pour les sessions -->
