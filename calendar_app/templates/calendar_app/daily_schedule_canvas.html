@@ -459,16 +459,7 @@
                     ctx.fillText(timeText, x + 8, y + 35);
                 }
 
-                // Discipline
-                ctx.font = '11px Arial';
-                let discipline = session.discipline || '';
-                if (ctx.measureText(discipline).width > maxWidth) {
-                    while (ctx.measureText(discipline + '...').width > maxWidth && discipline.length > 0) {
-                        discipline = discipline.slice(0, -1);
-                    }
-                    discipline += '...';
-                }
-                ctx.fillText(discipline, x + 8, y + 50);
+                
 
                 // Bouton completion
                 const buttonX = x + width - 60;
