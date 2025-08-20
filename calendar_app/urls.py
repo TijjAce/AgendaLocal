@@ -15,8 +15,7 @@ urlpatterns = [
     
     path('update-session-position/', views.update_session_position, name='update_session_position'),
     
-    # API pour les séquences (gardé pour compatibilité)
-    path('api/sequences/<int:discipline_id>/', views.get_sequences_for_discipline, name='get_sequences_for_discipline'),
+    
     
     # Analytics URLs
     path('Analyse/', analytics_views.radar_analytics, name='radar_analytics'),
