@@ -17,6 +17,10 @@ from django.contrib import messages
 from .models import Fiche, Phase, Annexe
 from .forms import FicheForm, AnnexeForm, PhaseFormSet, AnnexeFormSet, FicheWithPhasesForm
 
+from django.core.paginator import Paginator
+from django.db.models import Q
+
+
 # Initialize logger
 logger = logging.getLogger(__name__)
 
@@ -356,28 +360,6 @@ def dupliquer_fiche(request, fiche_id):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @login_required
 def fiche_detail_view(request, fiche_id):
     fiche = get_object_or_404(Fiche, id=fiche_id, user=request.user)
@@ -391,27 +373,58 @@ def fiche_detail_view(request, fiche_id):
     })
 
 # Lister toutes les fiches avec tri dynamique
-@login_required
+
+from django.shortcuts import render, redirect
+from django.core.paginator import Paginator
+from django.db.models import Q
+from .models import Fiche
+
 def fiche_list_view(request):
-    sort_by = request.GET.get('sort', 'date')
-    order = request.GET.get('order', 'asc')
+    fiches = Fiche.objects.all()
 
-    valid_sorts = {
-        'titre': 'titre',
-        'discipline': 'discipline__title',
-        'date': 'date',
-        'debut': 'heure_debut',
+    # --- Recherche ---
+    query = request.GET.get("q", "")
+    if query:
+        fiches = fiches.filter(
+            Q(titre__icontains=query) |
+            Q(discipline__title__icontains=query) |
+            Q(groupes__icontains=query)  # CharField -> icontains direct
+        ).distinct()
+
+    # --- Tri ---
+    sort = request.GET.get("sort", "date")
+    order = request.GET.get("order", "asc")
+    sort_mapping = {
+        "titre": "titre",
+        "discipline": "discipline__title",
+        "date": "date",
+        "heure": "heure_debut",
     }
+    sort_field = sort_mapping.get(sort, "date")
+    if order == "desc":
+        sort_field = f"-{sort_field}"
+    fiches = fiches.order_by(sort_field)
 
-    field = valid_sorts.get(sort_by, 'date')
-    direction = '' if order == 'asc' else '-'
-    fiches = Fiche.objects.filter(user=request.user).order_by(f"{direction}{field}")
+    # --- Pagination ---
+    paginator = Paginator(fiches, 10)
+    page_number = request.GET.get("page")
+    fiches_page = paginator.get_page(page_number)
 
-    return render(request, 'fiches/fiche_list.html', {
-        'fiches': fiches,
-        'sort': sort_by,
-        'order': order,
+    # --- Bulk delete ---
+    if request.method == "POST":
+        to_delete = request.POST.getlist("delete")
+        if to_delete:
+            Fiche.objects.filter(id__in=to_delete).delete()
+            return redirect("fiche_list")  # adapter selon ton urls.py
+
+    return render(request, "fiches/fiche_list.html", {
+        "fiches": fiches_page,
+        "query": query,
+        "sort": sort,
+        "order": order,
     })
+
+
 
 
 

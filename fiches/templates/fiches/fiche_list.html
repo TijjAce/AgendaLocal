@@ -1,369 +1,65 @@
-{% extends 'base.html' %}
-
-{% block title %}Liste des fiches - Agenda{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            padding: 2rem;
-        }
+<h1>Liste des fiches</h1>
 
-        h1 {
-            color: var(--btn-primary-bg);
-        }
+<form method="get" style="margin-bottom: 1rem;">
+    <input type="text" name="q" value="{{ query }}" placeholder="Rechercher..." />
+    <button type="submit">Rechercher</button>
+</form>
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        [data-theme="dark"] table {
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
+<form method="post">
+    {% csrf_token %}
+    <table border="1" cellpadding="8" cellspacing="0">
+        <thead>
+            <tr>
+                <th><input type="checkbox" id="select_all" /></th>
+                <th><a href="?sort=titre&order={% if sort == 'titre' and order == 'asc' %}desc{% else %}asc{% endif %}{% if query %}&q={{ query }}{% endif %}">Titre</a></th>
+                <th><a href="?sort=discipline&order={% if sort == 'discipline' and order == 'asc' %}desc{% else %}asc{% endif %}{% if query %}&q={{ query }}{% endif %}">Discipline</a></th>
+                <th>Groupes</th>
+                <th><a href="?sort=date&order={% if sort == 'date' and order == 'asc' %}desc{% else %}asc{% endif %}{% if query %}&q={{ query }}{% endif %}">Date</a></th>
+                <th><a href="?sort=heure&order={% if sort == 'heure' and order == 'asc' %}desc{% else %}asc{% endif %}{% if query %}&q={{ query }}{% endif %}">Heure</a></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for fiche in fiches %}
+            <tr>
+                <td><input type="checkbox" name="delete" value="{{ fiche.id }}" /></td>
+                <td>{{ fiche.titre }}</td>
+                <td>{{ fiche.discipline.title }}</td>
+                <td>{{ fiche.groupes }}</td>
+                <td>{{ fiche.date|date:"d/m/Y" }}</td>
+                <td>
+                    {% if fiche.heure_debut and fiche.heure_fin %}
+                        {{ fiche.heure_debut|time:"H:i" }} - {{ fiche.heure_fin|time:"H:i" }}
+                    {% else %}
+                        Non précisée
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6">Aucune fiche trouvée.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-        th, td {
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            text-align: left;
-            color: var(--text-color);
-        }
+    <button type="submit" style="margin-top: 1rem;">Supprimer les sélectionnées</button>
+</form>
 
-        th {
-            background-color: var(--alert-bg);
-            font-weight: 600;
-        }
-
-        tr:hover {
-            background-color: var(--alert-bg);
-        }
-        
-        tbody tr {
-            transition: background-color 0.2s ease;
-        }
-
-        a {
-            text-decoration: none;
-            color: var(--btn-primary-bg);
-            transition: color 0.2s ease;
-        }
-        
-        a:hover {
-            color: var(--btn-primary-bg);
-            opacity: 0.8;
-        }
-
-        .arrow {
-            font-size: 0.8em;
-            margin-left: 4px;
-            color: var(--text-color);
-        }
-        
-        /* Amélioration des boutons d'action */
-        .text-primary {
-            color: var(--btn-primary-bg) !important;
-        }
-        
-        .text-danger {
-            color: #dc3545 !important;
-        }
-        
-        [data-theme="dark"] .text-danger {
-            color: #e74c3c !important;
-        }
-        
-        .d-flex {
-            display: flex;
-        }
-        
-        .gap-2 {
-            gap: 0.5rem;
-        }
-        
-        .align-items-center {
-            align-items: center;
-        }
-        
-        .text-decoration-none {
-            text-decoration: none;
-        }
-        
-        /* Message d'absence de fiches */
-        .no-fiches-message {
-            text-align: center;
-            padding: 3rem;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-color);
-            opacity: 0.7;
-            font-style: italic;
-            margin-top: 2rem;
-        }
-        
-        /* Styles pour la suppression multiple */
-        .bulk-actions {
-            margin-bottom: 1rem;
-            padding: 1rem;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            display: none;
-        }
-        
-        .bulk-actions.show {
-            display: block;
-        }
-        
-        .selection-info {
-            color: var(--text-color);
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-        }
-        
-        .bulk-buttons {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-        
-        .btn-bulk-delete {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background-color 0.2s;
-        }
-        
-        .btn-bulk-delete:hover {
-            background-color: #c82333;
-        }
-        
-        .btn-bulk-delete:disabled {
-            background-color: #6c757d;
-            cursor: not-allowed;
-        }
-        
-        .checkbox-cell {
-            width: 40px;
-            text-align: center;
-        }
-        
-        .fiche-checkbox {
-            cursor: pointer;
-            transform: scale(1.2);
-        }
-    </style>
-</head>
-<body>
-    <h1>Toutes les fiches de préparation</h1>
-
-    {% if fiches %}
-        <!-- Panneau de suppression multiple -->
-        <div id="bulkActions" class="bulk-actions">
-            <div class="selection-info">
-                <span id="selectedCount">0</span> fiche(s) sélectionnée(s)
-            </div>
-            <div class="bulk-buttons">
-                <button type="button" id="selectAll" class="btn btn-outline-primary btn-sm">
-                    <i class="fas fa-check-square"></i> Tout sélectionner
-                </button>
-                <button type="button" id="deselectAll" class="btn btn-outline-secondary btn-sm">
-                    <i class="fas fa-square"></i> Tout désélectionner
-                </button>
-                <button type="button" id="bulkDeleteBtn" class="btn-bulk-delete" disabled>
-                    <i class="fas fa-trash"></i> Supprimer la sélection
-                </button>
-            </div>
-        </div>
-        
-        <form id="bulkDeleteForm" method="post" action="{% url 'fiche_bulk_delete' %}" style="display: none;">
-            {% csrf_token %}
-            <input type="hidden" name="fiche_ids" id="ficheIdsInput">
-        </form>
-        
-        <table>
-            <thead>
-                <tr>
-                    <th class="checkbox-cell">
-                        <input type="checkbox" id="masterCheckbox" class="fiche-checkbox" title="Sélectionner/Désélectionner tout">
-                    </th>
-                    <th>
-                        <a href="?sort=titre&order={% if sort == 'titre' and order == 'asc' %}desc{% else %}asc{% endif %}">
-                            Titre
-                            {% if sort == 'titre' %}
-                                <span class="arrow">{% if order == 'asc' %}▲{% else %}▼{% endif %}</span>
-                            {% endif %}
-                        </a>
-                    </th>
-                    <th>
-                        <a href="?sort=discipline&order={% if sort == 'discipline' and order == 'asc' %}desc{% else %}asc{% endif %}">
-                            Discipline
-                            {% if sort == 'discipline' %}
-                                <span class="arrow">{% if order == 'asc' %}▲{% else %}▼{% endif %}</span>
-                            {% endif %}
-                        </a>
-                    </th>
-                    <th>
-                        <a href="?sort=date&order={% if sort == 'date' and order == 'asc' %}desc{% else %}asc{% endif %}">
-                            Date
-                            {% if sort == 'date' %}
-                                <span class="arrow">{% if order == 'asc' %}▲{% else %}▼{% endif %}</span>
-                            {% endif %}
-                        </a>
-                    </th>
-                    <th>
-                        <a href="?sort=debut&order={% if sort == 'debut' and order == 'asc' %}desc{% else %}asc{% endif %}">
-                            Heure
-                            {% if sort == 'debut' %}
-                                <span class="arrow">{% if order == 'asc' %}▲{% else %}▼{% endif %}</span>
-                            {% endif %}
-                        </a>
-                    </th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for fiche in fiches %}
-                    <tr>
-                        <td class="checkbox-cell">
-                            <input type="checkbox" class="fiche-checkbox" data-fiche-id="{{ fiche.id }}" name="selected_fiches" value="{{ fiche.id }}">
-                        </td>
-                        <td>{{ fiche.titre }}, groupe: {{fiche.groupes }}</td>
-                        <td>{{ fiche.discipline }}</td>
-                        <td>{{ fiche.date|date:"d/m/Y" }}</td>
-                        <td>
-                            {% if fiche.heure_debut and fiche.heure_fin %}
-                                {{ fiche.heure_debut|time:"H:i" }} - {{ fiche.heure_fin|time:"H:i" }}
-                            {% else %}
-                                Non précisée
-                            {% endif %}
-                        </td>
-                        <td>
-                            <div class="d-flex gap-2 align-items-center">
-                                <a href="{% url 'fiche_detail' fiche.id %}" class="text-info text-decoration-none" title="Voir les détails de cette séance">
-                                    <i class="fas fa-eye"></i> Voir
-                                </a>
-                                <a href="{% url 'fiche_edit' fiche.id %}" class="text-primary text-decoration-none">
-                                    <i class="fas fa-edit"></i> Modifier
-                                </a>
-                                <a href="{% url 'fiche_delete' fiche.id %}" class="text-danger text-decoration-none" title="Supprimer cette séance">
-                                    <i class="fas fa-times"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <div class="no-fiches-message">
-            <i class="fas fa-file-alt" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-            <p>Aucune fiche enregistrée.</p>
-        </div>
+<div style="margin-top: 1rem;">
+    {% if fiches.has_previous %}
+        <a href="?page={{ fiches.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">Précédent</a>
     {% endif %}
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const masterCheckbox = document.getElementById('masterCheckbox');
-            const ficheCheckboxes = document.querySelectorAll('.fiche-checkbox:not(#masterCheckbox)');
-            const bulkActions = document.getElementById('bulkActions');
-            const selectedCount = document.getElementById('selectedCount');
-            const selectAllBtn = document.getElementById('selectAll');
-            const deselectAllBtn = document.getElementById('deselectAll');
-            const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
-            const bulkDeleteForm = document.getElementById('bulkDeleteForm');
-            const ficheIdsInput = document.getElementById('ficheIdsInput');
-            
-            function updateBulkActions() {
-                const selected = document.querySelectorAll('.fiche-checkbox:not(#masterCheckbox):checked');
-                const count = selected.length;
-                
-                selectedCount.textContent = count;
-                
-                if (count > 0) {
-                    bulkActions.classList.add('show');
-                    bulkDeleteBtn.disabled = false;
-                } else {
-                    bulkActions.classList.remove('show');
-                    bulkDeleteBtn.disabled = true;
-                }
-                
-                // Mettre à jour l'état de la checkbox maître
-                if (count === 0) {
-                    masterCheckbox.indeterminate = false;
-                    masterCheckbox.checked = false;
-                } else if (count === ficheCheckboxes.length) {
-                    masterCheckbox.indeterminate = false;
-                    masterCheckbox.checked = true;
-                } else {
-                    masterCheckbox.indeterminate = true;
-                }
-            }
-            
-            // Gestion de la checkbox maître
-            masterCheckbox.addEventListener('change', function() {
-                ficheCheckboxes.forEach(checkbox => {
-                    checkbox.checked = this.checked;
-                });
-                updateBulkActions();
-            });
-            
-            // Gestion des checkboxes individuelles
-            ficheCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', updateBulkActions);
-            });
-            
-            // Bouton "Tout sélectionner"
-            selectAllBtn.addEventListener('click', function() {
-                ficheCheckboxes.forEach(checkbox => {
-                    checkbox.checked = true;
-                });
-                updateBulkActions();
-            });
-            
-            // Bouton "Tout désélectionner"
-            deselectAllBtn.addEventListener('click', function() {
-                ficheCheckboxes.forEach(checkbox => {
-                    checkbox.checked = false;
-                });
-                masterCheckbox.checked = false;
-                updateBulkActions();
-            });
-            
-            // Bouton de suppression multiple
-            bulkDeleteBtn.addEventListener('click', function() {
-                const selected = document.querySelectorAll('.fiche-checkbox:not(#masterCheckbox):checked');
-                const count = selected.length;
-                
-                if (count === 0) {
-                    alert('Aucune fiche sélectionnée.');
-                    return;
-                }
-                
-                const confirmMessage = `Êtes-vous sûr de vouloir supprimer ${count} fiche(s) ? Cette action est irréversible.`;
-                
-                if (confirm(confirmMessage)) {
-                    const ficheIds = Array.from(selected).map(cb => cb.value);
-                    ficheIdsInput.value = ficheIds.join(',');
-                    bulkDeleteForm.submit();
-                }
-            });
-            
-            // Initialiser l'état
-            updateBulkActions();
-        });
-    </script>
-{% endblock %}
+    Page {{ fiches.number }} sur {{ fiches.paginator.num_pages }}
+    {% if fiches.has_next %}
+        <a href="?page={{ fiches.next_page_number }}{% if query %}&q={{ query }}{% endif %}">Suivant</a>
+    {% endif %}
+</div>
 
+<script>
+document.getElementById('select_all').addEventListener('change', function() {
+    let checked = this.checked;
+    document.querySelectorAll('input[name="delete"]').forEach(cb => cb.checked = checked);
+});
+</script>
+{% endblock %}
