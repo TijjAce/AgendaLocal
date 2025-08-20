@@ -300,10 +300,10 @@
             // --- CONFIG DIMENSIONS (logiques) ---
             const config = {
                 width: 1000,
-                height: 800,
+                height: 1600,
                 startHour: 8,
                 endHour: 21,
-                hourHeight: 60,
+                hourHeight: 120,
                 leftMargin: 80,
                 rightMargin: 20,
                 topMargin: 30,
@@ -649,7 +649,7 @@
                     const minMinutes = 0;
                     const maxMinutes = (config.endHour - config.startHour) * 60 - draggedSession.durationMinutes;
                     const clamped = Math.max(minMinutes, Math.min(maxMinutes, newStartMinutesRaw));
-                    const rounded = Math.round(clamped / 15) * 15;
+                    const rounded = Math.round(clamped / 5) * 5;
 
                     draggedSession.startMinutes = rounded;
 
