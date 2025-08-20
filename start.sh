@@ -1,75 +1,129 @@
 #!/bin/bash
+set -euo pipefail
 
-echo "=== Vérification de Python ==="
-if ! command -v python3 &> /dev/null
-then
-    echo "Python3 n'est pas installé."
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        echo "Installation avec Homebrew..."
-        if ! command -v brew &> /dev/null
-        then
-            echo "Homebrew n'est pas installé. Installez-le depuis https://brew.sh/"
-            exit 1
-        fi
-        brew install python
-    else
-        echo "Installez Python manuellement (apt, dnf, etc.)."
-        exit 1
-    fi
+echo "=== 🚀 Installation & Raccourci AgendaLocal (macOS) ==="
+
+# ---- Réglages de base
+PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
+DESKTOP="$HOME/Desktop"
+APP_CMD="$PROJECT_DIR/AgendaLocal.command"
+ALIAS_NAME="AgendaLocal"      # nom de l’alias sur le Bureau (sans 'alias')
+ICON_1="$PROJECT_DIR/agenda.icns"
+ICON_2="$PROJECT_DIR/agenda.png"
+ICON_3="$PROJECT_DIR/agenda.ico"
+
+# ---- Vérif OS
+if [[ "$OSTYPE" != "darwin"* ]]; then
+  echo "❌ Ce script est prévu pour macOS."
+  exit 1
 fi
 
-echo "=== Création de l'environnement virtuel ==="
-if [ ! -d "venv" ]; then
-    python3 -m venv venv
+# ---- Homebrew
+if ! command -v brew >/dev/null 2>&1; then
+  echo "❌ Homebrew n'est pas installé. Installe-le d'abord :"
+  echo '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
+  exit 1
 fi
 
-echo "=== Activation du venv ==="
-source venv/bin/activate
+# ---- Python 3.10 (install si manquant)
+echo "🔎 Recherche de python3.10…"
+PY310_BIN="$(command -v python3.10 || true)"
+if [[ -z "${PY310_BIN}" ]]; then
+  echo "📦 Installation de python@3.10 via Homebrew…"
+  brew list --versions python@3.10 >/dev/null 2>&1 || brew install python@3.10
+  # Détermine le chemin (Apple Silicon / Intel)
+  if [[ -x "/opt/homebrew/opt/python@3.10/bin/python3.10" ]]; then
+    PY310_BIN="/opt/homebrew/opt/python@3.10/bin/python3.10"
+  elif [[ -x "/usr/local/opt/python@3.10/bin/python3.10" ]]; then
+    PY310_BIN="/usr/local/opt/python@3.10/bin/python3.10"
+  else
+    # Essaye à nouveau via PATH
+    PY310_BIN="$(command -v python3.10 || true)"
+  fi
+fi
 
-echo "=== Mise à jour de pip ==="
+if [[ -z "${PY310_BIN}" ]]; then
+  echo "❌ Impossible de localiser python3.10 après installation."
+  exit 1
+fi
+
+echo "✅ Python sélectionné : $($PY310_BIN --version)"
+
+# ---- (Re)création du venv propre
+echo "📦 Création du venv…"
+rm -rf "$PROJECT_DIR/venv"
+"$PY310_BIN" -m venv "$PROJECT_DIR/venv"
+# shellcheck disable=SC1091
+source "$PROJECT_DIR/venv/bin/activate"
+
+# ---- pip à jour
+echo "⬆️  Mise à jour de pip…"
 python -m pip install --upgrade pip
 
-echo "=== Installation des dépendances ==="
-if [ ! -f "requirements.txt" ]; then
-    echo "requirements.txt introuvable !"
-    exit 1
+# ---- Dépendances
+echo "📥 Installation des dépendances…"
+if [[ -f "$PROJECT_DIR/requirements.txt" ]]; then
+  pip install -r "$PROJECT_DIR/requirements.txt"
+else
+  echo "⚠️ requirements.txt introuvable — installation minimale (Django 5.2.4 + xhtml2pdf)…"
+  pip install "Django==5.2.4" xhtml2pdf
 fi
-pip install -r requirements.txt
+
+# Toujours installer xhtml2pdf au cas où il ne serait pas listé
 pip install xhtml2pdf
 
-echo "=== Migrations Django ==="
-python manage.py makemigrations
-python manage.py migrate
-
-echo "=== Importation des pages ==="
-python import_pages.py
-
-echo "=== Création d'un raccourci sur le bureau ==="
-DESKTOP="$HOME/Desktop"
-SHORTCUT="$DESKTOP/AgendaLocal.command"
-
-cat <<EOF > "$SHORTCUT"
-#!/bin/bash
-cd $(pwd)
-source venv/bin/activate
-python manage.py runserver
-EOF
-
-chmod +x "$SHORTCUT"
-
-# Tentative de mise d'icône sur macOS (optionnel)
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    osascript <<EOF
-    tell application "Finder"
-        set iconFile to POSIX file "$(pwd)/agenda.ico" as alias
-        set targetFile to POSIX file "$SHORTCUT" as alias
-        try
-            set theIcon to iconFile as alias
-            set icon of targetFile to theIcon
-        end try
-    end tell
-EOF
+# ---- Migrations Django
+if [[ -f "$PROJECT_DIR/manage.py" ]]; then
+  echo "🗄️  Migrations Django…"
+  python "$PROJECT_DIR/manage.py" makemigrations || true
+  python "$PROJECT_DIR/manage.py" migrate
+else
+  echo "⚠️ manage.py introuvable, étape migrations ignorée."
 fi
 
-echo "✅ Installation terminée ! Lancez l'application via le raccourci sur le bureau."
+# ---- Importation des pages si script présent
+if [[ -f "$PROJECT_DIR/import_pages.py" ]]; then
+  echo "📚 Importation des pages…"
+  python "$PROJECT_DIR/import_pages.py" || true
+fi
+
+# ---- Création du .command LANCEUR dans le projet
+echo "🛠️  Création du lanceur : $APP_CMD"
+cat > "$APP_CMD" <<EOF
+#!/bin/bash
+cd "$PROJECT_DIR"
+source "venv/bin/activate"
+python manage.py runserver
+EOF
+chmod +x "$APP_CMD"
+
+# ---- Création de l'alias sur le Bureau vers ce .command
+echo "🔗 Création de l'alias sur le Bureau…"
+osascript <<EOF || true
+tell application "Finder"
+  set targetFile to POSIX file "$APP_CMD" as alias
+  set desktopFolder to (path to desktop folder) as alias
+  set aliasName to "$ALIAS_NAME"
+
+  -- supprime un alias existant portant ce nom
+  try
+    delete (alias file aliasName of desktopFolder)
+  end try
+
+  set aliasRef to make new alias file at desktopFolder to targetFile with properties {name:aliasName}
+
+  -- tentative d'application d'une icône personnalisée
+  set iconCandidates to {"$ICON_1", "$ICON_2", "$ICON_3"}
+  repeat with p in iconCandidates
+    try
+      set iconFile to POSIX file (p as text) as alias
+      set icon of aliasRef to icon of iconFile
+      exit repeat
+    end try
+  end repeat
+end tell
+EOF
+
+echo "✅ Installation terminée !"
+echo "➡️  Lance l'application via l'alias sur le Bureau : \"$ALIAS_NAME\""
 
