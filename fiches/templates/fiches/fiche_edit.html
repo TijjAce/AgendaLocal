@@ -139,6 +139,14 @@
         border-color: #5a5a5a;
         color: #d0d0d0;
     }
+
+    /* Style pour les images dans CKEditor */
+    .ck-editor__editable img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
 </style>
 {% endblock %}
 
@@ -402,6 +410,184 @@
 </div>
 
 <script>
+// Utilitaire pour convertir un fichier en base64
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+// Configuration personnalisée pour CKEditor avec support des images
+window.customCKEditorConfig = {
+    toolbar: {
+        items: [
+            'heading',
+            '|',
+            'bold',
+            'italic',
+            'link',
+            'bulletedList',
+            'numberedList',
+            '|',
+            'outdent',
+            'indent',
+            '|',
+            'imageUpload',
+            'blockQuote',
+            'insertTable',
+            'mediaEmbed',
+            'undo',
+            'redo'
+        ]
+    },
+    language: 'fr',
+    image: {
+        toolbar: [
+            'imageTextAlternative',
+            'imageStyle:inline',
+            'imageStyle:block',
+            'imageStyle:side',
+            '|',
+            'toggleImageCaption',
+            'imageResize'
+        ],
+        resizeOptions: [
+            {
+                name: 'imageResize:original',
+                label: 'Original',
+                value: null
+            },
+            {
+                name: 'imageResize:50',
+                label: '50%',
+                value: '50'
+            },
+            {
+                name: 'imageResize:75',
+                label: '75%',
+                value: '75'
+            }
+        ]
+    },
+    table: {
+        contentToolbar: [
+            'tableColumn',
+            'tableRow',
+            'mergeTableCells'
+        ]
+    },
+    licenseKey: '',
+    // Configuration pour gérer les images collées
+    simpleUpload: {
+        uploadUrl: '#', // URL fictive, sera gérée par notre fonction personnalisée
+    }
+};
+
+// Fonction pour initialiser CKEditor avec support des images
+async function initCKEditorWithImageSupport(textarea) {
+    if (!textarea || !textarea.id || !textarea.name) return;
+
+    // Vérifier si CKEditor est déjà initialisé sur ce textarea
+    if (textarea.ckeditorInstance) {
+        console.log('CKEditor déjà initialisé pour:', textarea.id);
+        return textarea.ckeditorInstance;
+    }
+
+    // Vérifier s'il y a déjà un éditeur CKEditor sur cet élément
+    if (textarea.nextElementSibling && textarea.nextElementSibling.classList.contains('ck-editor')) {
+        console.log('CKEditor déjà présent dans le DOM pour:', textarea.id);
+        return;
+    }
+
+    try {
+        const editor = await ClassicEditor.create(textarea, window.customCKEditorConfig);
+        
+        // Stocker la référence de l'éditeur sur le textarea
+        textarea.ckeditorInstance = editor;
+        
+        // Gérer le collage d'images
+        editor.plugins.get('ClipboardPipeline').on('inputTransformation', (evt, data) => {
+            const content = data.content;
+            const viewDocument = editor.editing.view.document;
+            
+            // Rechercher les éléments image dans le contenu collé
+            for (const child of content.getChildren()) {
+                if (child.is('element', 'img')) {
+                    handlePastedImage(child, editor);
+                }
+            }
+        });
+
+        // Gérer le drag & drop d'images
+        editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+            return new Base64UploadAdapter(loader);
+        };
+
+        // Écouter les événements de collage pour capturer les fichiers image
+        editor.editing.view.document.on('clipboardInput', (evt, data) => {
+            const files = Array.from(data.dataTransfer.files || []);
+            const imageFiles = files.filter(file => file.type.startsWith('image/'));
+            
+            if (imageFiles.length > 0) {
+                evt.stop();
+                imageFiles.forEach(file => insertImageFromFile(editor, file));
+            }
+        });
+
+        console.log('CKEditor initialisé avec support des images pour:', textarea.id);
+        return editor;
+    } catch (error) {
+        console.error('Erreur lors de l\'initialisation de CKEditor:', error);
+    }
+}
+
+// Adapter personnalisé pour convertir les images en base64
+class Base64UploadAdapter {
+    constructor(loader) {
+        this.loader = loader;
+    }
+
+    upload() {
+        return this.loader.file.then(file => fileToBase64(file).then(base64 => ({
+            default: base64
+        })));
+    }
+
+    abort() {
+        // Implémentation pour annuler l'upload si nécessaire
+    }
+}
+
+// Fonction pour insérer une image depuis un fichier
+async function insertImageFromFile(editor, file) {
+    try {
+        const base64 = await fileToBase64(file);
+        editor.model.change(writer => {
+            const imageElement = writer.createElement('imageBlock', { src: base64 });
+            editor.model.insertContent(imageElement, editor.model.document.selection);
+        });
+    } catch (error) {
+        console.error('Erreur lors de l\'insertion de l\'image:', error);
+    }
+}
+
+// Fonction pour gérer les images collées depuis le presse-papiers
+function handlePastedImage(imgElement, editor) {
+    const src = imgElement.getAttribute('src');
+    
+    // Si l'image est déjà en base64, on la garde telle quelle
+    if (src && src.startsWith('data:image/')) {
+        return;
+    }
+    
+    // Si c'est une URL externe, on pourrait la convertir en base64
+    // Pour l'instant, on la laisse telle quelle
+    console.log('Image externe détectée:', src);
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     // === Gestion des annexes ===
     let annexeIndex = {{ annexe_formset.total_form_count }};
@@ -501,20 +687,31 @@ document.addEventListener('DOMContentLoaded', function () {
     let totalForms = parseInt(totalFormsInput.value);
     const emptyFormTemplate = `{{ phase_formset.empty_form.as_p|escapejs }}`;
 
-    // Fonction pour initialiser CKEditor 5 sur un textarea donné
-    async function initCKEditor5(textarea) {
-        if (textarea && textarea.id && textarea.name && textarea.name.includes('deroulement')) {
-            try {
-                await window.initNewCKEditor5(textarea);
-            } catch (error) {
-                console.error('Erreur lors de l\'initialisation de CKEditor 5:', error);
+    // Initialisation CKEditor avec support des images pour tous les textarea existants
+    setTimeout(() => {
+        // Vérifier d'abord s'il n'y a pas déjà des éditeurs initialisés
+        const existingEditors = document.querySelectorAll('.ck-editor');
+        
+        container.querySelectorAll('textarea[name*="deroulement"]').forEach(textarea => {
+            // Vérifier si ce textarea n'a pas déjà un éditeur
+            const hasEditor = textarea.nextElementSibling && 
+                             textarea.nextElementSibling.classList.contains('ck-editor');
+            
+            if (!hasEditor) {
+                initCKEditorWithImageSupport(textarea);
+            }
+        });
+        
+        // Initialiser aussi pour le bilan s'il n'a pas déjà d'éditeur
+        const bilanTextarea = document.querySelector('textarea[name="bilan"]');
+        if (bilanTextarea) {
+            const hasEditor = bilanTextarea.nextElementSibling && 
+                             bilanTextarea.nextElementSibling.classList.contains('ck-editor');
+            
+            if (!hasEditor) {
+                initCKEditorWithImageSupport(bilanTextarea);
             }
         }
-    }
-
-    // Initialisation CKEditor 5 pour tous les textarea de déroulement existants
-    setTimeout(() => {
-        container.querySelectorAll('textarea[name*="deroulement"]').forEach(initCKEditor5);
     }, 500);
 
     addButton.addEventListener('click', function () {
@@ -532,7 +729,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (!textarea.id) {
                     textarea.id = 'id_' + textarea.name;
                 }
-                initCKEditor5(textarea);
+                console.log('Initialisation CKEditor avec support des images pour:', textarea.id);
+                initCKEditorWithImageSupport(textarea);
             }
         }, 100);
 
