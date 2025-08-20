@@ -169,11 +169,7 @@
                                     <i class="fas fa-edit me-2"></i>Modifier
                                 </a>
                             </li>
-                            <li>
-                                <a class="dropdown-item" href="{% url 'sequences:add_seance_to_sequence' sequence.id %}">
-                                    <i class="fas fa-plus me-2"></i>Ajouter une séance
-                                </a>
-                            </li>
+            
                             <li>
                                 <a class="dropdown-item" href="{% url 'friends:share_sequence' sequence.id %}">
                                     <i class="fas fa-share-alt me-2"></i>Partager avec un ami
@@ -933,12 +929,7 @@ function showAutoAssociationHint() {
     hintElement.className = 'alert alert-info alert-dismissible fade show mt-3';
     hintElement.innerHTML = `
         <i class="fas fa-lightbulb me-2"></i>
-        <strong>Astuce :</strong> Vous avez des séances disponibles mais aucune n'est associée à cette séquence. 
-        <button type="button" class="btn btn-sm btn-primary ms-2" onclick="autoAssociateAllSessions()">
-            <i class="fas fa-magic me-1"></i>Associer toutes les séances
-        </button>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
+        <strong>Astuce :</strong> Vous avez des séances disponibles mais aucune n'est associée à cette séquence.`;
     
     const statsCard = document.querySelector('.stats-card')?.closest('.row');
     if (statsCard) {

@@ -369,6 +369,8 @@ def sequences_edit(request, sequence_id):
     })
 
 
+
+
 @login_required
 def sequences_delete(request, sequence_id):
     """Supprimer une séquence"""
@@ -377,13 +379,12 @@ def sequences_delete(request, sequence_id):
     if request.method == 'POST':
         sequence_name = sequence.name
         
-        # Supprimer la référence de séquence dans les fiches associées
-        # (on ne supprime pas les fiches, juste la référence)
+        # Détacher les fiches liées (pas suppression des fiches)
         updated_count = Fiche.objects.filter(
             user=request.user,
-            sequence=sequence.name,
+            sequence=sequence,
             discipline=sequence.discipline
-        ).update(sequence='')
+        ).update(sequence=None)  # ← ForeignKey mis à None
         
         # Supprimer la séquence
         sequence.delete()
@@ -403,6 +404,7 @@ def sequences_delete(request, sequence_id):
         'sequence': sequence,
         'seances_count': seances_count,
     })
+
 
 
 @login_required
