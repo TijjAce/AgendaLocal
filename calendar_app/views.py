@@ -142,10 +142,16 @@ def daily_schedule_canvas(request, year, month, day):
         session.couleur = session.couleur if session.couleur else '#CCCCCC'
 
     sessions = assign_columns(list(sessions))
+    
+    # Calculer les dates précédente et suivante pour la navigation
+    previous_date = selected_date - timedelta(days=1)
+    next_date = selected_date + timedelta(days=1)
 
     return render(request, 'calendar_app/daily_schedule_canvas.html', {
         'sessions': sessions,
         'selected_date': selected_date,
+        'previous_date': previous_date,
+        'next_date': next_date,
     })
 
 
