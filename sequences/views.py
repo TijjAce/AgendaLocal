@@ -556,6 +556,50 @@ def move_sequence_to_period(request):
 
 
 @login_required
+def remove_sessions(request, sequence_id):
+    """Retirer des séances d'une séquence pour les remettre dans les séances disponibles"""
+    sequence = get_object_or_404(Sequence, id=sequence_id, user=request.user)
+    
+    if request.method == 'POST':
+        selected_sessions = request.POST.getlist('selected_sessions')
+        
+        if selected_sessions:
+            updated_count = 0
+            
+            for session_id in selected_sessions:
+                try:
+                    fiche = Fiche.objects.get(
+                        id=session_id,
+                        user=request.user,
+                        sequence_obj=sequence
+                    )
+                    # Retirer la séance de la séquence
+                    fiche.sequence_obj = None
+                    fiche.save()
+                    updated_count += 1
+                except Fiche.DoesNotExist:
+                    continue
+            
+            if updated_count > 0:
+                # Recalculer les statistiques de la séquence
+                sequence.update_total_duration()
+                
+                messages.success(
+                    request,
+                    f'{updated_count} séance(s) retirée(s) de la séquence "{sequence.name}" et remise(s) dans les séances disponibles'
+                )
+            else:
+                messages.warning(request, 'Aucune séance n\'a pu être retirée')
+        else:
+            messages.warning(request, 'Veuillez sélectionner au moins une séance')
+        
+        return redirect('sequences:sequences_detail', sequence_id=sequence.id)
+    
+    # Si GET, rediriger vers la page de détail
+    return redirect('sequences:sequences_detail', sequence_id=sequence.id)
+
+
+@login_required
 @require_http_methods(["POST"])
 def create_multiple_sessions(request):
     """

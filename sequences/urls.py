@@ -16,6 +16,7 @@ urlpatterns = [
     
     # Actions sur les séquences
     path('<int:sequence_id>/add-seance/', views.add_seance_to_sequence, name='add_seance_to_sequence'),
+    path('<int:sequence_id>/remove-sessions/', views.remove_sessions, name='remove_sessions'),
     path('<int:sequence_id>/recalculate-progression/', views.recalculate_progression, name='recalculate_progression'),
     path('create-multiple-sessions/', views.create_multiple_sessions, name='create_multiple_sessions'),
     

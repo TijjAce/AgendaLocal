@@ -130,6 +130,38 @@
         border-color: #007bff;
         color: white;
     }
+    
+    /* Styles pour les cartes des séances assignées */
+    .selectable-card-assigned {
+        transition: all 0.2s ease;
+        border: 1px solid #dee2e6;
+        cursor: pointer;
+    }
+    
+    .selectable-card-assigned:hover {
+        border-color: #ffc107;
+        box-shadow: 0 2px 8px rgba(255, 193, 7, 0.15);
+    }
+    
+    .selectable-card-assigned.border-warning {
+        border-color: #ffc107 !important;
+        background-color: rgba(255, 193, 7, 0.1);
+    }
+    
+    [data-theme="dark"] .selectable-card-assigned {
+        background: #404040;
+        border-color: #5a5a5a;
+    }
+    
+    [data-theme="dark"] .selectable-card-assigned:hover {
+        background: #454545;
+        border-color: #ffc107;
+    }
+    
+    [data-theme="dark"] .selectable-card-assigned.border-warning {
+        border-color: #ffc107 !important;
+        background-color: rgba(255, 193, 7, 0.1) !important;
+    }
 </style>
 {% endblock %}
 
@@ -354,6 +386,12 @@
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="assigned-tab" data-bs-toggle="tab" data-bs-target="#assigned" type="button" role="tab">
+                                    <i class="fas fa-minus-circle me-1"></i>
+                                    Séances assignées ({{ sessions|length }})
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="create-multiple-tab" data-bs-toggle="tab" data-bs-target="#create-multiple" type="button" role="tab">
                                     <i class="fas fa-copy me-1"></i>
                                     Créer plusieurs séances
@@ -453,6 +491,109 @@
                                         <h6 class="text-muted mb-2">Aucune séance disponible</h6>
                                         <p class="text-muted small mb-0">
                                             Toutes les séances de la discipline "{{ sequence.discipline.title }}" sont déjà assignées à des séquences.
+                                        </p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Onglet : Séances assignées -->
+                            <div class="tab-pane fade" id="assigned" role="tabpanel">
+                                {% if sessions %}
+                                    <form method="post" action="{% url 'sequences:remove_sessions' sequence.id %}">
+                                        {% csrf_token %}
+                                        <div class="mb-3">
+                                            <p class="text-muted mb-3">
+                                                Sélectionnez les séances à retirer de cette séquence pour les remettre dans les séances disponibles :
+                                            </p>
+                                            
+                                            <!-- Boutons de sélection -->
+                                            <div class="mb-3">
+                                                <button type="button" class="btn btn-sm btn-outline-danger me-2" id="select-all-assigned">
+                                                    <i class="fas fa-check-square me-1"></i>Tout sélectionner
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary" id="deselect-all-assigned">
+                                                    <i class="fas fa-square me-1"></i>Tout désélectionner
+                                                </button>
+                                                <span class="ms-3 text-muted small" id="assigned-selection-count">0 séance(s) sélectionnée(s)</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            {% for session in sessions %}
+                                                <div class="col-md-6 col-lg-4 mb-3">
+                                                    <div class="card h-100 selectable-card-assigned" data-session-id="{{ session.id }}">
+                                                        <div class="card-body">
+                                                            <div class="form-check mb-2">
+                                                                <input class="form-check-input session-checkbox" type="checkbox" name="selected_sessions" value="{{ session.id }}" id="session_{{ session.id }}">
+                                                                <label class="form-check-label fw-bold" for="session_{{ session.id }}">
+                                                                    {{ session.titre }} : {{session.groupes}}
+                                                                </label>
+                                                            </div>
+                                                            
+                                                            <div class="mb-2">
+                                                                {% if session.date %}
+                                                                    <small class="text-muted">
+                                                                        <i class="fas fa-calendar me-1"></i>
+                                                                        {{ session.date|date:"d/m/Y" }}
+                                                                        {% if session.heure_debut %}
+                                                                            à {{ session.heure_debut|time:"H:i" }}
+                                                                        {% endif %}
+                                                                    </small>
+                                                                {% else %}
+                                                                    <small class="text-muted">
+                                                                        <i class="fas fa-calendar me-1"></i>
+                                                                        Date non définie
+                                                                    </small>
+                                                                {% endif %}
+                                                            </div>
+                                                            
+                                                            {% if session.objectifs %}
+                                                                <p class="card-text small text-muted mb-2">
+                                                                    {{ session.objectifs|truncatechars:60 }}
+                                                                </p>
+                                                            {% endif %}
+                                                            
+                                                            <div class="d-flex justify-content-between align-items-center">
+                                                                <div>
+                                                                    {% if session.duree %}
+                                                                        <small class="text-muted">
+                                                                            <i class="fas fa-clock me-1"></i>
+                                                                            {{ session.duree }}min
+                                                                        </small>
+                                                                    {% endif %}
+                                                                </div>
+                                                                <div class="d-flex align-items-center gap-1">
+                                                                    {% if session.niveau %}
+                                                                        <span class="badge bg-secondary small">{{ session.niveau }}</span>
+                                                                    {% endif %}
+                                                                    {% if session.is_completed %}
+                                                                        <span class="badge bg-success small"><i class="fas fa-check"></i> Fait</span>
+                                                                    {% else %}
+                                                                        <span class="badge bg-warning small"><i class="fas fa-clock"></i> À faire</span>
+                                                                    {% endif %}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                        
+                                        <div class="text-center mt-4">
+                                            <button type="submit" class="btn btn-warning" id="remove-selected-btn" disabled>
+                                                <i class="fas fa-minus me-2"></i>
+                                                Retirer les séances sélectionnées
+                                            </button>
+                                        </div>
+                                    </form>
+                                {% else %}
+                                    <div class="text-center py-4">
+                                        <div class="mb-3">
+                                            <i class="fas fa-inbox fa-3x text-muted"></i>
+                                        </div>
+                                        <h6 class="text-muted mb-2">Aucune séance assignée</h6>
+                                        <p class="text-muted small mb-0">
+                                            Cette séquence ne contient pas encore de séances assignées.
                                         </p>
                                     </div>
                                 {% endif %}
@@ -637,6 +778,74 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialisation
     updateSelection();
+    
+    // Gestion des séances assignées
+    const selectAllAssignedBtn = document.getElementById('select-all-assigned');
+    const deselectAllAssignedBtn = document.getElementById('deselect-all-assigned');
+    const sessionCheckboxes = document.querySelectorAll('.session-checkbox');
+    const assignedSelectionCount = document.getElementById('assigned-selection-count');
+    const removeSelectedBtn = document.getElementById('remove-selected-btn');
+    const selectableAssignedCards = document.querySelectorAll('.selectable-card-assigned');
+    
+    // Fonction pour mettre à jour la sélection des séances assignées
+    function updateAssignedSelection() {
+        const checkedSessionBoxes = document.querySelectorAll('.session-checkbox:checked');
+        const count = checkedSessionBoxes.length;
+        
+        if (assignedSelectionCount) {
+            assignedSelectionCount.textContent = `${count} séance(s) sélectionnée(s)`;
+        }
+        
+        if (removeSelectedBtn) {
+            removeSelectedBtn.disabled = count === 0;
+        }
+        
+        // Mettre à jour l'apparence des cartes
+        selectableAssignedCards.forEach(card => {
+            const checkbox = card.querySelector('.session-checkbox');
+            if (checkbox && checkbox.checked) {
+                card.classList.add('border-warning', 'bg-warning-subtle');
+            } else {
+                card.classList.remove('border-warning', 'bg-warning-subtle');
+            }
+        });
+    }
+    
+    // Événements pour les boutons de sélection des séances assignées
+    if (selectAllAssignedBtn) {
+        selectAllAssignedBtn.addEventListener('click', function() {
+            sessionCheckboxes.forEach(cb => cb.checked = true);
+            updateAssignedSelection();
+        });
+    }
+    
+    if (deselectAllAssignedBtn) {
+        deselectAllAssignedBtn.addEventListener('click', function() {
+            sessionCheckboxes.forEach(cb => cb.checked = false);
+            updateAssignedSelection();
+        });
+    }
+    
+    // Événements pour les checkboxes des séances assignées
+    sessionCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateAssignedSelection);
+    });
+    
+    // Permettre de cliquer sur la carte pour sélectionner (séances assignées)
+    selectableAssignedCards.forEach(card => {
+        card.addEventListener('click', function(e) {
+            if (e.target.type !== 'checkbox' && e.target.tagName !== 'LABEL') {
+                const checkbox = card.querySelector('.session-checkbox');
+                if (checkbox) {
+                    checkbox.checked = !checkbox.checked;
+                    updateAssignedSelection();
+                }
+            }
+        });
+    });
+    
+    // Initialisation de la sélection des séances assignées
+    updateAssignedSelection();
     
     // Initialiser la date de début à aujourd'hui
     const today = new Date().toISOString().split('T')[0];
