@@ -379,8 +379,12 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from .models import Fiche
 
+@login_required
 def fiche_list_view(request):
-    fiches = Fiche.objects.all()
+    print(f"User: {request.user}")
+
+    # Filtre les fiches pour n'afficher que celles de l'utilisateur connecté
+    fiches = Fiche.objects.filter(user=request.user)
 
     # --- Recherche ---
     query = request.GET.get("q", "")
@@ -388,7 +392,7 @@ def fiche_list_view(request):
         fiches = fiches.filter(
             Q(titre__icontains=query) |
             Q(discipline__title__icontains=query) |
-            Q(groupes__icontains=query)  # CharField -> icontains direct
+            Q(groupes__icontains=query)
         ).distinct()
 
     # --- Tri ---
@@ -414,8 +418,10 @@ def fiche_list_view(request):
     if request.method == "POST":
         to_delete = request.POST.getlist("delete")
         if to_delete:
-            Fiche.objects.filter(id__in=to_delete).delete()
-            return redirect("fiche_list")  # adapter selon ton urls.py
+            # Vérifie que les fiches à supprimer appartiennent bien à l'utilisateur connecté
+            fiches_to_delete = Fiche.objects.filter(id__in=to_delete, user=request.user)
+            fiches_to_delete.delete()
+            return redirect("fiche_list")
 
     return render(request, "fiches/fiche_list.html", {
         "fiches": fiches_page,
@@ -473,27 +479,15 @@ def fiche_multi_create_view(request):
 
 @login_required
 def fiche_delete_view(request, fiche_id):
-    """Supprimer une fiche (séance)"""
+    # Vérifie que la fiche existe et appartient à l'utilisateur connecté
     fiche = get_object_or_404(Fiche, id=fiche_id, user=request.user)
-    
-    if request.method == 'POST':
-        fiche_titre = fiche.titre
-        fiche_discipline = fiche.discipline.title if fiche.discipline else 'Aucune discipline'
-        
-        # Supprimer la fiche
+
+    if request.method == "POST":
         fiche.delete()
-        
-        messages.success(
-            request, 
-            f'La séance "{fiche_titre}" ({fiche_discipline}) a été supprimée définitivement.'
-        )
-        
-        return redirect('fiche_list')
-    
-    # Afficher la page de confirmation
-    return render(request, 'fiches/fiche_delete.html', {
-        'fiche': fiche,
-    })
+        return redirect("fiche_list")
+
+    return render(request, "fiches/fiche_confirm_delete.html", {"fiche": fiche})
+
 
 
 # Exporter une fiche en PDF
