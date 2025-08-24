@@ -126,7 +126,7 @@
         
         
         </div>
-        <a href="{% url 'fiche_list' %}" class="btn btn-secondary">Retour</a>
+            <a href="{% url 'daily_schedule' year=fiche.date.year month=fiche.date.month day=fiche.date.day %}" class="btn btn-secondary">Retour</a>
     </div>
 
     <!-- Informations générales -->
