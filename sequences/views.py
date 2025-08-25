@@ -141,25 +141,23 @@ def sequences_create(request):
                 'selected_discipline': selected_discipline,
             })
         
-        if not discipline_id:
-            messages.error(request, 'Veuillez sélectionner une discipline.')
-            return render(request, 'sequences/sequences_create.html', {
-                'disciplines': disciplines,
-                'selected_discipline': selected_discipline,
-            })
-        
-        try:
-            discipline = Page.objects.get(id=discipline_id, parent__isnull=True)
-        except Page.DoesNotExist:
-            messages.error(request, 'Discipline invalide.')
-            return render(request, 'sequences/sequences_create.html', {
-                'disciplines': disciplines,
-                'selected_discipline': selected_discipline,
-            })
+        # Récupération de la discipline (optionnelle maintenant)
+        discipline = None
+        if discipline_id:
+            try:
+                discipline = Page.objects.get(id=discipline_id, parent__isnull=True)
+            except Page.DoesNotExist:
+                messages.error(request, 'Discipline invalide.')
+                return render(request, 'sequences/sequences_create.html', {
+                    'disciplines': disciplines,
+                    'selected_discipline': selected_discipline,
+                })
         
         # Vérifier l'unicité du nom pour cette discipline/utilisateur
+        # Si discipline est None, on vérifie l'unicité pour les séquences sans discipline
         if Sequence.objects.filter(user=request.user, name=name, discipline=discipline).exists():
-            messages.error(request, f'Une séquence nommée "{name}" existe déjà pour cette discipline.')
+            discipline_name = discipline.title if discipline else "sans discipline"
+            messages.error(request, f'Une séquence nommée "{name}" existe déjà pour cette catégorie ({discipline_name}).')
             return render(request, 'sequences/sequences_create.html', {
                 'disciplines': disciplines,
                 'selected_discipline': selected_discipline,
@@ -170,13 +168,14 @@ def sequences_create(request):
             sequence = Sequence.objects.create(
                 user=request.user,
                 name=name,
-                discipline=discipline,
+                discipline=discipline,  # Peut être None maintenant
                 description=description,
                 duree_estimee=int(duree_estimee) if duree_estimee else None,
                 niveau=niveau if niveau else '',
             )
             
-            messages.success(request, f'La séquence "{name}" a été créée avec succès!')
+            discipline_info = f" dans la discipline {discipline.title}" if discipline else " sans discipline spécifique"
+            messages.success(request, f'La séquence "{name}" a été créée avec succès{discipline_info}!')
             return redirect('sequences:sequences_detail', sequence_id=sequence.id)
             
         except Exception as e:
@@ -187,8 +186,6 @@ def sequences_create(request):
         'disciplines': disciplines,
         'selected_discipline': selected_discipline,
     })
-
-
 @login_required
 def sequences_detail(request, sequence_id):
     """Afficher les détails d'une séquence avec gestion intégrée des séances"""
@@ -374,39 +371,50 @@ def sequences_edit(request, sequence_id):
 @login_required
 def sequences_delete(request, sequence_id):
     """Supprimer une séquence"""
-    sequence = get_object_or_404(Sequence, id=sequence_id, user=request.user)
-    
+    try:
+        sequence = Sequence.objects.select_related('discipline').get(id=sequence_id, user=request.user)
+    except Sequence.DoesNotExist:
+        messages.error(request, "Séquence introuvable.")
+        return redirect('sequences:sequences_list')
+   
     if request.method == 'POST':
+        # Capturer les informations AVANT la suppression
         sequence_name = sequence.name
-        
+        discipline_title = sequence.discipline.title if sequence.discipline else None
+       
         # Détacher les fiches liées (pas suppression des fiches)
-        updated_count = Fiche.objects.filter(
-            user=request.user,
-            sequence=sequence,
-            discipline=sequence.discipline
-        ).update(sequence=None)  # ← ForeignKey mis à None
+        filter_kwargs = {
+            'user': request.user,
+            'sequence': sequence
+        }
         
+        # Ajouter le filtre discipline seulement si la séquence a une discipline
+        if sequence.discipline:
+            filter_kwargs['discipline'] = sequence.discipline
+        
+        updated_count = Fiche.objects.filter(**filter_kwargs).update(sequence=None)
+       
         # Supprimer la séquence
         sequence.delete()
         
+        # Message adapté selon si la séquence avait une discipline ou non
+        discipline_info = f" de {discipline_title}" if discipline_title else " sans discipline spécifique"
+       
         messages.success(
-            request, 
-            f'La séquence "{sequence_name}" a été supprimée. '
+            request,
+            f'La séquence "{sequence_name}"{discipline_info} a été supprimée. '
             f'{updated_count} séance(s) ont été détachée(s) de cette séquence.'
         )
-        
+       
         return redirect('sequences:sequences_list')
-    
+   
     # Afficher la page de confirmation
     seances_count = sequence.get_seances_count()
-    
+   
     return render(request, 'sequences/sequences_delete.html', {
         'sequence': sequence,
         'seances_count': seances_count,
     })
-
-
-
 @login_required
 def sequences_by_discipline(request, discipline_id):
     """API pour récupérer les séquences d'une discipline (pour AJAX)"""

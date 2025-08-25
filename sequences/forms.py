@@ -54,6 +54,7 @@ class SequenceForm(forms.ModelForm):
             ).order_by('title')
         
         # Rendre certains champs optionnels
+        self.fields['discipline'].required = False  # Discipline maintenant optionnelle
         self.fields['description'].required = False
         self.fields['duree_estimee'].required = False
     

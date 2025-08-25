@@ -174,8 +174,8 @@
                                 
                                 <div class="col-md-6 mb-3">
                                     <div class="form-floating">
-                                        <select class="form-select" id="discipline" name="discipline" required>
-                                            <option value="">Choisir une discipline</option>
+                                        <select class="form-select" id="discipline" name="discipline">
+                                            <option value="">Choisir une discipline (optionnel)</option>
                                             {% for discipline in disciplines %}
                                                 <option value="{{ discipline.id }}" 
                                                         data-color="{{ discipline.color|default:'#007bff' }}"
@@ -184,7 +184,7 @@
                                                 </option>
                                             {% endfor %}
                                         </select>
-                                        <label for="discipline">Discipline *</label>
+                                        <label for="discipline">Discipline</label>
                                     </div>
                                 </div>
                             </div>
@@ -282,7 +282,7 @@
                 <div class="mb-3">
                     <h6 id="preview-name" class="mb-2">Nom de la séquence</h6>
                     <span id="preview-discipline" class="discipline-badge px-2 py-1 rounded-pill small">
-                        Discipline non sélectionnée
+                        Sans discipline
                     </span>
                 </div>
                 
@@ -356,7 +356,7 @@ document.addEventListener('DOMContentLoaded', function() {
             previewDiscipline.style.background = selectedDiscipline.dataset.color + '40';
             previewDiscipline.style.borderColor = selectedDiscipline.dataset.color;
         } else {
-            previewDiscipline.textContent = 'Discipline non sélectionnée';
+            previewDiscipline.textContent = 'Sans discipline';
             previewDiscipline.style.background = 'rgba(255, 255, 255, 0.2)';
             previewDiscipline.style.borderColor = 'rgba(255, 255, 255, 0.3)';
         }
@@ -394,10 +394,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Mise à jour initiale
     updatePreview();
     
-    // Validation du formulaire
+    // Validation du formulaire (discipline retirée des champs obligatoires)
     const form = document.getElementById('sequenceForm');
     form.addEventListener('submit', function(e) {
-        const requiredFields = ['name', 'discipline', 'level'];
+        const requiredFields = ['name', 'level']; // 'discipline' retiré
         let isValid = true;
         
         requiredFields.forEach(fieldName => {
