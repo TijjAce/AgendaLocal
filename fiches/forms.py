@@ -60,6 +60,7 @@ TIME_CHOICES = generate_time_choices()
 
 
 # === FICHE FORM ===
+
 class FicheForm(forms.ModelForm):
     couleur = forms.CharField(
         required=False,
@@ -104,7 +105,8 @@ class FicheForm(forms.ModelForm):
             'titre': forms.TextInput(attrs={'class': 'form-control'}),
             'discipline': forms.Select(attrs={'class': 'form-select'}),
             'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'sequence': forms.TextInput(attrs={'class': 'form-control'}),
+            # sequence reste un Select (pas TextInput)
+            'sequence': forms.Select(attrs={'class': 'form-select'}),
             'duree': forms.TextInput(attrs={'class': 'form-control'}),
             'niveau': forms.Select(attrs={'class': 'form-select'}),
             'competencesSup': forms.TextInput(attrs={'class': 'form-control'}),
@@ -115,69 +117,51 @@ class FicheForm(forms.ModelForm):
             'bilan': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),  
         }
 
-
-
-
-
-
-
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        # Discipline racine uniquement
         self.fields['discipline'].queryset = Page.objects.filter(parent=None)
 
+        # 👉 Correction : forcer un affichage custom des séquences
+        if "sequence" in self.fields:
+            self.fields["sequence"].label_from_instance = lambda obj: (
+                f"{obj.titre}" if not getattr(obj, "discipline", None) 
+                else f"{obj.discipline.title} – {obj.titre}"
+            )
+
+        # Gestion des compétences selon discipline
         discipline_id = None
         if self.is_bound:
             discipline_id = self.data.get('discipline')
         elif self.initial.get('discipline'):
-            discipline_id = self.initial.get('discipline').id if isinstance(self.initial.get('discipline'), Page) else self.initial.get('discipline')
+            discipline_id = (
+                self.initial.get('discipline').id 
+                if isinstance(self.initial.get('discipline'), Page) 
+                else self.initial.get('discipline')
+            )
         elif self.instance and self.instance.discipline:
             discipline_id = self.instance.discipline.id
 
         if discipline_id:
             try:
                 discipline = Page.objects.get(id=discipline_id)
-                # Récupérer seulement les compétences simples (feuilles de l'arbre)
                 descendants = Page.objects.filter(
                     tree_id=discipline.tree_id,
                     lft__gt=discipline.lft,
                     rght__lt=discipline.rght,
                     published=True
                 )
-                # Filtrer pour ne garder que les pages sans enfants (compétences simples)
                 competences_simples = [comp for comp in descendants if not comp.get_children()]
                 self.fields['competences'].queryset = Page.objects.filter(
                     id__in=[comp.id for comp in competences_simples]
                 ).order_by('objectifs_generaux', 'competence_generale', 'title')
 
                 if not self.instance.pk or not self.instance.couleur:
-                    # Utiliser la couleur personnalisée de l'utilisateur pour cette discipline
-                    # Note: Le formulaire ne peut pas accéder directement à request.user ici
-                    # Cette logique sera gérée dans la vue
                     if hasattr(discipline, 'couleur') and discipline.couleur:
                         self.initial['couleur'] = discipline.couleur
             except Page.DoesNotExist:
                 pass
-
-    def clean_heure_debut(self):
-        val = self.cleaned_data.get('heure_debut')
-        if val:
-            try:
-                return datetime.strptime(val, '%H:%M').time()
-            except ValueError:
-                raise forms.ValidationError('Format d\'heure invalide. Utilisez le format HH:MM')
-        return None
-
-    def clean_heure_fin(self):
-        val = self.cleaned_data.get('heure_fin')
-        if val:
-            try:
-                return datetime.strptime(val, '%H:%M').time()
-            except ValueError:
-                raise forms.ValidationError('Format d\'heure invalide. Utilisez le format HH:MM')
-        return None
-
-
 # === PHASE FORMSET (sans CKEditor) ===
 PhaseFormSet = inlineformset_factory(
     Fiche, Phase,

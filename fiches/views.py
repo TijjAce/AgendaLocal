@@ -142,23 +142,31 @@ def fiche_create_view(request):
             initial_competences.append(competence.id)
     
     # Pré-remplir la séquence si fournie depuis une séquence
+    
+# Pré-remplir la séquence si fournie depuis une séquence
     if sequence_param:
         try:
-            # Vérifier que sequence_param est un entier valide
             sequence_id = int(sequence_param)
             sequence = Sequence.objects.get(id=sequence_id, user=request.user)
-            initial['sequence'] = sequence
-            # Récupérer le niveau de classe depuis la séquence
+
+            #  Sécurisation : éviter d'injecter un objet qui plante sur __str__
+            if sequence.discipline:
+                initial['sequence'] = sequence  # ok, discipline présente
+                initial['discipline'] = sequence.discipline
+                user_color = UserDisciplineColorPreference.get_user_discipline_color(
+                    request.user, sequence.discipline
+                )
+                initial['couleur'] = user_color
+            else:
+                # injecter uniquement l'id pour contourner l'appel à __str__
+                initial['sequence'] = sequence.id  
+
             if sequence.niveau:
                 initial['niveau'] = sequence.niveau
-            # Récupérer la discipline depuis la séquence
-            if sequence.discipline:
-                initial['discipline'] = sequence.discipline
-                # Récupérer la couleur personnalisée de l'utilisateur pour cette discipline
-                user_color = UserDisciplineColorPreference.get_user_discipline_color(request.user, sequence.discipline)
-                initial['couleur'] = user_color
+
         except (ValueError, Sequence.DoesNotExist):
-            pass  # Ignorer si sequence_param n'est pas un entier valide ou si la séquence n'existe pas
+            pass
+
 
     if request.method == 'POST':
         fiche_form = FicheForm(request.POST)
